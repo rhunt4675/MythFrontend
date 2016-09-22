@@ -30,8 +30,6 @@ import javax.swing.table.TableModel;
 
 import data.Recording;
 import data.Title;
-import utils.ForcedListSelectionModel;
-import utils.ToggleTable;
 
 public class RecordingView extends JPanel implements ListSelectionListener, MouseListener, KeyListener {
 	private static final long serialVersionUID = 7537158574729297160L;
@@ -75,7 +73,7 @@ public class RecordingView extends JPanel implements ListSelectionListener, Mous
 				try {
 					titles = Title.get_titles();
 				} catch (IOException e) {
-					e.printStackTrace();
+					//e.printStackTrace();
 					titles = new ArrayList<Title>();
 				}
 				
@@ -89,7 +87,6 @@ public class RecordingView extends JPanel implements ListSelectionListener, Mous
 			    	titles = get();
 			    } catch (InterruptedException ignore) {
 			    } catch (ExecutionException e) {
-			            e.printStackTrace();
 			    }
 			    
 			    if (titles != null && !titles.isEmpty()) {

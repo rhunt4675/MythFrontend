@@ -7,6 +7,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public abstract class Source {
+	private enum HTTP_METHOD {GET, POST, PUT, DELETE, OPTIONS, HEAD, CONNECT};
 	private static String _address;
 	private static String _port;
 	private static boolean _secure;
@@ -19,12 +20,18 @@ public abstract class Source {
 		return "http" + (_secure ? "s" : "") + "://" + _address + ":" + _port;
 	}
 	
-	protected static String http_get(String url) throws IOException {
+	private static String http_do(String url, HTTP_METHOD method, boolean timeout) throws IOException {
 		String result;
 		URL obj = new URL(url);
+		
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 		con.setRequestProperty("Accept", "text/javascript");
-		con.setRequestMethod("GET");
+		con.setRequestMethod(method.toString());
+		
+		if (timeout) {
+			con.setConnectTimeout(10000);
+			con.setReadTimeout(10000);
+		}
 		
 		if (con.getResponseCode() == HttpURLConnection.HTTP_OK) { 
 			BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
@@ -44,29 +51,20 @@ public abstract class Source {
 		return result;
 	}
 	
+	protected static String http_get(String url) throws IOException {
+		return http_do(url, HTTP_METHOD.GET, false);
+	}
+	
 	protected static String http_post(String url) throws IOException {
-		String result;
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestProperty("Accept", "text/javascript");
-		con.setRequestMethod("POST");
-		
-		if (con.getResponseCode() == HttpURLConnection.HTTP_OK) { 
-			BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-			StringBuffer response = new StringBuffer();
-			String inputLine;
-
-			while ((inputLine = in.readLine()) != null) {
-				response.append(inputLine);
-			}
-			in.close();
-
-			result = response.toString();
-		} else {
-			throw new IOException("Server returned status " + con.getResponseCode());
+		return http_do(url, HTTP_METHOD.POST, false);
+	}
+	
+	public static void test_connection() throws IOException {
+		try {
+			http_do(get_base_url() + "/Status/xml", HTTP_METHOD.GET, true);
+		} catch (IOException e) {
+			throw e;
 		}
-		
-		return result;
 	}
 	
 	public static void set_address(String address) {

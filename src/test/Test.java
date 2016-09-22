@@ -1,4 +1,5 @@
 package test;
+
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
@@ -10,14 +11,28 @@ import org.json.JSONException;
 
 import data.Source;
 import ui.MainFrame;
+import utils.AppProperties;
 
 public class Test {
 	public static void main(String[] args) throws IOException, JSONException, InvocationTargetException, InterruptedException, ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException {
-	    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-
-	    Source.set_address("127.0.0.1");
-		Source.set_port("6544");
-		Source.set_secure(false);
+		run();
+	}
+	
+	public static void run() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, IOException {
+	    // Set up Look & Feel, Application Properties
+		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+	    AppProperties.readAndUpdate();
+	    
+	    // Verify Connectivity to the Backend
+	    while (true) {
+		    try {
+		    	Source.test_connection();
+		    	break;
+		    } catch (IOException e) {
+		    	AppProperties.displayPropertiesWindow();
+		    	AppProperties.updateAndWrite();
+		    }
+	    }
 		
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
