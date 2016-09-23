@@ -15,7 +15,7 @@ public class Rule {
 	
 	public static List<Rule> get_rules() throws IOException {
 		List<Rule> rules = new ArrayList<Rule>();
-		String url = Source.get_base_url() + "/Dvr/GetRecordScheduleList";
+		String url = "/Dvr/GetRecordScheduleList";
 		String result = Source.http_get(url);
 		
 		try {
@@ -41,7 +41,7 @@ public class Rule {
 	
 	public static Rule get_rule(int recordid) throws IOException {
 		Rule rule = null;
-		String url = Source.get_base_url() + "/Dvr/GetRecordSchedule?RecordId=" + recordid;
+		String url = "/Dvr/GetRecordSchedule?RecordId=" + recordid;
 		String result = Source.http_get(url);
 		
 		try {
@@ -57,7 +57,7 @@ public class Rule {
 	
 	public static Rule get_default() throws IOException {
 		Rule rule = null;
-		String url = Source.get_base_url() + "/Dvr/GetRecordSchedule?Template=Default";
+		String url = "/Dvr/GetRecordSchedule?Template=Default";
 		String result = Source.http_get(url);
 		
 		try {
@@ -84,7 +84,7 @@ public class Rule {
 	}
 	
 	public void commit() throws IOException {
-		String url = Source.get_base_url() + "/Dvr/"
+		String url = "/Dvr/"
 			+ (_id == -1 
 				? "AddRecordSchedule?ChanId=" + _channel.get_chanid() + "&Station=" 
 					+ URLEncoder.encode(_channel.get_callsign(), "utf-8") + "&" 
@@ -99,7 +99,7 @@ public class Rule {
 			+ "&Type=" + URLEncoder.encode(_type.getText(), "utf-8")
 			+ "&DupMethod=" + URLEncoder.encode(_dupmethod.getText(), "utf-8")
 			+ "&DupIn=" + URLEncoder.encode(_dupin.getText(), "utf-8");
-		String check = Source.get_base_url() + "/Dvr/GetRecordSchedule?RecordId=";
+		String check = "/Dvr/GetRecordSchedule?RecordId=";
 		String result = Source.http_post(url);
 
 		try {
@@ -122,7 +122,7 @@ public class Rule {
 	}
 	
 	public void enable(boolean flag) throws IOException {
-		String url = Source.get_base_url() + "/Dvr/" + (flag ? "Enable" : "Disable") + "RecordSchedule?RecordId=" + _id;
+		String url = "/Dvr/" + (flag ? "Enable" : "Disable") + "RecordSchedule?RecordId=" + _id;
 		Source.http_post(url);
 		
 		refresh();
@@ -141,12 +141,12 @@ public class Rule {
 	}
 	
 	public void delete() throws IOException {
-		String url = Source.get_base_url() + "/Dvr/RemoveRecordSchedule?RecordId=" + _id;
+		String url = "/Dvr/RemoveRecordSchedule?RecordId=" + _id;
 		Source.http_post(url);
 	}
 	
 	protected void refresh() throws IOException {
-		String url = Source.get_base_url() + "/Dvr/GetRecordSchedule?RecordId=" + _id;
+		String url = "/Dvr/GetRecordSchedule?RecordId=" + _id;
 		String result = Source.http_get(url);
 		
 		try {

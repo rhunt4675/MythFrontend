@@ -17,7 +17,7 @@ public class GuideProgram extends Program {
 	public static List<GuideProgram> get_guideprogram_list(int chanid, ZonedDateTime start, ZonedDateTime end) throws IOException {
 		
 		List<GuideProgram> guides = new ArrayList<GuideProgram>();
-		String url = Source.get_base_url() + "/Guide/GetProgramList?Details=true&ChanId=" + chanid
+		String url = "/Guide/GetProgramList?Details=true&ChanId=" + chanid
 				+ "&StartTime=" + start.toString() + "&EndTime=" + end.toString();
 		String result = Source.http_get(url);
 		
@@ -51,7 +51,7 @@ public class GuideProgram extends Program {
 	}
 	
 	private static LocalDate get_edge_program(boolean earliest) throws IOException {
-		String url = Source.get_base_url() + "/Guide/GetProgramList?Details=true&Count=1&Descending=" + (earliest ? "false" : "true");
+		String url = "/Guide/GetProgramList?Details=true&Count=1&Descending=" + (earliest ? "false" : "true");
 		String result = Source.http_get(url);
 		LocalDate date = null;
 		
@@ -77,7 +77,7 @@ public class GuideProgram extends Program {
 	
 	@Override
 	protected void refresh() throws IOException {
-		String url = Source.get_base_url() + "/Guide/GetProgramDetails?ChanId=" 
+		String url = "/Guide/GetProgramDetails?ChanId=" 
 				+ get_channel().get_chanid() + "&StartTime=" + get_starttime().toString();
 		String result = Source.http_get(url);
 		

@@ -1,6 +1,5 @@
 package utils;
 
-import java.io.IOException;
 import java.util.prefs.Preferences;
 
 import data.Source;

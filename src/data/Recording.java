@@ -3,7 +3,6 @@ package data;
 import java.awt.Dimension;
 import java.awt.MediaTracker;
 import java.io.IOException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,7 +30,7 @@ public class Recording extends Program {
 		String param = URLEncoder.encode(title_regex, "UTF-8");
 		param = param.replaceAll("%28", "%5C%28"); // Escape '('
 		param = param.replaceAll("%29", "%5C%29"); // Escape ')'
-		String url = Source.get_base_url() + "/Dvr/GetRecordedList?Descending=true&TitleRegEx=" + param;
+		String url = "/Dvr/GetRecordedList?Descending=true&TitleRegEx=" + param;
 		String result = Source.http_get(url);
 		
 		try {
@@ -57,7 +56,7 @@ public class Recording extends Program {
 	
 	@Override
 	protected void refresh() throws IOException {
-		String url = Source.get_base_url() + "/Dvr/GetRecorded?RecordedId=" + get_recordedid();
+		String url = "/Dvr/GetRecorded?RecordedId=" + get_recordedid();
 		String result = Source.http_get(url);
 		
 		try {
@@ -71,7 +70,7 @@ public class Recording extends Program {
 	}
 	
 	public void play() {
-		String url = Source.get_base_url() + "/Content/GetRecording?RecordedId=" + get_recordedid();
+		String url = "/Content/GetRecording?RecordedId=" + get_recordedid();
 		
 		try {
 			new ProcessBuilder("C:\\Users\\ryan__000\\Downloads\\SMPlayerPortable\\App\\SMPlayer\\smplayer.exe", url).start();
@@ -81,7 +80,7 @@ public class Recording extends Program {
 	}
 	
 	public void delete(boolean allow_rerecord) throws IOException {
-		String url = Source.get_base_url() + "/Dvr/DeleteRecording?RecordedId=" + get_recordedid() + "&AllowRerecord=" + (allow_rerecord ? "true" : "false");
+		String url = "/Dvr/DeleteRecording?RecordedId=" + get_recordedid() + "&AllowRerecord=" + (allow_rerecord ? "true" : "false");
 		
 		try {
 			while (true) {
@@ -99,12 +98,12 @@ public class Recording extends Program {
 	}
 	
 	public void undelete() throws IOException {
-		String url = Source.get_base_url() + "/Dvr/UnDeleteRecording?RecordedId=" + get_recordedid();
+		String url = "/Dvr/UnDeleteRecording?RecordedId=" + get_recordedid();
 		Source.http_get(url);
 	}
 	
 	public void mark_watched(boolean flag) throws IOException {
-		String url = Source.get_base_url() + "/Dvr/UpdateRecordedWatchedStatus?RecordedId=" + get_recordedid() + "&Watched=" + flag;
+		String url = "/Dvr/UpdateRecordedWatchedStatus?RecordedId=" + get_recordedid() + "&Watched=" + flag;
 		Source.http_post(url);
 		
 		refresh();
@@ -118,7 +117,7 @@ public class Recording extends Program {
 		String url = get_artwork_url(type, d.width, d.height);
 		
 		if (!_artworkcache.containsKey(url)) {
-			ImageIcon image = new ImageIcon(new URL(url));
+			ImageIcon image = Source.image_get(url);
 			
 			// Filler Icon
 			if (image.getImageLoadStatus() == MediaTracker.ERRORED) {
@@ -147,7 +146,7 @@ public class Recording extends Program {
 	}
 	
 	private String get_artwork_url(Artwork type, int width, int height) {
-		return Source.get_base_url() + (type == Artwork.PREVIEW 
+		return (type == Artwork.PREVIEW 
 				? "/Content/GetPreviewImage?RecordedId=" + get_recordedid() 
 				: ("/Content/GetRecordingArtwork?Inetref=" + get_inetref() + "&Season=" + get_season() + "&Type="
 						+ (type == Artwork.BANNER ? "banner" : (type == Artwork.COVERART 

@@ -13,6 +13,7 @@ public abstract class Program {
 	protected abstract void refresh() throws IOException; 
 	
 	protected Program(JSONObject program_json) throws JSONException {
+		// Construct the program via the updateProgram function
 		updateProgram(this, program_json);
 	}
 	

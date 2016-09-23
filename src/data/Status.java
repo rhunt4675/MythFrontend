@@ -10,7 +10,7 @@ import org.json.XML;
 public class Status {
 	public static Status get_status() throws IOException {
 		Status system_status = null;
-		String url = Source.get_base_url() + "/Status/xml";
+		String url = "/Status/xml";
 		String result = Source.http_get(url);
 		
 		try {

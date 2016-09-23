@@ -3,7 +3,6 @@ package data;
 import java.awt.Dimension;
 import java.awt.MediaTracker;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +18,7 @@ public class Channel {
 	
 	public static List<Channel> get_channels(int source_id) throws IOException {
 		List<Channel> channels = new ArrayList<Channel>();
-		String url = Source.get_base_url() + "/Channel/GetChannelInfoList?SourceID=" + source_id;
+		String url = "/Channel/GetChannelInfoList?SourceID=" + source_id;
 		String result = Source.http_get(url);
 		
 		try {
@@ -48,7 +47,7 @@ public class Channel {
 	
 	public static Channel get_channel(int chan_id) throws IOException {
 		if (!_channelcache.containsKey(chan_id)) {
-			String url = Source.get_base_url() + "/Channel/GetChannelInfo?ChanID=" + chan_id;
+			String url = "/Channel/GetChannelInfo?ChanID=" + chan_id;
 			String result = Source.http_get(url);
 			
 			try {
@@ -80,11 +79,11 @@ public class Channel {
 	}
 	
 	public ImageIcon get_artwork(Dimension d) throws IOException {
-		String url = Source.get_base_url() + "/Guide/GetChannelIcon?ChanId=" + _chanid 
+		String url = "/Guide/GetChannelIcon?ChanId=" + _chanid 
 				+ "&Width=" + (int) d.getWidth() + "&Height=" + (int) d.getHeight();
 		
 		if (!_artworkcache.containsKey(url)) {
-			ImageIcon image = new ImageIcon(new URL(url));
+			ImageIcon image = Source.image_get(url);
 			
 			// Filler Icon
 			if (image.getImageLoadStatus() == MediaTracker.ERRORED)
@@ -97,7 +96,7 @@ public class Channel {
 	}
 	
 	public boolean artwork_downloaded(Dimension d) {
-		String url = Source.get_base_url() + "/Guide/GetChannelIcon?ChanId=" + _chanid 
+		String url = "/Guide/GetChannelIcon?ChanId=" + _chanid 
 				+ "&Width=" + (int) d.getWidth() + "&Height=" + (int) d.getHeight();
 		
 		return _artworkcache.containsKey(url);

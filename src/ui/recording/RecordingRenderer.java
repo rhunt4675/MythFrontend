@@ -81,7 +81,7 @@ public class RecordingRenderer extends DefaultTableCellRenderer implements Actio
 		
 		JLabel channel = new JLabel(channelicon);
 		channel.setAlignmentX(Component.CENTER_ALIGNMENT);
-		JLabel channame = new JLabel("(" + r.get_channel().get_channame() + ")");
+		JLabel channame = new JLabel(r.get_channel().get_channame());
 		channame.setAlignmentX(Component.CENTER_ALIGNMENT);
 		
 		Box textcontent = Box.createVerticalBox();

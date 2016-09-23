@@ -1,9 +1,11 @@
 package utils;
 
 import java.awt.Dialog;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
@@ -30,8 +32,10 @@ public class AppPropertiesDialog extends JDialog implements ActionListener, Wind
 		
 		_ok = new JButton("OK");
 		_ok.addActionListener(this);
+		_ok.setMnemonic(KeyEvent.VK_O);
 		_cancel = new JButton("Cancel");
 		_cancel.addActionListener(this);
+		_cancel.setMnemonic(KeyEvent.VK_C);
 		
 		GroupLayout layout = new GroupLayout(getContentPane());
 		getContentPane().setLayout(layout);
@@ -43,6 +47,7 @@ public class AppPropertiesDialog extends JDialog implements ActionListener, Wind
 		JLabel secure = new JLabel("Secure? (https): ");
 		
 		_addressTextField = new JTextField(AppProperties.getSourceAddress());
+		_addressTextField.setMinimumSize(new Dimension(150, 0));
 		_portTextField = new JTextField(AppProperties.getSourcePort());
 		_secureCheckBox = new JCheckBox();
 		_secureCheckBox.setSelected(AppProperties.isSourceSecure());
@@ -53,13 +58,14 @@ public class AppPropertiesDialog extends JDialog implements ActionListener, Wind
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
 					.addComponent(address)
 					.addComponent(port)
-					.addComponent(secure)
-					.addComponent(_cancel))
+					.addComponent(secure))
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
 					.addComponent(_addressTextField)
 					.addComponent(_portTextField)
 					.addComponent(_secureCheckBox)
-					.addComponent(_ok))));
+					.addGroup(layout.createSequentialGroup()
+							.addComponent(_cancel)
+							.addComponent(_ok)))));
 
 		layout.setVerticalGroup(
 			layout.createSequentialGroup()
@@ -75,8 +81,9 @@ public class AppPropertiesDialog extends JDialog implements ActionListener, Wind
 		
 		layout.setAutoCreateContainerGaps(true);
 		layout.setAutoCreateGaps(true);
-		
 		pack();
+		
+		setLocationRelativeTo(null);
 		setResizable(false);
 	}
 

@@ -17,7 +17,7 @@ public class Upcoming extends Program {
 	
 	public static List<Upcoming> get_upcoming() throws IOException {
 		List<Upcoming> upcomings = new ArrayList<Upcoming>();
-		String url = Source.get_base_url() + "/Dvr/GetUpcomingList?ShowAll=true";
+		String url = "/Dvr/GetUpcomingList?ShowAll=true";
 		String result = Source.http_get(url);
 		
 		try {
@@ -43,7 +43,7 @@ public class Upcoming extends Program {
 	
 	@Override
 	protected void refresh() throws IOException {
-		String url = Source.get_base_url() + "/Dvr/GetUpcomingList?ShowAll=true&RecordId=" + get_recordid();
+		String url = "/Dvr/GetUpcomingList?ShowAll=true&RecordId=" + get_recordid();
 		String result = Source.http_get(url);
 		
 		try {
@@ -97,12 +97,12 @@ public class Upcoming extends Program {
 	}
 	
 	private void add_overriding_rule(Rule.RecordingType type) throws IOException {
-		String add = Source.get_base_url() + "/Dvr/AddRecordSchedule?Type=" + URLEncoder.encode(type.getText(), "UTF-8") + "&ParentId=" + get_recordid()
+		String add = "/Dvr/AddRecordSchedule?Type=" + URLEncoder.encode(type.getText(), "UTF-8") + "&ParentId=" + get_recordid()
 				+ "&Title=" + URLEncoder.encode(get_title(), "UTF-8") + "&StartTime=" + get_starttime() + "&EndTime=" + get_endtime() 
 				+ "&ChanId=" + get_channel().get_chanid() + "&Station=" + get_channel().get_callsign() + "&FindDay=0&FindTime=00:00:00Z"
 				+ "&Subtitle=" + URLEncoder.encode(get_subtitle(), "UTF-8") + "&Description=" + URLEncoder.encode(get_description(), "UTF-8") 
 				+ "&Category=" + URLEncoder.encode(get_category(), "UTF-8") + "&SeriesId=" + get_seriesid() + "&ProgramId=" + get_programid();
-		String check = Source.get_base_url() + "/Dvr/GetRecordSchedule?RecordId=";
+		String check = "/Dvr/GetRecordSchedule?RecordId=";
 		String result = Source.http_post(add);
 		
 		try {
@@ -125,8 +125,8 @@ public class Upcoming extends Program {
 	}
 
 	private void remove_overriding_rule() throws IOException {
-		String del = Source.get_base_url() + "/Dvr/RemoveRecordSchedule?RecordId=" + get_recordid();
-		String check = Source.get_base_url() + "/Dvr/GetRecordSchedule?ChanId=" + get_channel().get_chanid() + 
+		String del = "/Dvr/RemoveRecordSchedule?RecordId=" + get_recordid();
+		String check = "/Dvr/GetRecordSchedule?ChanId=" + get_channel().get_chanid() + 
 				"&StartTime=" + get_starttime() + "&RecordId=" + _rule.get_parentid();
 		Source.http_post(del);
 		

@@ -118,6 +118,7 @@ public class RuleModifier extends JDialog implements ActionListener {
 		layout.setAutoCreateGaps(true);
 		
 		pack();
+		setLocationRelativeTo(null);
 		setResizable(false);
 	}
 

@@ -3,7 +3,6 @@ package data;
 import java.awt.Dimension;
 import java.awt.MediaTracker;
 import java.io.IOException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,7 +19,7 @@ public class Title {
 	
 	public static List<Title> get_titles() throws IOException {
 		List<Title> titles = new ArrayList<Title>();
-		String url = Source.get_base_url() + "/Dvr/GetTitleInfoList";
+		String url = "/Dvr/GetTitleInfoList";
 		String result = Source.http_get(url);
 		
 		try {
@@ -49,11 +48,11 @@ public class Title {
 		String url = null;
 		
 		for (String inetref : _inetref) {
-			url = Source.get_base_url() + "/Content/GetRecordingArtwork?Width=" + dimension.width
+			url = "/Content/GetRecordingArtwork?Width=" + dimension.width
 				+ "&Height=" + dimension.height + "&Inetref=" + URLEncoder.encode(inetref, "utf-8");
 			
 			if (!_artworkcache.containsKey(url)) {
-				ImageIcon image = new ImageIcon(new URL(url));
+				ImageIcon image = Source.image_get(url);
 				
 				// Filler Icon
 				if (image.getImageLoadStatus() == MediaTracker.ERRORED) {

@@ -11,7 +11,7 @@ import org.json.JSONObject;
 public class VideoSource {
 	public static List<VideoSource> get_videosources() throws IOException {
 		List<VideoSource> sources = new ArrayList<VideoSource>();
-		String url = Source.get_base_url() + "/Channel/GetVideoSourceList";
+		String url = "/Channel/GetVideoSourceList";
 		String result = Source.http_get(url);
 		
 		try {
@@ -37,7 +37,7 @@ public class VideoSource {
 	
 	public static VideoSource get_videosource(int sourceid) throws IOException {
 		VideoSource source = null;
-		String url = Source.get_base_url() + "/Channel/GetVideoSource?SourceID=" + sourceid;
+		String url = "/Channel/GetVideoSource?SourceID=" + sourceid;
 		String result = Source.http_get(url);
 		
 		try {
@@ -52,7 +52,7 @@ public class VideoSource {
 	}
 	
 	public void delete() throws IOException {
-		String url = Source.get_base_url() + "/Channel/RemoveVideoSource?SourceID=" + _id;
+		String url = "/Channel/RemoveVideoSource?SourceID=" + _id;
 		Source.http_post(url);
 	}
 	

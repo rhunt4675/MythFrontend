@@ -4,7 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
+
+import javax.swing.ImageIcon;
 
 public abstract class Source {
 	private enum HTTP_METHOD {GET, POST, PUT, DELETE, OPTIONS, HEAD, CONNECT};
@@ -16,13 +19,13 @@ public abstract class Source {
 		return "88";
 	}
 	
-	protected static String get_base_url() {
+	private static String get_base_url() {
 		return "http" + (_secure ? "s" : "") + "://" + _address + ":" + _port;
 	}
 	
-	private static String http_do(String url, HTTP_METHOD method, boolean timeout) throws IOException {
+	private static String http_do(String uri, HTTP_METHOD method, boolean timeout) throws IOException {
 		String result;
-		URL obj = new URL(url);
+		URL obj = new URL(get_base_url() + uri);
 		
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 		con.setRequestProperty("Accept", "text/javascript");
@@ -51,17 +54,21 @@ public abstract class Source {
 		return result;
 	}
 	
-	protected static String http_get(String url) throws IOException {
-		return http_do(url, HTTP_METHOD.GET, false);
+	protected static String http_get(String uri) throws IOException {
+		return http_do(uri, HTTP_METHOD.GET, false);
 	}
 	
-	protected static String http_post(String url) throws IOException {
-		return http_do(url, HTTP_METHOD.POST, false);
+	protected static String http_post(String uri) throws IOException {
+		return http_do(uri, HTTP_METHOD.POST, false);
+	}
+	
+	protected static ImageIcon image_get(String uri) throws MalformedURLException {
+		return new ImageIcon(new URL(get_base_url() + uri));
 	}
 	
 	public static void test_connection() throws IOException {
 		try {
-			http_do(get_base_url() + "/Status/xml", HTTP_METHOD.GET, true);
+			http_do("/Status/xml", HTTP_METHOD.GET, true);
 		} catch (IOException e) {
 			throw e;
 		}
