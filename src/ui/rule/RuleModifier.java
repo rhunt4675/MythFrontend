@@ -1,5 +1,7 @@
 package ui.rule;
 
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -9,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.swing.Box;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -39,8 +42,10 @@ public class RuleModifier extends JDialog implements ActionListener {
 		_rule = r;
 		_ok = new JButton("OK");
 		_ok.addActionListener(this);
+		_ok.setMinimumSize(new Dimension(100, 0));
 		_cancel = new JButton("Cancel");
 		_cancel.addActionListener(this);
+		_cancel.setMinimumSize(new Dimension(100, 0));
 		
 		GroupLayout layout = new GroupLayout(getContentPane());
 		getContentPane().setLayout(layout);
@@ -52,6 +57,7 @@ public class RuleModifier extends JDialog implements ActionListener {
 		JLabel dupin = new JLabel("DupIn: ");
 		JLabel startoffset = new JLabel("StartOffset: ");
 		JLabel endoffset = new JLabel("EndOffset: ");
+		Component strut = Box.createVerticalStrut(10);
 		
 		List<Rule.RecordingType> types = new ArrayList<Rule.RecordingType>();
 		types.addAll(Arrays.asList(Rule.RecordingType.values()));
@@ -81,8 +87,7 @@ public class RuleModifier extends JDialog implements ActionListener {
 					.addComponent(dupmethod)
 					.addComponent(dupin)
 					.addComponent(startoffset)
-					.addComponent(endoffset)
-					.addComponent(_cancel))
+					.addComponent(endoffset))
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
 					.addComponent(_typecombobox)
 					.addComponent(_dupmethodcombobox)
@@ -91,7 +96,10 @@ public class RuleModifier extends JDialog implements ActionListener {
 					.addComponent(_endoffsettext)
 					.addComponent(_autocommflag)
 					.addComponent(_autotranscode)
-					.addComponent(_ok))));
+					.addComponent(strut)
+					.addGroup(layout.createSequentialGroup()
+							.addComponent(_cancel)
+							.addComponent(_ok)))));
 
 		layout.setVerticalGroup(
 			layout.createSequentialGroup()
@@ -110,6 +118,7 @@ public class RuleModifier extends JDialog implements ActionListener {
 					.addComponent(_autocommflag))
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 					.addComponent(_autotranscode))
+				.addComponent(strut)
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 					.addComponent(_cancel).addComponent(_ok))
 		);

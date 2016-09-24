@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
+import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTable;
@@ -14,6 +15,7 @@ import javax.swing.table.DefaultTableModel;
 
 import data.Rule;
 import data.Upcoming;
+import ui.rule.RuleModifier;
 
 public class UpcomingPopup extends JPopupMenu {
 	private static final long serialVersionUID = -3473095245933394365L;
@@ -134,7 +136,22 @@ public class UpcomingPopup extends JPopupMenu {
 				
 				worker.execute();
 			}
-		});		
+		});
+		
+		_properties.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JMenuItem menuItem = (JMenuItem) e.getSource();
+		        JPopupMenu popupMenu = (JPopupMenu) menuItem.getParent();
+		        JTable invoker = (JTable) popupMenu.getInvoker();
+		        JFrame topLevel = (JFrame) invoker.getTopLevelAncestor();
+		        Upcoming u = (Upcoming) invoker.getValueAt(invoker.getSelectedRow(), invoker.getSelectedColumn());
+		        Rule r = u.get_rule();
+		        
+				RuleModifier modifier = new RuleModifier(topLevel, r);
+				modifier.setVisible(true);				
+			}
+		});
 	}
 	
 	@Override

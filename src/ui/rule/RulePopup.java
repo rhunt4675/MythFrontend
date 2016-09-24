@@ -1,5 +1,7 @@
 package ui.rule;
 
+import java.awt.Component;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -13,6 +15,7 @@ import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 
 import data.Rule;
+import data.Upcoming;
 
 public class RulePopup extends JPopupMenu {
 	private static final long serialVersionUID = -1370490057232727856L;
@@ -123,5 +126,18 @@ public class RulePopup extends JPopupMenu {
 				worker.execute();
 			}
 		});	
+	}
+	
+	@Override
+	public void show(Component invoker, int x, int y) {
+		JTable table = (JTable) invoker;
+		int row = table.rowAtPoint(new Point(x, y));
+		int column = table.columnAtPoint(new Point(x, y));
+		
+		Rule rule = (Rule) table.getValueAt(row, column);
+		/*if (rule.is_disabled()) _disablerule.setEnabled(false);
+		else _enablerule.setEnabled(false);*/
+		
+		super.show(invoker, x, y);
 	}
 }

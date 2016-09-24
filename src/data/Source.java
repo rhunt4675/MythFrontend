@@ -66,6 +66,10 @@ public abstract class Source {
 		return new ImageIcon(new URL(get_base_url() + uri));
 	}
 	
+	protected static String playback_url(String uri) {
+		return get_base_url() + uri;
+	}
+	
 	public static void test_connection() throws IOException {
 		try {
 			http_do("/Status/xml", HTTP_METHOD.GET, true);

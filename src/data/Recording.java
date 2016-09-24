@@ -70,7 +70,7 @@ public class Recording extends Program {
 	}
 	
 	public void play() {
-		String url = "/Content/GetRecording?RecordedId=" + get_recordedid();
+		String url = Source.playback_url("/Content/GetRecording?RecordedId=" + get_recordedid());
 		
 		try {
 			new ProcessBuilder("C:\\Users\\ryan__000\\Downloads\\SMPlayerPortable\\App\\SMPlayer\\smplayer.exe", url).start();
