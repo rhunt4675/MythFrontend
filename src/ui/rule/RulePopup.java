@@ -15,7 +15,6 @@ import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 
 import data.Rule;
-import data.Upcoming;
 
 public class RulePopup extends JPopupMenu {
 	private static final long serialVersionUID = -1370490057232727856L;
@@ -135,8 +134,8 @@ public class RulePopup extends JPopupMenu {
 		int column = table.columnAtPoint(new Point(x, y));
 		
 		Rule rule = (Rule) table.getValueAt(row, column);
-		/*if (rule.is_disabled()) _disablerule.setEnabled(false);
-		else _enablerule.setEnabled(false);*/
+		if (rule.is_inactive()) _disablerule.setEnabled(false);
+		else _enablerule.setEnabled(false);
 		
 		super.show(invoker, x, y);
 	}

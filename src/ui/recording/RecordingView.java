@@ -1,6 +1,7 @@
 package ui.recording;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -30,8 +31,9 @@ import javax.swing.table.TableModel;
 
 import data.Recording;
 import data.Title;
+import ui.ContentView;
 
-public class RecordingView extends JPanel implements ListSelectionListener, MouseListener, KeyListener {
+public class RecordingView extends ContentView implements ListSelectionListener, MouseListener, KeyListener {
 	private static final long serialVersionUID = 7537158574729297160L;
 	private JList<Title> _titleList = new JList<Title>();
 	private JTable _recordingTable = new JTable();
@@ -42,8 +44,6 @@ public class RecordingView extends JPanel implements ListSelectionListener, Mous
 	private Dimension _titleArtworkDimension = new Dimension(250, 0);
 
 	public RecordingView() {
-		init();
-		
 		JPanel sidepane = new JPanel();
 		sidepane.setLayout(new BorderLayout());
 		sidepane.add(new JScrollPane(_titleList), BorderLayout.CENTER);
@@ -54,6 +54,7 @@ public class RecordingView extends JPanel implements ListSelectionListener, Mous
 		add(new JScrollPane(_recordingTable), BorderLayout.CENTER);
 		
 		_titleList.addListSelectionListener(this);
+		_titleList.setSelectionBackground(Color.DARK_GRAY);
 		
 		_recordingTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		_recordingTable.getSelectionModel().addListSelectionListener(this);
@@ -64,7 +65,8 @@ public class RecordingView extends JPanel implements ListSelectionListener, Mous
 	}
 	
 	// Download a List of Titles
-	private void init() {
+	@Override
+	public void init() {
 		SwingWorker<List<Title>, Void> worker = new SwingWorker<List<Title>, Void>() {
 
 			@Override

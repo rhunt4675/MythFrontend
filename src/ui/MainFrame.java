@@ -17,7 +17,14 @@ import ui.upcoming.UpcomingView;
 
 public class MainFrame extends JFrame {
 	private static final long serialVersionUID = 85923720912596620L;
-
+	private final RecordingView _rview = new RecordingView();
+	private final UpcomingView _uview = new UpcomingView();
+    private final RuleView _ruview = new RuleView();
+    private final GuideView _gview = new GuideView();
+    private final StatusView _sview = new StatusView();
+    
+    public static enum ContentViewEnum {RecordingView, UpcomingView, RuleView, GuideView, StatusView};
+    
 	public void init() {
 		// Setup Main Window
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -26,12 +33,12 @@ public class MainFrame extends JFrame {
         setLocation(100, 100);
         /*setLocationByPlatform(true);*/
         
-        // Setup Tab Panes
-        RecordingView rview = new RecordingView();
-        UpcomingView uview = new UpcomingView();
-        RuleView ruview = new RuleView();
-        GuideView gview = new GuideView();
-        StatusView sview = new StatusView();
+        // Initialize Tab Panels
+        _rview.init();
+        _uview.init();
+        _ruview.init();
+        _gview.init();
+        _sview.init();        
         
         // Setup Tab Labels
         JLabel rlabel = new JLabel("Recordings", SwingConstants.CENTER);
@@ -48,11 +55,11 @@ public class MainFrame extends JFrame {
         // Setup Main Window Tabs
         JTabbedPane tabbedpane = new JTabbedPane();
         tabbedpane.setTabPlacement(JTabbedPane.BOTTOM);
-        tabbedpane.add("Recordings", rview);
-        tabbedpane.add("Upcoming", uview);
-        tabbedpane.add("Rules", ruview);
-        tabbedpane.add("Guide", gview);
-        tabbedpane.add("Status", sview);
+        tabbedpane.add("Recordings", _rview);
+        tabbedpane.add("Upcoming", _uview);
+        tabbedpane.add("Rules", _ruview);
+        tabbedpane.add("Guide", _gview);
+        tabbedpane.add("Status", _sview);
         tabbedpane.setTabComponentAt(0, rlabel);
         tabbedpane.setTabComponentAt(1, ulabel);
         tabbedpane.setTabComponentAt(2, rulabel);
@@ -67,5 +74,23 @@ public class MainFrame extends JFrame {
         // Show the Window
         setVisible(true);
         setState(Frame.NORMAL);
+	}
+	
+	public ContentView getContentView(ContentViewEnum cve) {
+		// Return the Requested JPanel
+		switch (cve) {
+		case GuideView:
+			return _gview;
+		case RecordingView:
+			return _rview;
+		case RuleView:
+			return _ruview;
+		case StatusView:
+			return _sview;
+		case UpcomingView:
+			return _uview;
+		default:
+			return null;
+		}
 	}
 }

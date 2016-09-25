@@ -6,7 +6,6 @@ import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.List;
 
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -17,14 +16,13 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 import data.Rule;
+import ui.ContentView;
 
-public class RuleView extends JPanel implements ListSelectionListener, MouseListener {
+public class RuleView extends ContentView implements ListSelectionListener, MouseListener {
 	private static final long serialVersionUID = -8855317235931128425L;
 	private JTable _ruleTable = new JTable();
 
 	public RuleView() {
-		init();
-		
 		setLayout(new BorderLayout());
 		add(new JScrollPane(_ruleTable), BorderLayout.CENTER);
 		
@@ -36,7 +34,8 @@ public class RuleView extends JPanel implements ListSelectionListener, MouseList
 	}
 	
 	// Download a List of Upcoming Recordings
-	private void init() {
+	@Override
+	public void init() {
 		SwingWorker<DefaultTableModel, Void> worker = new SwingWorker<DefaultTableModel, Void>() {
 
 			@Override

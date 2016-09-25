@@ -3,20 +3,18 @@ package ui.status;
 import java.awt.BorderLayout;
 import java.awt.Font;
 
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingWorker;
 
 import data.Status;
+import ui.ContentView;
 
-public class StatusView extends JPanel {
+public class StatusView extends ContentView {
 	private static final long serialVersionUID = 1560578633736651326L;
 	private JTextArea _text;
 	
 	public StatusView() {
-		init();
-		
 		_text = new JTextArea();
 		_text.setFont(new Font("Arial", Font.PLAIN, 12));
 		_text.setEditable(false);
@@ -28,7 +26,8 @@ public class StatusView extends JPanel {
 		add(new JScrollPane(_text), BorderLayout.CENTER);
 	}
 	
-	private void init() {		
+	@Override
+	public void init() {		
 		SwingWorker<Status, Void> worker = new SwingWorker<Status, Void>() {
 			@Override
 			protected Status doInBackground() throws Exception {

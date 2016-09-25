@@ -3,12 +3,18 @@ package ui;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
+
+import data.Source;
+import ui.MainFrame.ContentViewEnum;
+import utils.AppProperties;
 
 public class MenuBar extends JMenuBar implements ActionListener {
 	private static final long serialVersionUID = 8648195999870453299L;
@@ -30,7 +36,6 @@ public class MenuBar extends JMenuBar implements ActionListener {
 		// Build out "File" Menu
 		_refresh = new JMenuItem("Refresh", KeyEvent.VK_R);
 		_refresh.addActionListener(this);
-		_refresh.setEnabled(false);
 		_exit = new JMenuItem("Exit", KeyEvent.VK_E);
 		_exit.addActionListener(this);
 		file.add(_refresh);
@@ -40,7 +45,6 @@ public class MenuBar extends JMenuBar implements ActionListener {
 		// Build out "Edit" Menu
 		_properties = new JMenuItem("Properties", KeyEvent.VK_P);
 		_properties.addActionListener(this);
-		_properties.setEnabled(false);
 		edit.add(_properties);
 		
 		// Add Menus to Menu Bar
@@ -54,17 +58,40 @@ public class MenuBar extends JMenuBar implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == _refresh) {
-			System.out.println("Refresh");
-			
+			JMenuItem menuItem = (JMenuItem) e.getSource();
+	        JPopupMenu popupMenu = (JPopupMenu) menuItem.getParent();
+	        JMenu invoker = (JMenu) popupMenu.getInvoker();
+	        MainFrame topLevel = (MainFrame) invoker.getTopLevelAncestor();
+
+	        // Refresh each ContentView Panel
+	        for (ContentViewEnum cve : ContentViewEnum.values())
+	        	topLevel.getContentView(cve).init();
+
 		} else if (e.getSource() == _exit) {
 			JMenuItem menuItem = (JMenuItem) e.getSource();
 	        JPopupMenu popupMenu = (JPopupMenu) menuItem.getParent();
 	        JMenu invoker = (JMenu) popupMenu.getInvoker();
 	        JFrame topLevel = (JFrame) invoker.getTopLevelAncestor();
 	        
+	        // Close the Top Window
 	        topLevel.dispose();
 		} else if (e.getSource() == _properties) {
 			
+			// Prompt user for Properties			
+		    while (true) {
+		    	boolean cancelled = AppProperties.displayPropertiesWindow();
+		    	if (cancelled) return;
+		    	
+		    	try {
+			    	Source.test_connection(AppProperties.getSourceAddress(), AppProperties.getSourcePort(), AppProperties.isSourceSecure());
+			    	AppProperties.updateAndWrite();
+			    	break;
+			    } catch (IOException ex) {
+			    	JOptionPane.showMessageDialog(null, "Connection failed!");
+			    }
+		    }
+		    
+			_refresh.doClick();
 		}
 	}
 }

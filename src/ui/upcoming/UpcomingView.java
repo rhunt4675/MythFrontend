@@ -8,7 +8,6 @@ import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.List;
 
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -19,15 +18,14 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 import data.Upcoming;
+import ui.ContentView;
 
-public class UpcomingView extends JPanel implements ListSelectionListener, MouseListener, KeyListener {
+public class UpcomingView extends ContentView implements ListSelectionListener, MouseListener, KeyListener {
 	private static final long serialVersionUID = -7264563780524135180L;
 	
 	private JTable _upcomingTable = new JTable();
 
 	public UpcomingView() {
-		init();
-		
 		setLayout(new BorderLayout());
 		add(new JScrollPane(_upcomingTable), BorderLayout.CENTER);
 		
@@ -40,7 +38,8 @@ public class UpcomingView extends JPanel implements ListSelectionListener, Mouse
 	}
 	
 	// Download a List of Upcoming Recordings
-	private void init() {
+	@Override
+	public void init() {
 		SwingWorker<DefaultTableModel, Void> worker = new SwingWorker<DefaultTableModel, Void>() {
 
 			@Override

@@ -23,17 +23,17 @@ public abstract class Source {
 		return "http" + (_secure ? "s" : "") + "://" + _address + ":" + _port;
 	}
 	
-	private static String http_do(String uri, HTTP_METHOD method, boolean timeout) throws IOException {
+	private static String http_do(String url, HTTP_METHOD method, boolean timeout) throws IOException {
 		String result;
-		URL obj = new URL(get_base_url() + uri);
+		URL obj = new URL(url);
 		
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 		con.setRequestProperty("Accept", "text/javascript");
 		con.setRequestMethod(method.toString());
 		
 		if (timeout) {
-			con.setConnectTimeout(10000);
-			con.setReadTimeout(10000);
+			con.setConnectTimeout(2000);
+			con.setReadTimeout(2000);
 		}
 		
 		if (con.getResponseCode() == HttpURLConnection.HTTP_OK) { 
@@ -55,11 +55,11 @@ public abstract class Source {
 	}
 	
 	protected static String http_get(String uri) throws IOException {
-		return http_do(uri, HTTP_METHOD.GET, false);
+		return http_do(get_base_url() + uri, HTTP_METHOD.GET, false);
 	}
 	
 	protected static String http_post(String uri) throws IOException {
-		return http_do(uri, HTTP_METHOD.POST, false);
+		return http_do(get_base_url() + uri, HTTP_METHOD.POST, false);
 	}
 	
 	protected static ImageIcon image_get(String uri) throws MalformedURLException {
@@ -70,9 +70,9 @@ public abstract class Source {
 		return get_base_url() + uri;
 	}
 	
-	public static void test_connection() throws IOException {
+	public static void test_connection(String address, String port, boolean secure) throws IOException {
 		try {
-			http_do("/Status/xml", HTTP_METHOD.GET, true);
+			http_do((secure ? "https" : "http") + "://" + address + ":" + port + "/Status/xml", HTTP_METHOD.GET, true);
 		} catch (IOException e) {
 			throw e;
 		}

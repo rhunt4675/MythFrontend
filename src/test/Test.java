@@ -3,6 +3,7 @@ package test;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -26,11 +27,13 @@ public class Test {
 	    // Verify Connectivity to the Backend
 	    while (true) {
 		    try {
-		    	Source.test_connection();
+		    	Source.test_connection(AppProperties.getSourceAddress(), AppProperties.getSourcePort(), AppProperties.isSourceSecure());
+		    	AppProperties.updateAndWrite();
 		    	break;
 		    } catch (IOException e) {
-		    	AppProperties.displayPropertiesWindow();
-		    	AppProperties.updateAndWrite();
+		    	JOptionPane.showMessageDialog(null, "Connection failed!");
+		    	boolean cancelled = AppProperties.displayPropertiesWindow();
+		    	if (cancelled) System.exit(1);
 		    }
 	    }
 		

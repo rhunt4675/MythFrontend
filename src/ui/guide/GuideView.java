@@ -34,8 +34,9 @@ import javax.swing.table.DefaultTableModel;
 import data.Channel;
 import data.GuideProgram;
 import data.VideoSource;
+import ui.ContentView;
 
-public class GuideView extends JPanel implements ListSelectionListener, ActionListener, MouseListener, KeyListener {
+public class GuideView extends ContentView implements ListSelectionListener, ActionListener, MouseListener, KeyListener {
 	private static final long serialVersionUID = -4244429202057252386L;
 	private JTable _guideTable = new JTable();
 	
@@ -48,8 +49,6 @@ public class GuideView extends JPanel implements ListSelectionListener, ActionLi
 	private int _divisions = 6;
 		
 	public GuideView() {
-		init();
-		
 		setLayout(new BorderLayout());
 		add(_settingsPanel, BorderLayout.NORTH);
 		add(new JScrollPane(_guideTable), BorderLayout.CENTER);
@@ -62,13 +61,15 @@ public class GuideView extends JPanel implements ListSelectionListener, ActionLi
 		_guideTable.setRowHeight(100);
 	}
 	
-	private void init() {		
+	@Override
+	public void init() {		
 		_sources = new JComboBox<VideoSource>();
 		_day = new JComboBox<LocalDate>();
 		_hour = new JComboBox<LocalTime>();
 		_submit = new JButton("Submit");
 		_submit.addActionListener(this);
 		
+		_settingsPanel.removeAll();
 		_settingsPanel.setLayout(new BoxLayout(_settingsPanel, BoxLayout.LINE_AXIS));
 		_settingsPanel.add(new JLabel("Channel Source: "));
 		_settingsPanel.add(_sources);
