@@ -3,7 +3,6 @@ package data;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,7 +66,7 @@ public class GuideProgram extends Program {
 			
 			JSONArray programs = list.getJSONArray("Programs");
 			GuideProgram program = new GuideProgram(programs.getJSONObject(0));
-			date = program.get_starttime().atZone(ZoneOffset.UTC).withZoneSameInstant(ZoneId.systemDefault()).toLocalDate();
+			date = program.get_starttime().withZoneSameInstant(ZoneId.systemDefault()).toLocalDate();
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}

@@ -8,6 +8,7 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ExecutionException;
 
@@ -69,7 +70,7 @@ public class RecordingRenderer extends DefaultTableCellRenderer implements Actio
 		subtitle.setOpaque(label.isOpaque());
 
 		JTextArea description = new JTextArea(r.get_description() + "\n\n" 
-				+ "\t(" + r.get_starttime().toLocalDate().format(DateTimeFormatter.ofPattern("EEEE, MMM d, uuuu")) + "\t" + r.get_filesize() + "B)");
+				+ "\t(" + r.get_starttime().withZoneSameInstant(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("h:mm a EEEE, MMM d, uuuu")) + "\t" + r.get_filesize() + "B)");
 		description.setFont(new Font("Arial", Font.PLAIN, 12));
 		description.setEditable(false);
 		description.setLineWrap(true);

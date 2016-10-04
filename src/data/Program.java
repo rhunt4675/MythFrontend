@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 import org.json.JSONException;
@@ -17,11 +19,11 @@ public abstract class Program {
 		updateProgram(this, program_json);
 	}
 	
-	public LocalDateTime get_starttime() {
+	public ZonedDateTime get_starttime() {
 		return _starttime;
 	}
 
-	public LocalDateTime get_endtime() {
+	public ZonedDateTime get_endtime() {
 		return _endtime;
 	}
 
@@ -160,8 +162,8 @@ public abstract class Program {
 	private int _recordedid;
 	private boolean _watched;
 	private Channel _channel;
-	private LocalDateTime _starttime;
-	private LocalDateTime _endtime;	
+	private ZonedDateTime _starttime;
+	private ZonedDateTime _endtime;	
 	private LocalDate _airdate;
 	private RecordingStatus _status;
 	
@@ -185,8 +187,8 @@ public abstract class Program {
 		program._status = RecordingStatus.fromInt(program_json.getJSONObject("Recording").getInt("Status"));
 		
 		try {
-			program._starttime = LocalDateTime.parse(program_json.getString("StartTime").replaceFirst(".$", ""));
-			program._endtime = LocalDateTime.parse(program_json.getString("EndTime").replaceFirst(".$",  ""));
+			program._starttime = LocalDateTime.parse(program_json.getString("StartTime").replaceFirst(".$", "")).atZone(ZoneOffset.UTC);
+			program._endtime = LocalDateTime.parse(program_json.getString("EndTime").replaceFirst(".$",  "")).atZone(ZoneOffset.UTC);
 			program._airdate = LocalDate.parse(program_json.getString("Airdate"), DateTimeFormatter.ISO_LOCAL_DATE);
 		} catch (DateTimeException e) {
 			e.printStackTrace();

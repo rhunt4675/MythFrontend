@@ -4,8 +4,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 import javax.swing.BorderFactory;
@@ -35,7 +33,7 @@ public class UpcomingRenderer extends DefaultTableCellRenderer {
 		Upcoming u = (Upcoming) value;
 		
 		JLabel label = new JLabel();
-		JTextArea title = new JTextArea(ZonedDateTime.ofLocal(u.get_starttime(), ZoneOffset.UTC, null)
+		JTextArea title = new JTextArea(u.get_starttime()
 				.withZoneSameInstant(ZoneId.systemDefault()).toLocalTime()
 				.format(DateTimeFormatter.ofPattern("hh:mm a")) + " - " + u.get_title());
 		title.setFont(new Font("Arial", Font.BOLD, 18));

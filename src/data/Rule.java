@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -246,8 +248,8 @@ public class Rule {
 	private String _title;
 	private Channel _channel;
 	private LocalTime _findtime;
-	private LocalDateTime _starttime;
-	private LocalDateTime _endtime;
+	private ZonedDateTime _starttime;
+	private ZonedDateTime _endtime;
 	private RecordingType _type;
 	private RecordingDupMethodType _dupmethod;
 	private RecordingDupInType _dupin;
@@ -360,8 +362,8 @@ public class Rule {
 		rule._title = rule_json.getString("Title");
 		rule._findday = rule_json.getInt("FindDay");
 		rule._findtime = LocalTime.parse(rule_json.getString("FindTime"));
-		rule._starttime = LocalDateTime.parse(rule_json.getString("StartTime").replaceFirst(".$", ""));
-		rule._endtime = LocalDateTime.parse(rule_json.getString("EndTime").replaceFirst(".$", ""));
+		rule._starttime = LocalDateTime.parse(rule_json.getString("StartTime").replaceFirst(".$", "")).atZone(ZoneOffset.UTC);
+		rule._endtime = LocalDateTime.parse(rule_json.getString("EndTime").replaceFirst(".$", "")).atZone(ZoneOffset.UTC);
 		rule._type = RecordingType.fromString(rule_json.getString("Type"));
 		rule._dupmethod = RecordingDupMethodType.fromString(rule_json.getString("DupMethod"));
 		rule._dupin = RecordingDupInType.fromString(rule_json.getString("DupIn"));

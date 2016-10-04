@@ -203,8 +203,8 @@ public class GuideView extends ContentView implements ListSelectionListener, Act
 						}
 						
 						GuideProgram program = channelguide.get(guideIndex);
-						ZonedDateTime progstart = program.get_starttime().atZone(ZoneOffset.UTC);
-						ZonedDateTime progend = program.get_endtime().atZone(ZoneOffset.UTC);
+						ZonedDateTime progstart = program.get_starttime();
+						ZonedDateTime progend = program.get_endtime();
 						ZonedDateTime dividerleft = start.plusSeconds(interval_seconds * i);
 						ZonedDateTime dividerright = start.plusSeconds(interval_seconds * (i + 1));
 						
