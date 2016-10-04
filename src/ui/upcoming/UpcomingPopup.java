@@ -26,8 +26,6 @@ public class UpcomingPopup extends JPopupMenu {
 	private JMenuItem _properties;
 
 	public UpcomingPopup() {
-		super();
-		
 		_enablerecording = new JMenuItem("Enable Recording");
 		_disablerecording = new JMenuItem("Disable Recording");
 		_addoverride = new JMenuItem("Add Override");
@@ -59,7 +57,16 @@ public class UpcomingPopup extends JPopupMenu {
 							e1.printStackTrace();
 						}
 						return null;
-					}	
+					}
+					
+					@Override
+					protected void done() {
+						try {
+							get();
+						} catch (Exception ex) {
+							ex.printStackTrace();
+						}
+					}
 				};
 				
 				worker.execute();
@@ -83,7 +90,16 @@ public class UpcomingPopup extends JPopupMenu {
 							e1.printStackTrace();
 						}
 						return null;
-					}	
+					}
+					
+					@Override
+					protected void done() {
+						try {
+							get();
+						} catch (Exception ex) {
+							ex.printStackTrace();
+						}
+					}
 				};
 				
 				worker.execute();
@@ -107,7 +123,16 @@ public class UpcomingPopup extends JPopupMenu {
 							e1.printStackTrace();
 						}
 						return null;
-					}	
+					}
+					
+					@Override
+					protected void done() {
+						try {
+							get();
+						} catch (Exception ex) {
+							ex.printStackTrace();
+						}
+					}
 				};
 				
 				worker.execute();
@@ -131,7 +156,16 @@ public class UpcomingPopup extends JPopupMenu {
 							e1.printStackTrace();
 						}
 						return null;
-					}	
+					}
+					
+					@Override
+					protected void done() {
+						try {
+							get();
+						} catch (Exception ex) {
+							ex.printStackTrace();
+						}
+					}
 				};
 				
 				worker.execute();

@@ -3,6 +3,8 @@ package data;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import java.util.ArrayList;
@@ -61,7 +63,7 @@ public class Upcoming extends Program {
 			
 			for (int i = 0; i < programs.length(); i++) {
 				JSONObject program = programs.getJSONObject(i);
-				LocalDateTime starttime = LocalDateTime.parse(program.getString("StartTime").replaceFirst(".$", ""));
+				ZonedDateTime starttime = LocalDateTime.parse(program.getString("StartTime").replaceFirst(".$", "")).atZone(ZoneOffset.UTC);
 				int chanid = program.getJSONObject("Channel").getInt("ChanId");
 				
 				if (get_starttime().equals(starttime) && get_channel().get_chanid() == chanid) {

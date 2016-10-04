@@ -44,7 +44,7 @@ public class Title {
 		return titles;
 	}
 	
-	public synchronized ImageIcon get_title_artwork(Dimension dimension) throws IOException {
+	public ImageIcon get_title_artwork(Dimension dimension) throws IOException {
 		String url = null;
 		
 		for (String inetref : _inetref) {

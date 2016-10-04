@@ -100,12 +100,13 @@ public class Rule {
 			+ "&Title=" + URLEncoder.encode(_title, "utf-8")
 			+ "&Type=" + URLEncoder.encode(_type.getText(), "utf-8")
 			+ "&DupMethod=" + URLEncoder.encode(_dupmethod.getText(), "utf-8")
-			+ "&DupIn=" + URLEncoder.encode(_dupin.getText(), "utf-8");
+			+ "&DupIn=" + URLEncoder.encode(_dupin.getText(), "utf-8")
+			+ "&MaxEpisodes=" + _maxepisodes;
 		String check = "/Dvr/GetRecordSchedule?RecordId=";
 		String result = Source.http_post(url);
 
 		try {
-			_id = ((new JSONObject(result)).getInt("uint"));			
+			if (_id == -1) _id = ((new JSONObject(result)).getInt("uint"));			
 			
 			while (true) {
 				try {
@@ -236,12 +237,21 @@ public class Rule {
 	public RecordingDupInType get_dupin() {
 		return _dupin;
 	}
+	
+	public void set_maxepisodes(int max) {
+		_maxepisodes = max;
+	}
+	
+	public int get_maxepisodes() {
+		return _maxepisodes;
+	}
 
 	private int _id;
 	private int _parentid;
 	private int _startoffset;
 	private int _endoffset;
 	private int _findday;
+	private int _maxepisodes;
 	private boolean _inactive;
 	private boolean _commflag;
 	private boolean _transcode;
@@ -356,6 +366,7 @@ public class Rule {
 		rule._parentid = rule_json.getInt("ParentId");
 		rule._startoffset = rule_json.getInt("StartOffset");
 		rule._endoffset = rule_json.getInt("EndOffset");
+		rule._maxepisodes = rule_json.getInt("MaxEpisodes");
 		rule._inactive = rule_json.getBoolean("Inactive");
 		rule._commflag = rule_json.getBoolean("AutoCommflag");
 		rule._transcode = rule_json.getBoolean("AutoTranscode");

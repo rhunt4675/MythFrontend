@@ -144,10 +144,13 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 			protected void done() {
 			    try {
 			    	DefaultTableModel model = get();
-			    	_recordingTable.setModel(model);
-			    	_recordingTable.setDefaultEditor(Object.class, null);
-			    	_recordingTable.getColumnModel().getColumn(0).setCellRenderer(new RecordingRenderer());
-			    	_recordingTable.getSelectionModel().setSelectionInterval(_modelSelection.get(selected), _modelSelection.get(selected));
+			    	
+			    	if (model != null) {
+				    	_recordingTable.setModel(model);
+				    	_recordingTable.setDefaultEditor(Object.class, null);
+				    	_recordingTable.getColumnModel().getColumn(0).setCellRenderer(new RecordingRenderer());
+				    	_recordingTable.getSelectionModel().setSelectionInterval(_modelSelection.get(selected), _modelSelection.get(selected));
+			    	}
 			    } catch (InterruptedException ignore) {
 			    } catch (ExecutionException e) {
 			    	e.printStackTrace();
@@ -159,7 +162,7 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 		SwingWorker<ImageIcon, Void> imagedownloader = new SwingWorker<ImageIcon, Void>() {
 			@Override
 			protected ImageIcon doInBackground() throws Exception {
-				return selected.get_title_artwork(_titleArtworkDimension);
+				return selected == null ? null : selected.get_title_artwork(_titleArtworkDimension);
 			}
 			
 			protected void done() {

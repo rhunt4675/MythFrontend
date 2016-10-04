@@ -29,7 +29,7 @@ public class RuleModifier extends JDialog implements ActionListener {
 	private JComboBox<Rule.RecordingType> _typecombobox;
 	private JComboBox<Rule.RecordingDupMethodType> _dupmethodcombobox;
 	private JComboBox<Rule.RecordingDupInType> _dupincombobox;
-	private JTextField _startoffsettext, _endoffsettext;
+	private JTextField _startoffsettext, _endoffsettext, _maxepisodestext;
 	private JCheckBox _autocommflag, _autotranscode;
 	private JButton _ok, _cancel;
 	private Rule _rule;
@@ -57,6 +57,7 @@ public class RuleModifier extends JDialog implements ActionListener {
 		JLabel dupin = new JLabel("DupIn: ");
 		JLabel startoffset = new JLabel("StartOffset: ");
 		JLabel endoffset = new JLabel("EndOffset: ");
+		JLabel maxepisodes = new JLabel("MaxEpisodes: ");
 		Component strut = Box.createVerticalStrut(10);
 		
 		List<Rule.RecordingType> types = new ArrayList<Rule.RecordingType>();
@@ -78,6 +79,7 @@ public class RuleModifier extends JDialog implements ActionListener {
 		_autotranscode.setSelected(r.get_auto_transcode());
 		_startoffsettext = new JTextField(Integer.toString(r.get_startoffset()));
 		_endoffsettext = new JTextField(Integer.toString(r.get_endoffset()));
+		_maxepisodestext = new JTextField(Integer.toString(r.get_maxepisodes()));
 		
 		layout.setHorizontalGroup(layout.createParallelGroup(Alignment.CENTER)
 			.addComponent(title)
@@ -87,13 +89,15 @@ public class RuleModifier extends JDialog implements ActionListener {
 					.addComponent(dupmethod)
 					.addComponent(dupin)
 					.addComponent(startoffset)
-					.addComponent(endoffset))
+					.addComponent(endoffset)
+					.addComponent(maxepisodes))
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
 					.addComponent(_typecombobox)
 					.addComponent(_dupmethodcombobox)
 					.addComponent(_dupincombobox)
 					.addComponent(_startoffsettext)
 					.addComponent(_endoffsettext)
+					.addComponent(_maxepisodestext)
 					.addComponent(_autocommflag)
 					.addComponent(_autotranscode)
 					.addComponent(strut)
@@ -114,6 +118,8 @@ public class RuleModifier extends JDialog implements ActionListener {
 					.addComponent(startoffset).addComponent(_startoffsettext))
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 					.addComponent(endoffset).addComponent(_endoffsettext))
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+					.addComponent(maxepisodes).addComponent(_maxepisodestext))
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 					.addComponent(_autocommflag))
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
@@ -140,6 +146,7 @@ public class RuleModifier extends JDialog implements ActionListener {
 			_rule.set_dupmethod((Rule.RecordingDupMethodType) _dupmethodcombobox.getSelectedItem());
 			_rule.set_endoffset(Integer.parseInt(_endoffsettext.getText()));
 			_rule.set_startoffset(Integer.parseInt(_startoffsettext.getText()));
+			_rule.set_maxepisodes(Integer.parseInt(_maxepisodestext.getText()));
 			_rule.set_type((Rule.RecordingType) _typecombobox.getSelectedItem());
 			
 			try {
