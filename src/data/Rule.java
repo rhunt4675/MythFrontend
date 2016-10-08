@@ -92,16 +92,14 @@ public class Rule {
 					+ URLEncoder.encode(_channel.get_callsign(), "utf-8") + "&" 
 				: "UpdateRecordSchedule?RecordId=" + _id + "&")
 			+ "ParentId=" + _parentid + "&StartOffset=" + _startoffset + "&EndOffset=" + _endoffset
-			+ "&Inactive=" + (_inactive ? "true" : "false")
-			+ "&AutoCommflag=" + (_commflag ? "true" : "false") 
-			+ "&AutoTranscode=" + (_transcode ? "true" : "false")
-			+ "&FindDay=" + _findday + "&FindTime=" + _findtime.toString()
+			+ "&Inactive=" + _inactive + "&AutoCommflag=" + _commflag + "&AutoTranscode=" + _transcode
+			+ "&AutoExpire=" + _autoexpire + "&FindDay=" + _findday + "&FindTime=" + _findtime.toString()
 			+ "&StartTime=" + _starttime.toString() + "&EndTime=" + _endtime.toString()
 			+ "&Title=" + URLEncoder.encode(_title, "utf-8")
 			+ "&Type=" + URLEncoder.encode(_type.getText(), "utf-8")
 			+ "&DupMethod=" + URLEncoder.encode(_dupmethod.getText(), "utf-8")
 			+ "&DupIn=" + URLEncoder.encode(_dupin.getText(), "utf-8")
-			+ "&MaxEpisodes=" + _maxepisodes;
+			+ "&MaxEpisodes=" + _maxepisodes + "&MaxNewest=" + _expireoldrecordnew;
 		String check = "/Dvr/GetRecordSchedule?RecordId=";
 		String result = Source.http_post(url);
 
@@ -209,6 +207,22 @@ public class Rule {
 	public boolean get_auto_transcode() {
 		return _transcode;
 	}
+	
+	public void set_autoexpire(boolean flag) {
+		_autoexpire = flag;
+	}
+	
+	public boolean get_autoexpire() {
+		return _autoexpire;
+	}
+	
+	public void set_expireoldrecordnew(boolean flag) {
+		_expireoldrecordnew = flag;
+	}
+	
+	public boolean get_expireoldrecordnew() {
+		return _expireoldrecordnew;
+	}
 
 	public String get_title() {
 		return _title;
@@ -255,6 +269,8 @@ public class Rule {
 	private boolean _inactive;
 	private boolean _commflag;
 	private boolean _transcode;
+	private boolean _autoexpire;
+	private boolean _expireoldrecordnew;
 	private String _title;
 	private Channel _channel;
 	private LocalTime _findtime;
@@ -370,6 +386,8 @@ public class Rule {
 		rule._inactive = rule_json.getBoolean("Inactive");
 		rule._commflag = rule_json.getBoolean("AutoCommflag");
 		rule._transcode = rule_json.getBoolean("AutoTranscode");
+		rule._autoexpire = rule_json.getBoolean("AutoExpire");
+		rule._expireoldrecordnew = rule_json.getBoolean("MaxNewest");
 		rule._title = rule_json.getString("Title");
 		rule._findday = rule_json.getInt("FindDay");
 		rule._findtime = LocalTime.parse(rule_json.getString("FindTime"));

@@ -2,6 +2,8 @@ package ui;
 
 import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -15,8 +17,9 @@ import ui.rule.RuleView;
 import ui.status.StatusView;
 import ui.upcoming.UpcomingView;
 
-public class MainFrame extends JFrame {
+public class MainFrame extends JFrame implements KeyListener {
 	private static final long serialVersionUID = 85923720912596620L;
+	private final MenuBar _menubar = new MenuBar();
 	private final RecordingView _rview = new RecordingView();
 	private final UpcomingView _uview = new UpcomingView();
     private final RuleView _ruview = new RuleView();
@@ -31,6 +34,7 @@ public class MainFrame extends JFrame {
         setTitle("MythTV Frontend");
         setSize(new Dimension(1600, 900));
         setLocation(100, 100);
+        addKeyListener(this);
         /*setLocationByPlatform(true);*/
         
         // Initialize Tab Panels
@@ -68,16 +72,15 @@ public class MainFrame extends JFrame {
         add(tabbedpane);
         
         // Setup the Menu Bar
-        MenuBar menubar = new MenuBar();
-        setJMenuBar(menubar);
+        setJMenuBar(_menubar);
         
         // Show the Window
         setVisible(true);
         setState(Frame.NORMAL);
 	}
 	
+	// Return the Requested JPanel
 	public ContentView getContentView(ContentViewEnum cve) {
-		// Return the Requested JPanel
 		switch (cve) {
 		case GuideView:
 			return _gview;
@@ -92,5 +95,21 @@ public class MainFrame extends JFrame {
 		default:
 			return null;
 		}
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_F5)
+			_menubar.getMenu(0).getItem(0).doClick();
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e) {
+		// TODO Auto-generated method stub
 	}
 }

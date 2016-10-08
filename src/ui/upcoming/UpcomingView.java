@@ -1,6 +1,7 @@
 package ui.upcoming;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -19,6 +20,7 @@ import javax.swing.table.DefaultTableModel;
 
 import data.Upcoming;
 import ui.ContentView;
+import ui.MainFrame;
 
 public class UpcomingView extends ContentView implements ListSelectionListener, MouseListener, KeyListener {
 	private static final long serialVersionUID = -7264563780524135180L;
@@ -138,9 +140,13 @@ public class UpcomingView extends ContentView implements ListSelectionListener, 
 	@Override
 	public void keyReleased(KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_F5) {
+			// Find MainFrame by traversing tree
+			Component source = (Component) e.getSource();
+			while (source.getParent() != null)
+				source = source.getParent();
 			
-			// Reset Upcoming Table
-			init();
+			// Pass message to MainFrame
+			((MainFrame) source).keyPressed(e);
 		}
 	}
 }

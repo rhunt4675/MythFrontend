@@ -30,7 +30,7 @@ public class RuleModifier extends JDialog implements ActionListener {
 	private JComboBox<Rule.RecordingDupMethodType> _dupmethodcombobox;
 	private JComboBox<Rule.RecordingDupInType> _dupincombobox;
 	private JTextField _startoffsettext, _endoffsettext, _maxepisodestext;
-	private JCheckBox _autocommflag, _autotranscode;
+	private JCheckBox _autocommflag, _autotranscode, _autoexpire, _expireoldrecordnew;
 	private JButton _ok, _cancel;
 	private Rule _rule;
 
@@ -77,6 +77,10 @@ public class RuleModifier extends JDialog implements ActionListener {
 		_autocommflag.setSelected(r.get_auto_commflag());
 		_autotranscode = new JCheckBox("Auto-Transcode");
 		_autotranscode.setSelected(r.get_auto_transcode());
+		_autoexpire = new JCheckBox("Auto-Expire");
+		_autoexpire.setSelected(r.get_autoexpire());
+		_expireoldrecordnew = new JCheckBox("ExpireOldRecordNew");
+		_expireoldrecordnew.setSelected(r.get_expireoldrecordnew());
 		_startoffsettext = new JTextField(Integer.toString(r.get_startoffset()));
 		_endoffsettext = new JTextField(Integer.toString(r.get_endoffset()));
 		_maxepisodestext = new JTextField(Integer.toString(r.get_maxepisodes()));
@@ -98,6 +102,8 @@ public class RuleModifier extends JDialog implements ActionListener {
 					.addComponent(_startoffsettext)
 					.addComponent(_endoffsettext)
 					.addComponent(_maxepisodestext)
+					.addComponent(_autoexpire)
+					.addComponent(_expireoldrecordnew)
 					.addComponent(_autocommflag)
 					.addComponent(_autotranscode)
 					.addComponent(strut)
@@ -120,10 +126,10 @@ public class RuleModifier extends JDialog implements ActionListener {
 					.addComponent(endoffset).addComponent(_endoffsettext))
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 					.addComponent(maxepisodes).addComponent(_maxepisodestext))
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-					.addComponent(_autocommflag))
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-					.addComponent(_autotranscode))
+				.addComponent(_autoexpire)
+				.addComponent(_expireoldrecordnew)
+				.addComponent(_autocommflag)
+				.addComponent(_autotranscode)
 				.addComponent(strut)
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 					.addComponent(_cancel).addComponent(_ok))
@@ -140,6 +146,7 @@ public class RuleModifier extends JDialog implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == _ok) {
+			_rule.set_autoexpire(_autoexpire.isSelected());
 			_rule.set_auto_commflag(_autocommflag.isSelected());
 			_rule.set_auto_transcode(_autotranscode.isSelected());
 			_rule.set_dupin((Rule.RecordingDupInType) _dupincombobox.getSelectedItem());
@@ -147,6 +154,7 @@ public class RuleModifier extends JDialog implements ActionListener {
 			_rule.set_endoffset(Integer.parseInt(_endoffsettext.getText()));
 			_rule.set_startoffset(Integer.parseInt(_startoffsettext.getText()));
 			_rule.set_maxepisodes(Integer.parseInt(_maxepisodestext.getText()));
+			_rule.set_expireoldrecordnew(_expireoldrecordnew.isSelected());
 			_rule.set_type((Rule.RecordingType) _typecombobox.getSelectedItem());
 			
 			try {

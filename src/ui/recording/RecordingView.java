@@ -2,6 +2,7 @@ package ui.recording;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -32,6 +33,7 @@ import javax.swing.table.TableModel;
 import data.Recording;
 import data.Title;
 import ui.ContentView;
+import ui.MainFrame;
 
 public class RecordingView extends ContentView implements ListSelectionListener, MouseListener, KeyListener {
 	private static final long serialVersionUID = 7537158574729297160L;
@@ -53,6 +55,7 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 		add(sidepane, BorderLayout.WEST);
 		add(new JScrollPane(_recordingTable), BorderLayout.CENTER);
 		
+		_titleList.addKeyListener(this);
 		_titleList.addListSelectionListener(this);
 		_titleList.setSelectionBackground(Color.DARK_GRAY);
 		
@@ -260,9 +263,13 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 	@Override
 	public void keyReleased(KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_F5) {
+			// Find MainFrame by traversing tree
+			Component source = (Component) e.getSource();
+			while (source.getParent() != null)
+				source = source.getParent();
 			
-			// Reset Recording Table
-			init();
+			// Pass message to MainFrame
+			((MainFrame) source).keyPressed(e);
 		}
 	}
 }
