@@ -70,15 +70,17 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 	// Download a List of Titles
 	@Override
 	public void init() {
+		// Selection index before refresh
+		int selected = Math.max(_titleList.getSelectedIndex(), 0);
+		
 		SwingWorker<List<Title>, Void> worker = new SwingWorker<List<Title>, Void>() {
-
 			@Override
 			protected List<Title> doInBackground() {
 				List<Title> titles;
 				try {
 					titles = Title.get_titles();
 				} catch (IOException e) {
-					//e.printStackTrace();
+					e.printStackTrace();
 					titles = new ArrayList<Title>();
 				}
 				
@@ -90,13 +92,13 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 				List<Title> titles = null;
 			    try {
 			    	titles = get();
-			    } catch (InterruptedException ignore) {
-			    } catch (ExecutionException e) {
+			    } catch (Exception e) {
+			    	e.printStackTrace();
 			    }
 			    
 			    if (titles != null && !titles.isEmpty()) {
 			    	_titleList.setListData(titles.toArray(new Title[0]));
-			    	_titleList.setSelectedIndex(0);
+			    	_titleList.setSelectedIndex(Math.min(selected, _titleList.getModel().getSize() - 1));
 			    }
 			}
 		};
