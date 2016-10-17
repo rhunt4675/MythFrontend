@@ -192,8 +192,9 @@ public class AppProperties {
 			public void windowDeactivated(WindowEvent e) {}
 		}
 
-		AppPropertiesDialog dialog = new AppPropertiesDialog();		
-		dialog.setVisible(true); // Modal
+		AppPropertiesDialog dialog = new AppPropertiesDialog();
+		dialog.setModal(true);
+		dialog.setVisible(true);
 		
 		// This is our signal that the user cancelled configuration
 		boolean cancelled = !dialog.isEnabled();
