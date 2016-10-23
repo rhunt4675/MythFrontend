@@ -34,8 +34,8 @@ public class RecordingRenderer extends DefaultTableCellRenderer implements Actio
 	
 	private static final Dimension _previewDimension = new Dimension((_unselectedCellHeight * 16) / 9, _unselectedCellHeight);
 	private static final Dimension _bannerDimension = new Dimension(0, _unselectedCellHeight);
-	//private static final Dimension _fanartDimension = new Dimension(0, _selectedCellHeight);
 	private static final Dimension _channelDimension = new Dimension(0, _channelIconHeight);
+	//private static final Dimension _fanartDimension = new Dimension(0, _selectedCellHeight);
 
 	public RecordingRenderer() {
 		setOpaque(true);
