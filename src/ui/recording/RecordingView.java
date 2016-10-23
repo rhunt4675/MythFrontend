@@ -13,6 +13,8 @@ import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +22,8 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.Box;
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -46,9 +50,10 @@ import ui.MainFrame;
 
 public class RecordingView extends ContentView implements ListSelectionListener, ActionListener, MouseListener, KeyListener {
 	private static final long serialVersionUID = 7537158574729297160L;
+	private static final String[] _sortTypeArray = {"Date", "Original Airdate", "Season/Episode", "Filesize"};
+	private static final String[] _sortDirectionArray = {"Ascending", "Descending"};
+	
 	private TableRowSorter<TableModel> _sorter = new TableRowSorter<TableModel>();
-	private JComboBox<String> _sortTypeComboBox = new JComboBox<String>();
-	private JComboBox<String> _sortDirectionComboBox = new JComboBox<String>();
 	private JList<Title> _titleList = new JList<Title>();
 	private JTable _recordingTable = new JTable();
 	private JLabel _titleArtwork = new JLabel();
@@ -56,7 +61,10 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 	private Map<Title, TableModel> _models = new HashMap<Title, TableModel>();
 	private Map<Title, Integer> _modelSelection = new HashMap<Title, Integer>();
 	private Dimension _titleArtworkDimension = new Dimension(250, 0);
+	
 	private List<SortKey> _sortKeys = new ArrayList<SortKey>();
+	private JComboBox<String> _sortTypeComboBox = new JComboBox<String>();
+	private JComboBox<String> _sortDirectionComboBox = new JComboBox<String>();
 
 	public RecordingView() {
 		JPanel sidepane = new JPanel();
@@ -78,14 +86,11 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 		add(mainpane, BorderLayout.CENTER);
 		
 		_sortTypeComboBox.addActionListener(this);
-		_sortTypeComboBox.addItem("Date");
-		_sortTypeComboBox.addItem("Original Airdate");
-		_sortTypeComboBox.addItem("Season/Episode");
-		_sortTypeComboBox.addItem("Filesize");
-		
+		_sortTypeComboBox.setModel(new DefaultComboBoxModel<String>(_sortTypeArray));
 		_sortDirectionComboBox.addActionListener(this);
-		_sortDirectionComboBox.addItem("Ascending");
-		_sortDirectionComboBox.addItem("Descending");
+		_sortDirectionComboBox.setModel(new DefaultComboBoxModel<String>(_sortDirectionArray));
+		_sortTypeComboBox.setSelectedIndex(0);				// Initial Sorting == Descending Record Date
+		_sortDirectionComboBox.setSelectedIndex(1); 		// Initial Sorting == Descending Record Date
 		
 		_titleList.addKeyListener(this);
 		_titleList.addListSelectionListener(this);
@@ -160,19 +165,36 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 					try {
 						List<Recording> episodes = Recording.get_recordings(selected.get_title());
 						Recording[] recordings = new Recording[episodes.size()];
+						ZonedDateTime[] recdates = new ZonedDateTime[episodes.size()];
 						LocalDate[] airdates = new LocalDate[episodes.size()];
 						Double[] seasonepisodes = new Double[episodes.size()];
 						BigInteger[] filesizes = new BigInteger[episodes.size()];
 						
 						for (int i = 0; i < episodes.size(); i++) {
 							recordings[i] = episodes.get(i);
+							recdates[i] = episodes.get(i).get_starttime().withZoneSameInstant(ZoneId.systemDefault());
 							airdates[i] = episodes.get(i).get_airdate();
 							seasonepisodes[i] = episodes.get(i).get_season() + 0.001 * episodes.get(i).get_episode();
 							filesizes[i] = new BigInteger(episodes.get(i).get_filesize());
 						}
 						
-						model = new DefaultTableModel();
+						model = new DefaultTableModel() {
+							private static final long serialVersionUID = -1225467351008175463L;
+
+							@Override public Class<?> getColumnClass(int columnIndex) {
+								switch (columnIndex) {
+								case 0: return Recording.class;
+								case 1: return ZonedDateTime.class;
+								case 2: return LocalDate.class;
+								case 3: return Double.class;
+								case 4: return BigInteger.class;
+								default: return null;
+								}
+							}
+						};
+						
 						model.addColumn(null, recordings);
+						model.addColumn(null, recdates);
 						model.addColumn(null, airdates);
 						model.addColumn(null, seasonepisodes);
 						model.addColumn(null, filesizes);
@@ -207,7 +229,8 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 					    	_recordingTable.removeColumn(_recordingTable.getColumnModel().getColumn(1));
 			    		
 				    	_recordingTable.setDefaultEditor(Object.class, null);
-				    	_recordingTable.getColumnModel().getColumn(0).setCellRenderer(new RecordingRenderer());
+				    	_recordingTable.setDefaultRenderer(Recording.class, new RecordingRenderer());
+//				    	_recordingTable.getColumnModel().getColumn(0).setCellRenderer(new RecordingRenderer());
 				    	_recordingTable.getSelectionModel().setSelectionInterval(_modelSelection.get(selected), _modelSelection.get(selected));
 			    	}
 			    } catch (InterruptedException ignore) {
@@ -332,19 +355,17 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == _sortTypeComboBox || e.getSource() == _sortDirectionComboBox) {
+			// Get Selected Values
+			int sortColumn = _sortTypeComboBox.getSelectedIndex() + 1;
+			SortOrder sortOrder = _sortDirectionComboBox.getSelectedIndex() == 0 ? SortOrder.ASCENDING : SortOrder.DESCENDING;
+			
+			// Apply (unless sortOrder == 0)
+			_sortKeys.clear();
+    		_sortKeys.add(new SortKey(sortColumn, sortOrder));
+    		
 			// Check if TableModel is ready
-			if (_sorter.getModel() != null) {
-				// Get Selected Values
-				int sortColumn = _sortTypeComboBox.getSelectedIndex();
-				SortOrder sortOrder = _sortDirectionComboBox.getSelectedIndex() == 0 ? SortOrder.ASCENDING : SortOrder.DESCENDING;
-				
-				// Apply (unless sortOrder == 0)
-				_sortKeys = new ArrayList<SortKey>();
-				_sortKeys.clear();
-	    		_sortKeys.add(new SortKey(sortColumn, sortOrder));
-	    		if (sortColumn == 0) _sortKeys = null;
+			if (_sorter.getModel() != null)
 	    		_sorter.setSortKeys(_sortKeys);
-			}
 		}
 	}
 }
