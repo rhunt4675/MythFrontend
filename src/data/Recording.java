@@ -15,6 +15,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import utils.AppProperties;
+
 public class Recording extends Program {
 	
 	public enum Artwork {FANART, COVERART, BANNER, PREVIEW};
@@ -69,14 +71,9 @@ public class Recording extends Program {
 		}
 	}
 	
-	public void play() {
+	public void play() throws IOException {
 		String url = Source.playback_url("/Content/GetRecording?RecordedId=" + get_recordedid());
-		
-		try {
-			new ProcessBuilder("C:\\Users\\ryan__000\\Downloads\\SMPlayerPortable\\App\\SMPlayer\\smplayer.exe", url).start();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
+		new ProcessBuilder(AppProperties.getPlayer(), url).start();
 	}
 	
 	public void delete(boolean allow_rerecord) throws IOException {

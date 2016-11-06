@@ -22,17 +22,16 @@ public class Test {
 	public static void run() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, IOException {
 	    // Set up Look & Feel, Application Properties
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-	    AppProperties.readAndUpdate();
 	    
 	    // Verify Connectivity to the Backend
 	    while (true) {
 		    try {
-		    	Source.test_connection(AppProperties.getSourceAddress(), AppProperties.getSourcePort(), AppProperties.isSourceSecure());
+		    	Source.test_connection();
 		    	AppProperties.updateAndWrite();
 		    	break;
 		    } catch (IOException e) {
 		    	JOptionPane.showMessageDialog(null, "Connection failed!");
-		    	boolean cancelled = AppProperties.displayPropertiesWindow();
+		    	boolean cancelled = AppProperties.displayBackendPropertiesWindow();
 		    	if (cancelled) System.exit(1);
 		    }
 	    }

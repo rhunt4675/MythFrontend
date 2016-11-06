@@ -22,12 +22,12 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.Box;
-import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -60,7 +60,7 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 	
 	private Map<Title, TableModel> _models = new HashMap<Title, TableModel>();
 	private Map<Title, Integer> _modelSelection = new HashMap<Title, Integer>();
-	private Dimension _titleArtworkDimension = new Dimension(250, 0);
+	private static final Dimension _titleArtworkDimension = new Dimension(250, 0);
 	
 	private List<SortKey> _sortKeys = new ArrayList<SortKey>();
 	private JComboBox<String> _sortTypeComboBox = new JComboBox<String>();
@@ -322,9 +322,13 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 			// Play on Double Click
 			JTable table = (JTable) e.getSource();
 			int row = table.rowAtPoint(e.getPoint());
-			
 			Recording r = (Recording) table.getValueAt(row, 0);
-			r.play();
+			
+			try {
+				r.play();
+			} catch (IOException ex) {
+				JOptionPane.showMessageDialog(this, "Attempting to play video failed! [" + ex.getMessage() + "]");
+			}
 		}
 	}
 

@@ -47,7 +47,13 @@ public class RecordingPopup extends JPopupMenu {
 				JTable table = (JTable) ((JPopupMenu)((JMenuItem) e.getSource()).getParent()).getInvoker();
 				int row = table.getSelectedRow();
 				int column = table.getSelectedColumn();
-				((Recording) table.getValueAt(row, column)).play();
+				Recording r = (Recording) table.getValueAt(row, column);
+				
+				try {
+					r.play();
+				} catch (IOException ex) {
+					JOptionPane.showMessageDialog(null, "Attempting to play video failed! [" + ex.getMessage() + "]");					
+				}
 			}
 		});
 		

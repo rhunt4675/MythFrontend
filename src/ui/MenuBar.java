@@ -18,7 +18,7 @@ import utils.AppProperties;
 
 public class MenuBar extends JMenuBar implements ActionListener {
 	private static final long serialVersionUID = 8648195999870453299L;
-	private JMenuItem _refresh, _exit, _properties;
+	private JMenuItem _refresh, _exit, _properties, _player;
 	
 	public MenuBar() {
 		// Define Menus
@@ -45,7 +45,10 @@ public class MenuBar extends JMenuBar implements ActionListener {
 		// Build out "Edit" Menu
 		_properties = new JMenuItem("Properties", KeyEvent.VK_P);
 		_properties.addActionListener(this);
+		_player = new JMenuItem("Player Settings", KeyEvent.VK_L);
+		_player.addActionListener(this);
 		edit.add(_properties);
+		edit.add(_player);
 		
 		// Add Menus to Menu Bar
 		add(file);
@@ -77,13 +80,14 @@ public class MenuBar extends JMenuBar implements ActionListener {
 	        topLevel.dispose();
 		} else if (e.getSource() == _properties) {
 			
-			// Prompt user for Properties			
+			// Prompt user for Properties
+			boolean cancelled = false;
 		    while (true) {
-		    	boolean cancelled = AppProperties.displayPropertiesWindow();
-		    	if (cancelled) return;
+		    	cancelled = AppProperties.displayBackendPropertiesWindow();
+		    	if (cancelled) break;
 		    	
 		    	try {
-			    	Source.test_connection(AppProperties.getSourceAddress(), AppProperties.getSourcePort(), AppProperties.isSourceSecure());
+			    	Source.test_connection();
 			    	AppProperties.updateAndWrite();
 			    	break;
 			    } catch (IOException ex) {
@@ -91,7 +95,9 @@ public class MenuBar extends JMenuBar implements ActionListener {
 			    }
 		    }
 		    
-			_refresh.doClick();
+			if (!cancelled) _refresh.doClick();
+		} else if (e.getSource() == _player) {
+			AppProperties.displayPlayerPropertiesWindow();
 		}
 	}
 }

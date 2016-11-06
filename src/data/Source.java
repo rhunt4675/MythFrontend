@@ -9,18 +9,21 @@ import java.net.URL;
 
 import javax.swing.ImageIcon;
 
+import utils.AppProperties;
+
 public abstract class Source {
 	private enum HTTP_METHOD {GET, POST, PUT, DELETE, OPTIONS, HEAD, CONNECT};
-	private static String _address;
-	private static String _port;
-	private static boolean _secure;
+	//private static String _address;
+	//private static String _port;
+	//private static boolean _secure;
 	
 	protected static String get_version() {
 		return "88";
 	}
 	
 	private static String get_base_url() {
-		return "http" + (_secure ? "s" : "") + "://" + _address + ":" + _port;
+		return "http" + (AppProperties.isSourceSecure() ? "s" : "") + "://" 
+				+ AppProperties.getSourceAddress() + ":" + AppProperties.getSourcePort();
 	}
 	
 	private static String http_do(String url, HTTP_METHOD method, boolean timeout) throws IOException {
@@ -70,23 +73,11 @@ public abstract class Source {
 		return get_base_url() + uri;
 	}
 	
-	public static void test_connection(String address, String port, boolean secure) throws IOException {
+	public static void test_connection() throws IOException {
 		try {
-			http_do((secure ? "https" : "http") + "://" + address + ":" + port + "/Status/xml", HTTP_METHOD.GET, true);
+			http_do(get_base_url() + "/Status/xml", HTTP_METHOD.GET, true);
 		} catch (IOException e) {
 			throw e;
 		}
-	}
-	
-	public static void set_address(String address) {
-		_address = address;
-	}
-	
-	public static void set_port(String port) {
-		_port = port;
-	}
-	
-	public static void set_secure(boolean secure) {
-		_secure = secure;
 	}
 }
