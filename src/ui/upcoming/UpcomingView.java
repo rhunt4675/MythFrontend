@@ -34,7 +34,8 @@ public class UpcomingView extends ContentView implements ListSelectionListener, 
 		_upcomingListByDay.addMouseListener(this);
 		_upcomingListByDay.addKeyListener(this);
 		_upcomingListByDay.setTableHeader(null);
-		_upcomingListByDay.setDefaultEditor(UpcomingList.class, new UpcomingListEditor());
+		_upcomingListByDay.setDefaultRenderer(UpcomingList.class, new UpcomingListEditorRenderer());
+		_upcomingListByDay.setDefaultEditor(UpcomingList.class, new UpcomingListEditorRenderer());
 	}
 	
 	// Download a List of Upcoming Recordings

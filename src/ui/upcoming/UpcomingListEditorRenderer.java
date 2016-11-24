@@ -15,18 +15,30 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTable;
-import javax.swing.border.BevelBorder;
 import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
 
 import data.Upcoming;
 import data.UpcomingList;
 
-public class UpcomingListEditor extends AbstractCellEditor implements TableCellEditor {
+public class UpcomingListEditorRenderer extends AbstractCellEditor
+			implements TableCellEditor, TableCellRenderer {
 	private static final long serialVersionUID = 8851218008322051385L;
 	
 	@Override
-	public Component getTableCellEditorComponent(JTable table, Object value, 
+	public Component getTableCellEditorComponent(JTable table, Object value,
 			boolean isSelected, int row, int column) {
+		return getLayout(table, value, row, column);
+	}
+
+	@Override
+	public Component getTableCellRendererComponent(JTable table, Object value, 
+			boolean isSelected, boolean hasFocus, int row, int column) {
+		return getLayout(table, value, row, column);
+	}
+	
+	private Component getLayout(JTable table, Object value, 
+			int row, int column) {
 				
 		UpcomingList ulist = (UpcomingList) value;
 		
@@ -56,14 +68,11 @@ public class UpcomingListEditor extends AbstractCellEditor implements TableCellE
 		panel.add(upcomingList, cons);
 		panel.add(Box.createVerticalStrut(20), cons);
 		
-		// Selected Bevel Border
-		if (isSelected)
-			panel.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
-		
 		// Resize Row Height
-		int calcHeight = ulist.get_upcoming().size() * 50 + 100;
-		if (table.getRowHeight(row) != calcHeight)
-			table.setRowHeight(row, calcHeight);
+		if (table.getRowHeight(row) != 400) table.setRowHeight(row, 400);
+		//int calcHeight = ulist.get_upcoming().size() * 50 + 100;
+		//if (table.getRowHeight(row) != calcHeight)
+			//table.setRowHeight(row, calcHeight);
 		
 		return (Component) panel;
 	}
