@@ -1,4 +1,4 @@
-package test;
+package ui;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -11,10 +11,9 @@ import javax.swing.UnsupportedLookAndFeelException;
 import org.json.JSONException;
 
 import data.Source;
-import ui.MainFrame;
 import utils.AppProperties;
 
-public class Test {
+public class Init {
 	public static void main(String[] args) throws IOException, JSONException, InvocationTargetException, InterruptedException, ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException {
 		run();
 	}

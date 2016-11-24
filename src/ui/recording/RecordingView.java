@@ -98,6 +98,7 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 				
 		_recordingTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		_recordingTable.getSelectionModel().addListSelectionListener(this);
+		_recordingTable.setDefaultEditor(Object.class, null);
 		_recordingTable.setRowSorter(_sorter);
 		_recordingTable.addMouseListener(this);
 		_recordingTable.addKeyListener(this);
@@ -228,9 +229,7 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 			    		while (_recordingTable.getColumnCount() > 1)
 					    	_recordingTable.removeColumn(_recordingTable.getColumnModel().getColumn(1));
 			    		
-				    	_recordingTable.setDefaultEditor(Object.class, null);
 				    	_recordingTable.setDefaultRenderer(Recording.class, new RecordingRenderer());
-//				    	_recordingTable.getColumnModel().getColumn(0).setCellRenderer(new RecordingRenderer());
 				    	_recordingTable.getSelectionModel().setSelectionInterval(_modelSelection.get(selected), _modelSelection.get(selected));
 			    	}
 			    } catch (InterruptedException ignore) {

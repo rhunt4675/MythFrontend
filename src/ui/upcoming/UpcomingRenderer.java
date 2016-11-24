@@ -9,25 +9,21 @@ import java.time.format.DateTimeFormatter;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.border.BevelBorder;
-import javax.swing.table.DefaultTableCellRenderer;
 
 import data.Upcoming;
 
-public class UpcomingRenderer extends DefaultTableCellRenderer {
+public class UpcomingRenderer extends DefaultListCellRenderer {
 	private static final long serialVersionUID = -83330661590734326L;
-
-	public UpcomingRenderer() {
-		setOpaque(true);
-	}
 	
 	@Override
-	public Component getTableCellRendererComponent(JTable table, Object value,
-			boolean isSelected, boolean hasFocus, int row, int column) {
+	public Component getListCellRendererComponent(JList<?> list, Object value,
+			int index, boolean isSelected, boolean hasFocus) {
 
 		JPanel panel = new JPanel();
 		Upcoming u = (Upcoming) value;

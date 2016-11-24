@@ -9,34 +9,32 @@ import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.List;
 
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.SwingUtilities;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
-import data.Upcoming;
+import data.UpcomingList;
 import ui.ContentView;
 import ui.MainFrame;
 
 public class UpcomingView extends ContentView implements ListSelectionListener, MouseListener, KeyListener {
 	private static final long serialVersionUID = -7264563780524135180L;
+	private JTable _upcomingListByDay = new JTable();
 	
-	private JTable _upcomingTable = new JTable();
-
 	public UpcomingView() {
 		setLayout(new BorderLayout());
-		add(new JScrollPane(_upcomingTable), BorderLayout.CENTER);
-		
-		_upcomingTable.setDefaultRenderer(Upcoming.class, new UpcomingRenderer());
-		_upcomingTable.getSelectionModel().addListSelectionListener(this);
-		_upcomingTable.addMouseListener(this);
-		_upcomingTable.addKeyListener(this);
-		_upcomingTable.setTableHeader(null);
-		_upcomingTable.setRowHeight(75);
+		add(new JScrollPane(_upcomingListByDay), BorderLayout.CENTER);
+
+		_upcomingListByDay.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		_upcomingListByDay.getSelectionModel().addListSelectionListener(this);
+		_upcomingListByDay.addMouseListener(this);
+		_upcomingListByDay.addKeyListener(this);
+		_upcomingListByDay.setTableHeader(null);
+		_upcomingListByDay.setDefaultEditor(UpcomingList.class, new UpcomingListEditor());
 	}
 	
 	// Download a List of Upcoming Recordings
@@ -49,10 +47,15 @@ public class UpcomingView extends ContentView implements ListSelectionListener, 
 				DefaultTableModel model;
 				
 				try {
-					List<Upcoming> upcoming = Upcoming.get_upcoming();
+					List<UpcomingList> upcominglist = UpcomingList.get_upcoming_by_day();
+					model = new DefaultTableModel() {
+						private static final long serialVersionUID = -2950671252908293184L;
+						@Override public Class<?> getColumnClass(int columnIndex) {
+							return UpcomingList.class;
+						}
+					};
 					
-					model = new DefaultTableModel();
-					model.addColumn(null, upcoming.toArray(new Upcoming[0]));					
+					model.addColumn(null, upcominglist.toArray(new UpcomingList[0]));
 				} catch (IOException e) {
 					e.printStackTrace();
 					model = null;
@@ -65,9 +68,7 @@ public class UpcomingView extends ContentView implements ListSelectionListener, 
 			protected void done() {
 			    try {
 			    	DefaultTableModel model = get();
-			    	_upcomingTable.setModel(model);
-			    	_upcomingTable.setDefaultEditor(Object.class, null);
-			    	_upcomingTable.getColumnModel().getColumn(0).setCellRenderer(new UpcomingRenderer());
+			    	_upcomingListByDay.setModel(model);
 			    } catch (InterruptedException ignore) {
 			    } catch (java.util.concurrent.ExecutionException e) {
 			            e.printStackTrace();
@@ -78,64 +79,14 @@ public class UpcomingView extends ContentView implements ListSelectionListener, 
 		worker.execute();
 	}
 
-	@Override
-	public void valueChanged(ListSelectionEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		if (SwingUtilities.isRightMouseButton(e)) {
-			JTable table = (JTable) e.getSource();
-			int row = table.rowAtPoint(e.getPoint());
-			int col = table.columnAtPoint(e.getPoint());
-			table.getSelectionModel().setSelectionInterval(row, row);
-			table.setColumnSelectionInterval(col, col);
-			
-			if (e.isPopupTrigger()) {
-				JPopupMenu menu = new UpcomingPopup();
-				menu.show(table, e.getX(), e.getY());
-			}
-		} else if (e.getClickCount() == 2) {
-            // Double Click Event
-        }
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void keyTyped(KeyEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void keyPressed(KeyEvent e) {
-		// TODO Auto-generated method stub
-	}
+	@Override public void valueChanged(ListSelectionEvent e) {}
+	@Override public void mouseClicked(MouseEvent e) {}
+	@Override public void mousePressed(MouseEvent e) {}
+	@Override public void mouseReleased(MouseEvent e) {}
+	@Override public void mouseEntered(MouseEvent e) {}
+	@Override public void mouseExited(MouseEvent e) {}
+	@Override public void keyTyped(KeyEvent e) {}
+	@Override public void keyPressed(KeyEvent e) {}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
