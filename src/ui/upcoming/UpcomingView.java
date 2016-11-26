@@ -9,9 +9,11 @@ import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.List;
 
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -34,8 +36,8 @@ public class UpcomingView extends ContentView implements ListSelectionListener, 
 		_upcomingListByDay.addMouseListener(this);
 		_upcomingListByDay.addKeyListener(this);
 		_upcomingListByDay.setTableHeader(null);
-		_upcomingListByDay.setDefaultRenderer(UpcomingList.class, new UpcomingListEditorRenderer());
-		_upcomingListByDay.setDefaultEditor(UpcomingList.class, new UpcomingListEditorRenderer());
+		_upcomingListByDay.setRowHeight(400);
+		_upcomingListByDay.setDefaultRenderer(UpcomingList.class, new UpcomingListRenderer());
 	}
 	
 	// Download a List of Upcoming Recordings
@@ -79,11 +81,27 @@ public class UpcomingView extends ContentView implements ListSelectionListener, 
 		
 		worker.execute();
 	}
+	
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		if (SwingUtilities.isRightMouseButton(e)) {
+			// Launch Context-Menu on Right Click
+			JTable table = (JTable) e.getSource();
+			int row = table.rowAtPoint(e.getPoint());
+			int col = table.columnAtPoint(e.getPoint());
+			table.getSelectionModel().setSelectionInterval(row, row);
+			table.setColumnSelectionInterval(col, col);
+			
+			if (e.isPopupTrigger()) {
+				JPopupMenu menu = new UpcomingPopup();
+				menu.show(table, e.getX(), e.getY());
+			}
+		}
+	}
 
 	@Override public void valueChanged(ListSelectionEvent e) {}
 	@Override public void mouseClicked(MouseEvent e) {}
 	@Override public void mousePressed(MouseEvent e) {}
-	@Override public void mouseReleased(MouseEvent e) {}
 	@Override public void mouseEntered(MouseEvent e) {}
 	@Override public void mouseExited(MouseEvent e) {}
 	@Override public void keyTyped(KeyEvent e) {}

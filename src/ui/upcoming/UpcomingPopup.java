@@ -2,6 +2,7 @@ package ui.upcoming;
 
 import java.awt.Component;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -15,6 +16,7 @@ import javax.swing.table.DefaultTableModel;
 
 import data.Rule;
 import data.Upcoming;
+import data.UpcomingList;
 import ui.rule.RuleModifier;
 
 public class UpcomingPopup extends JPopupMenu {
@@ -24,6 +26,7 @@ public class UpcomingPopup extends JPopupMenu {
 	private JMenuItem _addoverride;
 	private JMenuItem _deleteoverride;
 	private JMenuItem _properties;
+	private Upcoming _upcoming;
 
 	public UpcomingPopup() {
 		_enablerecording = new JMenuItem("Enable Recording");
@@ -51,7 +54,7 @@ public class UpcomingPopup extends JPopupMenu {
 						int column = table.getSelectedColumn();
 						
 						try {
-							((Upcoming) table.getValueAt(row, column)).enable();
+							_upcoming.enable();
 							((DefaultTableModel) table.getModel()).fireTableCellUpdated(row, column);
 						} catch (IOException e1) {
 							e1.printStackTrace();
@@ -84,7 +87,7 @@ public class UpcomingPopup extends JPopupMenu {
 						int column = table.getSelectedColumn();
 						
 						try {
-							((Upcoming) table.getValueAt(row, column)).disable();
+							_upcoming.disable();
 							((DefaultTableModel) table.getModel()).fireTableCellUpdated(row, column);
 						} catch (IOException e1) {
 							e1.printStackTrace();
@@ -117,7 +120,7 @@ public class UpcomingPopup extends JPopupMenu {
 						int column = table.getSelectedColumn();
 						
 						try {
-							((Upcoming) table.getValueAt(row, column)).add_override();
+							_upcoming.add_override();
 							((DefaultTableModel) table.getModel()).fireTableCellUpdated(row, column);
 						} catch (IOException e1) {
 							e1.printStackTrace();
@@ -150,7 +153,7 @@ public class UpcomingPopup extends JPopupMenu {
 						int column = table.getSelectedColumn();
 						
 						try {
-							((Upcoming) table.getValueAt(row, column)).remove_override();
+							_upcoming.remove_override();
 							((DefaultTableModel) table.getModel()).fireTableCellUpdated(row, column);
 						} catch (IOException e1) {
 							e1.printStackTrace();
@@ -179,8 +182,7 @@ public class UpcomingPopup extends JPopupMenu {
 		        JPopupMenu popupMenu = (JPopupMenu) menuItem.getParent();
 		        JTable invoker = (JTable) popupMenu.getInvoker();
 		        JFrame topLevel = (JFrame) invoker.getTopLevelAncestor();
-		        Upcoming u = (Upcoming) invoker.getValueAt(invoker.getSelectedRow(), invoker.getSelectedColumn());
-		        Rule r = u.get_rule();
+		        Rule r = _upcoming.get_rule();
 		        
 				RuleModifier modifier = new RuleModifier(topLevel, r);
 				modifier.setVisible(true);				
@@ -193,9 +195,17 @@ public class UpcomingPopup extends JPopupMenu {
 		JTable table = (JTable) invoker;
 		int row = table.rowAtPoint(new Point(x, y));
 		int column = table.columnAtPoint(new Point(x, y));
+		Rectangle r = table.getCellRect(row, column, true);
 		
-		Upcoming upcoming = (Upcoming) table.getValueAt(row, column);
-		Rule rule = upcoming.get_rule();
+		UpcomingList upcominglist = (UpcomingList) table.getValueAt(row, column);
+		int selectionIndex = UpcomingListRenderer.indexFromCoordinates(x, y, r);
+
+		// User clicked out of list bounds
+		if (selectionIndex < 0 || selectionIndex >= upcominglist.get_upcoming().size())
+			return;
+		
+		_upcoming = upcominglist.get_upcoming().get(selectionIndex);
+		Rule rule = _upcoming.get_rule();
 		
 		if (rule.is_disabled() || rule.is_override()) {
 			_disablerecording.setEnabled(false);
@@ -205,7 +215,7 @@ public class UpcomingPopup extends JPopupMenu {
 		if (!rule.is_disabled()) _enablerecording.setEnabled(false);
 		if (!rule.is_override()) _deleteoverride.setEnabled(false);
 		
-		if (upcoming.get_status().getStatusInt() < 0) _addoverride.setEnabled(false);
+		if (_upcoming.get_status().getStatusInt() < 0) _addoverride.setEnabled(false);
 		else _disablerecording.setEnabled(false);
 		
 		super.show(invoker, x, y);
