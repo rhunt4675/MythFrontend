@@ -6,6 +6,8 @@ import java.awt.Font;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,17 +15,17 @@ import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
-import javax.swing.GroupLayout.Alignment;
 
 import data.Rule;
 
-public class RuleModifier extends JDialog implements ActionListener {
+public class RuleModifier extends JDialog implements ActionListener, KeyListener {
 	private static final long serialVersionUID = -8685640624319272471L;
 	
 	private JComboBox<Rule.RecordingType> _typecombobox;
@@ -38,6 +40,7 @@ public class RuleModifier extends JDialog implements ActionListener {
 		super(owner);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setTitle("Modify Recording Rule");
+		addKeyListener(this);
 		
 		_rule = r;
 		_ok = new JButton("OK");
@@ -69,21 +72,31 @@ public class RuleModifier extends JDialog implements ActionListener {
 		
 		_typecombobox = new JComboBox<Rule.RecordingType>(types.toArray(new Rule.RecordingType[0]));
 		_typecombobox.setSelectedItem(r.get_type());
+		_typecombobox.addKeyListener(this);
 		_dupmethodcombobox = new JComboBox<Rule.RecordingDupMethodType>(Rule.RecordingDupMethodType.values());
 		_dupmethodcombobox.setSelectedItem(r.get_dupmethod());
+		_dupmethodcombobox.addKeyListener(this);
 		_dupincombobox = new JComboBox<Rule.RecordingDupInType>(Rule.RecordingDupInType.values());
 		_dupincombobox.setSelectedItem(r.get_dupin());
+		_dupincombobox.addKeyListener(this);
 		_autocommflag = new JCheckBox("Auto-Commflag");
 		_autocommflag.setSelected(r.get_auto_commflag());
+		_autocommflag.addKeyListener(this);
 		_autotranscode = new JCheckBox("Auto-Transcode");
 		_autotranscode.setSelected(r.get_auto_transcode());
+		_autotranscode.addKeyListener(this);
 		_autoexpire = new JCheckBox("Auto-Expire");
 		_autoexpire.setSelected(r.get_autoexpire());
+		_autoexpire.addKeyListener(this);
 		_expireoldrecordnew = new JCheckBox("ExpireOldRecordNew");
 		_expireoldrecordnew.setSelected(r.get_expireoldrecordnew());
+		_expireoldrecordnew.addKeyListener(this);
 		_startoffsettext = new JTextField(Integer.toString(r.get_startoffset()));
+		_startoffsettext.addKeyListener(this);
 		_endoffsettext = new JTextField(Integer.toString(r.get_endoffset()));
+		_endoffsettext.addKeyListener(this);
 		_maxepisodestext = new JTextField(Integer.toString(r.get_maxepisodes()));
+		_maxepisodestext.addKeyListener(this);
 		
 		layout.setHorizontalGroup(layout.createParallelGroup(Alignment.CENTER)
 			.addComponent(title)
@@ -166,4 +179,15 @@ public class RuleModifier extends JDialog implements ActionListener {
 		
 		this.dispose();
 	}
+	
+	@Override
+	public void keyReleased(KeyEvent e) {
+		switch (e.getKeyCode()) {
+		case KeyEvent.VK_ESCAPE:
+			dispose();
+		}
+	}
+
+	@Override public void keyTyped(KeyEvent e) {}
+	@Override public void keyPressed(KeyEvent e) {}
 }

@@ -4,16 +4,12 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.List;
 
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -23,21 +19,25 @@ import data.UpcomingList;
 import ui.ContentView;
 import ui.MainFrame;
 
-public class UpcomingView extends ContentView implements ListSelectionListener, MouseListener, KeyListener {
+public class UpcomingView extends ContentView implements ListSelectionListener, KeyListener {
 	private static final long serialVersionUID = -7264563780524135180L;
 	private JTable _upcomingListByDay = new JTable();
 	
 	public UpcomingView() {
 		setLayout(new BorderLayout());
 		add(new JScrollPane(_upcomingListByDay), BorderLayout.CENTER);
+		
+		UpcomingListRenderer renderer = new UpcomingListRenderer();
 
 		_upcomingListByDay.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		_upcomingListByDay.getSelectionModel().addListSelectionListener(this);
-		_upcomingListByDay.addMouseListener(this);
+		_upcomingListByDay.addMouseListener(renderer);
+		_upcomingListByDay.addMouseMotionListener(renderer);
 		_upcomingListByDay.addKeyListener(this);
 		_upcomingListByDay.setTableHeader(null);
-		_upcomingListByDay.setRowHeight(400);
-		_upcomingListByDay.setDefaultRenderer(UpcomingList.class, new UpcomingListRenderer());
+		_upcomingListByDay.setAutoscrolls(false);
+		_upcomingListByDay.setRowHeight(1000);
+		_upcomingListByDay.setDefaultRenderer(UpcomingList.class, renderer);
 	}
 	
 	// Download a List of Upcoming Recordings
@@ -81,29 +81,8 @@ public class UpcomingView extends ContentView implements ListSelectionListener, 
 		
 		worker.execute();
 	}
-	
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		if (SwingUtilities.isRightMouseButton(e)) {
-			// Launch Context-Menu on Right Click
-			JTable table = (JTable) e.getSource();
-			int row = table.rowAtPoint(e.getPoint());
-			int col = table.columnAtPoint(e.getPoint());
-			table.getSelectionModel().setSelectionInterval(row, row);
-			table.setColumnSelectionInterval(col, col);
-			
-			if (e.isPopupTrigger()) {
-				JPopupMenu menu = new UpcomingPopup();
-				menu.show(table, e.getX(), e.getY());
-			}
-		}
-	}
 
 	@Override public void valueChanged(ListSelectionEvent e) {}
-	@Override public void mouseClicked(MouseEvent e) {}
-	@Override public void mousePressed(MouseEvent e) {}
-	@Override public void mouseEntered(MouseEvent e) {}
-	@Override public void mouseExited(MouseEvent e) {}
 	@Override public void keyTyped(KeyEvent e) {}
 	@Override public void keyPressed(KeyEvent e) {}
 
