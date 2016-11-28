@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -21,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import javax.swing.Box;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
@@ -32,9 +32,10 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
-import javax.swing.SortOrder;
 import javax.swing.RowSorter.SortKey;
+import javax.swing.SortOrder;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
@@ -63,6 +64,9 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 	private static final Dimension _titleArtworkDimension = new Dimension(250, 0);
 	
 	private List<SortKey> _sortKeys = new ArrayList<SortKey>();
+	private JLabel _searchLabel = new JLabel();
+	private JLabel _sortLabel = new JLabel();
+	private JTextField _searchTextField = new JTextField();
 	private JComboBox<String> _sortTypeComboBox = new JComboBox<String>();
 	private JComboBox<String> _sortDirectionComboBox = new JComboBox<String>();
 
@@ -72,7 +76,11 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 		sidepane.add(new JScrollPane(_titleList), BorderLayout.CENTER);
 		sidepane.add(_titleArtwork, BorderLayout.SOUTH);
 		
-		Box selectors = Box.createHorizontalBox();
+		JPanel selectors = new JPanel();
+		selectors.setLayout(new FlowLayout(FlowLayout.RIGHT));
+		selectors.add(_searchLabel);
+		selectors.add(_searchTextField);
+		selectors.add(_sortLabel);
 		selectors.add(_sortTypeComboBox);
 		selectors.add(_sortDirectionComboBox);
 		
@@ -85,10 +93,23 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 		add(sidepane, BorderLayout.WEST);
 		add(mainpane, BorderLayout.CENTER);
 		
+		_searchLabel.setText("Search: ");
+		//_searchLabel.setMinimumSize(new Dimension(20, 0));
+		//_searchLabel.setPreferredSize(new Dimension(20, 0));
+		//_searchLabel.setPreferredSize(new Dimension(75, 25));
+		//_searchTextField.setMinimumSize(new Dimension(50, 0));
+		_searchTextField.setPreferredSize(new Dimension(100, 25));
+		//_searchTextField.setMaximumSize(new Dimension(50, 0));
+		_sortLabel.setText("Sort: ");
+		//_sortLabel.setMinimumSize(new Dimension(30, 0));
+		//_sortLabel.setPreferredSize(new Dimension(30, 0));
+		//_sortLabel.setPreferredSize(new Dimension(75, 25));
 		_sortTypeComboBox.addActionListener(this);
 		_sortTypeComboBox.setModel(new DefaultComboBoxModel<String>(_sortTypeArray));
+		_sortTypeComboBox.setPreferredSize(new Dimension(175, 25));
 		_sortDirectionComboBox.addActionListener(this);
 		_sortDirectionComboBox.setModel(new DefaultComboBoxModel<String>(_sortDirectionArray));
+		_sortDirectionComboBox.setPreferredSize(new Dimension(175, 25));
 		_sortTypeComboBox.setSelectedIndex(0);				// Initial Sorting == Descending Record Date
 		_sortDirectionComboBox.setSelectedIndex(1); 		// Initial Sorting == Descending Record Date
 		
@@ -278,30 +299,6 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 	}
 
 	@Override
-	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public void mouseReleased(MouseEvent e) {
 		if (SwingUtilities.isRightMouseButton(e)) {
 			
@@ -331,16 +328,12 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 		}
 	}
 
-	@Override
-	public void keyTyped(KeyEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void keyPressed(KeyEvent e) {
-		// TODO Auto-generated method stub
-	}
+	@Override public void mouseClicked(MouseEvent e) {}
+	@Override public void mousePressed(MouseEvent e) {}
+	@Override public void mouseEntered(MouseEvent e) {}
+	@Override public void mouseExited(MouseEvent e) {}
+	@Override public void keyTyped(KeyEvent e) {}
+	@Override public void keyPressed(KeyEvent e) {}
 
 	@Override
 	public void keyReleased(KeyEvent e) {

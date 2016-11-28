@@ -70,7 +70,9 @@ public class RecordingRenderer extends DefaultTableCellRenderer implements Actio
 		subtitle.setOpaque(label.isOpaque());
 
 		JTextArea description = new JTextArea(r.get_description() + "\n\n" 
-				+ "\t(" + r.get_starttime().withZoneSameInstant(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("h:mm a EEEE, MMM d, uuuu")) + "\t" + r.get_filesize() + "B)");
+				+ "\t(" + r.get_starttime().withZoneSameInstant(ZoneId.systemDefault()).
+				format(DateTimeFormatter.ofPattern("h:mm a EEEE, MMM d, uuuu")) +
+				"\t" + r.get_filesize() + "B)");
 		description.setFont(new Font("Arial", Font.PLAIN, 12));
 		description.setEditable(false);
 		description.setLineWrap(true);
@@ -90,6 +92,7 @@ public class RecordingRenderer extends DefaultTableCellRenderer implements Actio
 		textcontent.add(subtitle);
 		textcontent.add(description);
 		textcontent.add(Box.createGlue());
+		textcontent.setBorder(BorderFactory.createMatteBorder(4, 4, 4, 4, (isSelected ? Color.GRAY : label.getBackground())));
 		
 		Box programcontent = Box.createVerticalBox();
 		programcontent.setOpaque(true);
@@ -99,24 +102,22 @@ public class RecordingRenderer extends DefaultTableCellRenderer implements Actio
 					
 		Box content = Box.createHorizontalBox();
 		if (preview != null) content.add(new JLabel(preview));
-		content.add(Box.createHorizontalStrut(10));
+		//content.add(Box.createHorizontalStrut(10));
 		content.add(textcontent);
-		content.add(Box.createHorizontalStrut(10));
+		//content.add(Box.createHorizontalStrut(10));
 		content.add(programcontent);
 		content.add(new JLabel(banner));
 		
 		/*JPanel unwatched = new JPanel();
 		unwatched.setBackground(r.is_watched() ? Color.WHITE : Color.RED);
 		unwatched.setPreferredSize(new Dimension(25, 100));*/
-
-		panel.add(content, BorderLayout.CENTER);
 		//panel.add(unwatched, BorderLayout.EAST);
-
-		if (isSelected) {
+		
+		/*if (isSelected) {
 			panel.setBackground(Color.LIGHT_GRAY);
 		} else {
 			panel.setBackground(Color.WHITE);
-		}
+		}*/
 		
 		/*if (table.getRowHeight(row) != _selectedCellHeight)
 		table.setRowHeight(row, _selectedCellHeight);
@@ -149,6 +150,7 @@ public class RecordingRenderer extends DefaultTableCellRenderer implements Actio
 		panel.add(info, BorderLayout.CENTER);
 		panel.add(fanart, BorderLayout.EAST);*/
 		
+		panel.add(content, BorderLayout.CENTER);
 		return panel;
 	}
 	
