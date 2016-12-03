@@ -48,6 +48,7 @@ public class UpcomingListRenderer implements TableCellRenderer, MouseListener, M
 		JPanel panel = new JPanel();
 		UpcomingList ulist = (UpcomingList) value;
 		
+		// Lookup if this Cell is Minimized
 		if (!_upcomingHiddenMap.containsKey(ulist))
 			_upcomingHiddenMap.put(ulist, false);
 		Boolean minimized = _upcomingHiddenMap.get(ulist);
@@ -93,7 +94,6 @@ public class UpcomingListRenderer implements TableCellRenderer, MouseListener, M
 		}
 		
 		panel.add(Box.createVerticalStrut(_strutHeight), cons);
-
 		return (Component) panel;
 	}
 	

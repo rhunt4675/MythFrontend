@@ -24,6 +24,7 @@ import java.util.concurrent.ExecutionException;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -62,6 +63,7 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 	private Map<Title, TableModel> _models = new HashMap<Title, TableModel>();
 	private Map<Title, Integer> _modelSelection = new HashMap<Title, Integer>();
 	private static final Dimension _titleArtworkDimension = new Dimension(250, 0);
+	private static final RecordingRenderer _renderer = new RecordingRenderer();
 	
 	private List<SortKey> _sortKeys = new ArrayList<SortKey>();
 	private JLabel _searchLabel = new JLabel();
@@ -69,6 +71,8 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 	private JTextField _searchTextField = new JTextField();
 	private JComboBox<String> _sortTypeComboBox = new JComboBox<String>();
 	private JComboBox<String> _sortDirectionComboBox = new JComboBox<String>();
+	private JButton _playButton = new JButton("Play");
+	private JButton _deleteButton = new JButton("Delete");
 
 	public RecordingView() {
 		JPanel sidepane = new JPanel();
@@ -78,6 +82,8 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 		
 		JPanel selectors = new JPanel();
 		selectors.setLayout(new FlowLayout(FlowLayout.RIGHT));
+		selectors.add(_playButton);
+		selectors.add(_deleteButton);
 		selectors.add(_searchLabel);
 		selectors.add(_searchTextField);
 		selectors.add(_sortLabel);
@@ -93,17 +99,11 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 		add(sidepane, BorderLayout.WEST);
 		add(mainpane, BorderLayout.CENTER);
 		
+		_playButton.addActionListener(this);
+		_deleteButton.addActionListener(this);
 		_searchLabel.setText("Search: ");
-		//_searchLabel.setMinimumSize(new Dimension(20, 0));
-		//_searchLabel.setPreferredSize(new Dimension(20, 0));
-		//_searchLabel.setPreferredSize(new Dimension(75, 25));
-		//_searchTextField.setMinimumSize(new Dimension(50, 0));
 		_searchTextField.setPreferredSize(new Dimension(100, 25));
-		//_searchTextField.setMaximumSize(new Dimension(50, 0));
 		_sortLabel.setText("Sort: ");
-		//_sortLabel.setMinimumSize(new Dimension(30, 0));
-		//_sortLabel.setPreferredSize(new Dimension(30, 0));
-		//_sortLabel.setPreferredSize(new Dimension(75, 25));
 		_sortTypeComboBox.addActionListener(this);
 		_sortTypeComboBox.setModel(new DefaultComboBoxModel<String>(_sortTypeArray));
 		_sortTypeComboBox.setPreferredSize(new Dimension(175, 25));
@@ -122,6 +122,8 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 		_recordingTable.setDefaultEditor(Object.class, null);
 		_recordingTable.setRowSorter(_sorter);
 		_recordingTable.addMouseListener(this);
+		_recordingTable.addMouseListener(_renderer);
+		_recordingTable.addMouseMotionListener(_renderer);
 		_recordingTable.addKeyListener(this);
 		_recordingTable.setTableHeader(null);
 		_recordingTable.setRowHeight(100);
@@ -248,9 +250,9 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 			    		
 			    		// Hide extraneous "sort" columns
 			    		while (_recordingTable.getColumnCount() > 1)
-					    	_recordingTable.removeColumn(_recordingTable.getColumnModel().getColumn(1));
+			    	    	_recordingTable.removeColumn(_recordingTable.getColumnModel().getColumn(1));
 			    		
-				    	_recordingTable.setDefaultRenderer(Recording.class, new RecordingRenderer());
+				    	_recordingTable.setDefaultRenderer(Recording.class, _renderer);
 				    	_recordingTable.getSelectionModel().setSelectionInterval(_modelSelection.get(selected), _modelSelection.get(selected));
 			    	}
 			    } catch (InterruptedException ignore) {
@@ -362,6 +364,48 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 			// Check if TableModel is ready
 			if (_sorter.getModel() != null)
 	    		_sorter.setSortKeys(_sortKeys);
+		} else if (e.getSource() == _playButton) {
+			
+			// Play on Button Press
+			Title title = _titleList.getSelectedValue();
+			Integer row = _modelSelection.get(title);
+			Recording r = (Recording) _recordingTable.getValueAt(row, 0);
+			
+			try {
+				r.play();
+			} catch (IOException ex) {
+				JOptionPane.showMessageDialog(this, "Attempting to play video failed! [" + ex.getMessage() + "]");
+			}
+		} else if (e.getSource() == _deleteButton) {
+			
+			// Delete on Button Press
+			Title title = _titleList.getSelectedValue();
+			Integer row = _modelSelection.get(title);
+			Recording recording = (Recording) _recordingTable.getValueAt(row, 0);
+			
+			int result = JOptionPane.showConfirmDialog(null, "Allow re-record?", 
+					"Delete Recording", JOptionPane.YES_NO_CANCEL_OPTION);
+			if (result == JOptionPane.CANCEL_OPTION) return;
+
+			((DefaultTableModel) _recordingTable.getModel()).removeRow(row);
+			SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+				@Override
+				protected Void doInBackground() throws Exception {
+					boolean allow_rerecord = (result == JOptionPane.YES_OPTION);
+					
+					try {
+						recording.delete(allow_rerecord);
+					} catch (IOException e) {
+						JOptionPane.showMessageDialog(null, "Delete failed!", "Delete Recording", JOptionPane.WARNING_MESSAGE);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					
+					return null;
+				}
+			};
+			
+			worker.execute();
 		}
 	}
 }

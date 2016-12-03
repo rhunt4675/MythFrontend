@@ -7,6 +7,9 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -27,7 +30,7 @@ import data.Channel;
 import data.Recording;
 import data.Recording.Artwork;
 
-public class RecordingRenderer extends DefaultTableCellRenderer implements ActionListener {
+public class RecordingRenderer extends DefaultTableCellRenderer implements ActionListener, MouseMotionListener, MouseListener {
 
 	private static final long serialVersionUID = 7124170992120515156L;
 	private static final int /*_selectedCellHeight = 400,*/ _unselectedCellHeight = 100, _channelIconHeight = 85;
@@ -36,6 +39,8 @@ public class RecordingRenderer extends DefaultTableCellRenderer implements Actio
 	private static final Dimension _bannerDimension = new Dimension(0, _unselectedCellHeight);
 	private static final Dimension _channelDimension = new Dimension(0, _channelIconHeight);
 	//private static final Dimension _fanartDimension = new Dimension(0, _selectedCellHeight);
+	
+	private int hoverRow = 0, hoverCol = 0;
 
 	public RecordingRenderer() {
 		setOpaque(true);
@@ -92,7 +97,9 @@ public class RecordingRenderer extends DefaultTableCellRenderer implements Actio
 		textcontent.add(subtitle);
 		textcontent.add(description);
 		textcontent.add(Box.createGlue());
-		textcontent.setBorder(BorderFactory.createMatteBorder(4, 4, 4, 4, (isSelected ? Color.GRAY : label.getBackground())));
+		
+		if (row == hoverRow && column == hoverCol) textcontent.setBorder(BorderFactory.createMatteBorder(6, 6, 6, 6, Color.BLUE));
+		else textcontent.setBorder(BorderFactory.createMatteBorder(4, 4, 4, 4, (isSelected ? Color.BLACK : label.getBackground())));
 		
 		Box programcontent = Box.createVerticalBox();
 		programcontent.setOpaque(true);
@@ -102,53 +109,9 @@ public class RecordingRenderer extends DefaultTableCellRenderer implements Actio
 					
 		Box content = Box.createHorizontalBox();
 		if (preview != null) content.add(new JLabel(preview));
-		//content.add(Box.createHorizontalStrut(10));
 		content.add(textcontent);
-		//content.add(Box.createHorizontalStrut(10));
 		content.add(programcontent);
 		content.add(new JLabel(banner));
-		
-		/*JPanel unwatched = new JPanel();
-		unwatched.setBackground(r.is_watched() ? Color.WHITE : Color.RED);
-		unwatched.setPreferredSize(new Dimension(25, 100));*/
-		//panel.add(unwatched, BorderLayout.EAST);
-		
-		/*if (isSelected) {
-			panel.setBackground(Color.LIGHT_GRAY);
-		} else {
-			panel.setBackground(Color.WHITE);
-		}*/
-		
-		/*if (table.getRowHeight(row) != _selectedCellHeight)
-		table.setRowHeight(row, _selectedCellHeight);
-		
-		JLabel title = new JLabel("\t" + r.get_title());
-		title.setFont(new Font("Arial", Font.BOLD, 36));
-		
-		JLabel subtitle = new JLabel("S" + r.get_season() + "E" + r.get_episode() + ": " + r.get_subtitle());
-		subtitle.setFont(new Font("Arial", Font.BOLD, 18));
-		
-		JPanel info = new JPanel();
-		info.setLayout(new BoxLayout(info, BoxLayout.Y_AXIS));
-		info.add(title);
-		info.add(subtitle);
-		info.add(new JLabel(r.get_description()));
-		info.add(Box.createRigidArea(new Dimension(0, 50)));
-		info.add(new JLabel("Airdate: " + r.get_starttime()));
-		info.add(new JLabel("Channel: " + r.get_channel().get_chanid()));
-		info.add(new JLabel("Filesize: " + r.get_filesize()));
-		info.add(new JLabel("RecordedID: " + r.get_recordedid()));
-		info.add(new JLabel("Watched: " + (r.is_watched() ? "true" : "false")));
-	
-		ImageIcon fanartImage = downloadRecordingArtworkAsync(table, row, column, r, Artwork.FANART, _fanartDimension);
-		JPanel fanart = new JPanel();
-		if (fanartImage != null) fanart.add(new JLabel(new AlphaImageIcon(fanartImage, 0.9F)));
-		fanart.setBorder(BorderFactory.createEmptyBorder(-5, -5, -5, -5));
-		//fanart.setSize(new Dimension(_selectedCellHeight * 16 / 9, _selectedCellHeight)); // 16x9 dimension is worst case width
-		
-		panel.setBackground(Color.LIGHT_GRAY);
-		panel.add(info, BorderLayout.CENTER);
-		panel.add(fanart, BorderLayout.EAST);*/
 		
 		panel.add(content, BorderLayout.CENTER);
 		return panel;
@@ -221,7 +184,41 @@ public class RecordingRenderer extends DefaultTableCellRenderer implements Actio
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
-
+	public void mouseMoved(MouseEvent e) {
+		// Highlight the Selected Recording Panel
+		if (e.getSource() instanceof JTable) {
+			JTable table = (JTable) e.getSource();
+			int row = table.rowAtPoint(e.getPoint());
+			int column = table.columnAtPoint(e.getPoint());
+			
+			if (row >= 0 && column >= 0 && (row != hoverRow || column != hoverCol)) {
+				int tmpRow = hoverRow, tmpCol = hoverCol;
+				hoverRow = row; hoverCol = column;
+				
+				if (tmpRow < table.getRowCount() && tmpCol < table.getColumnCount() && tmpRow >= 0 && tmpCol >= 0)
+					((DefaultTableModel) table.getModel()).fireTableCellUpdated(tmpRow, tmpCol);
+				((DefaultTableModel) table.getModel()).fireTableCellUpdated(hoverRow, hoverCol);
+			}
+		}
 	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// Remove Hover Highlight when mouse leaves panel
+		if (e.getSource() instanceof JTable) {
+			JTable table = (JTable) e.getSource();
+			
+			int tmpRow = hoverRow, tmpCol = hoverCol;
+			hoverRow = -1; hoverCol = -1;
+			if (tmpRow < table.getRowCount() && tmpCol < table.getColumnCount() && tmpRow >= 0 && tmpCol >= 0)
+				((DefaultTableModel) table.getModel()).fireTableCellUpdated(tmpRow, tmpCol);
+		}
+	}
+
+	@Override public void mouseDragged(MouseEvent e) {}
+	@Override public void actionPerformed(ActionEvent e) {}
+	@Override public void mouseClicked(MouseEvent e) {}
+	@Override public void mousePressed(MouseEvent e) {}
+	@Override public void mouseReleased(MouseEvent e) {}
+	@Override public void mouseEntered(MouseEvent e) {}
 }
