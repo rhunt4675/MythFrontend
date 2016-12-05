@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -80,15 +79,21 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 		sidepane.add(new JScrollPane(_titleList), BorderLayout.CENTER);
 		sidepane.add(_titleArtwork, BorderLayout.SOUTH);
 		
+		JPanel recoperations = new JPanel();
+		recoperations.add(_playButton);
+		recoperations.add(_deleteButton);
+		
+		JPanel recfiltering = new JPanel();
+		recfiltering.add(_searchLabel);
+		recfiltering.add(_searchTextField);
+		recfiltering.add(_sortLabel);
+		recfiltering.add(_sortTypeComboBox);
+		recfiltering.add(_sortDirectionComboBox);
+		
 		JPanel selectors = new JPanel();
-		selectors.setLayout(new FlowLayout(FlowLayout.RIGHT));
-		selectors.add(_playButton);
-		selectors.add(_deleteButton);
-		selectors.add(_searchLabel);
-		selectors.add(_searchTextField);
-		selectors.add(_sortLabel);
-		selectors.add(_sortTypeComboBox);
-		selectors.add(_sortDirectionComboBox);
+		selectors.setLayout(new BorderLayout());
+		selectors.add(recoperations, BorderLayout.WEST);
+		selectors.add(recfiltering, BorderLayout.EAST);
 		
 		JPanel mainpane = new JPanel();
 		mainpane.setLayout(new BorderLayout());

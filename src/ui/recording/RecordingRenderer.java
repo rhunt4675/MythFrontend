@@ -132,7 +132,6 @@ public class RecordingRenderer extends DefaultTableCellRenderer implements Actio
 				@Override
 				protected Void doInBackground() throws Exception {
 					recording.get_artwork(type, dimension);
-					((DefaultTableModel) table.getModel()).fireTableCellUpdated(row, column);
 					return null;
 				}
 				
@@ -143,6 +142,9 @@ public class RecordingRenderer extends DefaultTableCellRenderer implements Actio
 					} catch (InterruptedException | ExecutionException e) {
 						e.printStackTrace();
 					}
+					
+					((DefaultTableModel) table.getModel()).fireTableCellUpdated(
+							table.convertRowIndexToModel(row), table.convertColumnIndexToModel(column));
 				}
 			};
 			
@@ -164,7 +166,6 @@ public class RecordingRenderer extends DefaultTableCellRenderer implements Actio
 				@Override
 				protected Void doInBackground() throws Exception {
 					channel.get_artwork(dimension);
-					((DefaultTableModel) table.getModel()).fireTableCellUpdated(row, column);
 					return null;
 				}
 				
@@ -175,6 +176,9 @@ public class RecordingRenderer extends DefaultTableCellRenderer implements Actio
 					} catch (InterruptedException | ExecutionException e) {
 						e.printStackTrace();
 					}
+					
+					((DefaultTableModel) table.getModel()).fireTableCellUpdated(
+							table.convertRowIndexToModel(row), table.convertColumnIndexToModel(column));
 				}
 			};
 			
@@ -196,8 +200,10 @@ public class RecordingRenderer extends DefaultTableCellRenderer implements Actio
 				hoverRow = row; hoverCol = column;
 				
 				if (tmpRow < table.getRowCount() && tmpCol < table.getColumnCount() && tmpRow >= 0 && tmpCol >= 0)
-					((DefaultTableModel) table.getModel()).fireTableCellUpdated(tmpRow, tmpCol);
-				((DefaultTableModel) table.getModel()).fireTableCellUpdated(hoverRow, hoverCol);
+					((DefaultTableModel) table.getModel()).fireTableCellUpdated(
+							table.convertRowIndexToModel(tmpRow), table.convertColumnIndexToModel(tmpCol));
+				((DefaultTableModel) table.getModel()).fireTableCellUpdated(
+						table.convertRowIndexToModel(hoverRow), table.convertColumnIndexToModel(hoverCol));
 			}
 		}
 	}
@@ -211,7 +217,8 @@ public class RecordingRenderer extends DefaultTableCellRenderer implements Actio
 			int tmpRow = hoverRow, tmpCol = hoverCol;
 			hoverRow = -1; hoverCol = -1;
 			if (tmpRow < table.getRowCount() && tmpCol < table.getColumnCount() && tmpRow >= 0 && tmpCol >= 0)
-				((DefaultTableModel) table.getModel()).fireTableCellUpdated(tmpRow, tmpCol);
+				((DefaultTableModel) table.getModel()).fireTableCellUpdated(
+						table.convertRowIndexToModel(tmpRow), table.convertColumnIndexToModel(tmpCol));
 		}
 	}
 
