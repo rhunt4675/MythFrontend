@@ -70,8 +70,8 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 	private JTextField _searchTextField = new JTextField();
 	private JComboBox<String> _sortTypeComboBox = new JComboBox<String>();
 	private JComboBox<String> _sortDirectionComboBox = new JComboBox<String>();
-	private JButton _playButton = new JButton("Play");
-	private JButton _deleteButton = new JButton("Delete");
+	private JButton _playButton = new JButton();
+	private JButton _deleteButton = new JButton();
 
 	public RecordingView() {
 		JPanel sidepane = new JPanel();
@@ -105,7 +105,9 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 		add(mainpane, BorderLayout.CENTER);
 		
 		_playButton.addActionListener(this);
+		_playButton.setIcon(new ImageIcon(getClass().getResource("/res/play.jpg")));
 		_deleteButton.addActionListener(this);
+		_deleteButton.setIcon(new ImageIcon(getClass().getResource("/res/delete.jpg")));
 		_searchLabel.setText("Search: ");
 		_searchTextField.setPreferredSize(new Dimension(100, 25));
 		_sortLabel.setText("Sort: ");
