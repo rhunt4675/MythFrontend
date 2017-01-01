@@ -310,6 +310,7 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 				// Update Selection
 				if (_titleList.getSelectedValue() == selected)
 					_recordingTable.getSelectionModel().setSelectionInterval(0, _modelSelection.get(selected));
+				_recordingTable.setColumnSelectionInterval(0, 0);
 			}
 		};
 		
@@ -446,7 +447,7 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 					"Delete Recording", JOptionPane.YES_NO_CANCEL_OPTION);
 			if (result == JOptionPane.CANCEL_OPTION) return;
 
-			((DefaultTableModel) _recordingTable.getModel()).removeRow(row);
+			((DefaultTableModel) _recordingTable.getModel()).removeRow(_recordingTable.convertRowIndexToModel(row));
 			SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 				@Override
 				protected Void doInBackground() throws Exception {
