@@ -225,6 +225,8 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 								case 2: return LocalDate.class;
 								case 3: return Double.class;
 								case 4: return BigInteger.class;
+								case 5: return String.class;
+								case 6: return String.class;
 								default: return null;
 								}
 							}
@@ -236,6 +238,8 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 						model.addColumn(null /* Air Date */);
 						model.addColumn(null /* Season/Episode */);
 						model.addColumn(null /* File Size */);
+						model.addColumn(null /* Subtitle */);
+						model.addColumn(null /* Description */);
 						
 						/* Iterate in Chunks of 5 Until Empty */
 						List<Recording> episodes; int chunk = 0;
@@ -251,7 +255,9 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 										(Object) recording.get_starttime().withZoneSameInstant(ZoneId.systemDefault()),
 										(Object) recording.get_airdate(),
 										(Object) (recording.get_season() + 0.001 * recording.get_episode()),
-										(Object) new BigInteger(recording.get_filesize())
+										(Object) new BigInteger(recording.get_filesize()),
+										(Object) recording.get_subtitle(),
+										(Object) recording.get_description()
 								};
 								
 								model.addRow(row);
@@ -395,6 +401,11 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 			
 			// Pass message to MainFrame
 			((MainFrame) source).refresh();
+		} else if (e.getKeyCode() == KeyEvent.VK_F) {
+			// ^F is find
+			if ((e.getModifiers() & ActionEvent.CTRL_MASK) != 0) {
+				_searchTextField.requestFocusInWindow();
+			}
 		}
 	}
 
