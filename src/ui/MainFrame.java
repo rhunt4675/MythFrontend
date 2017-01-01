@@ -2,8 +2,6 @@ package ui;
 
 import java.awt.Dimension;
 import java.awt.Frame;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;

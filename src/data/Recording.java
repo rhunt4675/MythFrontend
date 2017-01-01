@@ -22,17 +22,18 @@ public class Recording extends Program {
 	public enum Artwork {FANART, COVERART, BANNER, PREVIEW};
 	
 	public static List<Recording> get_recordings() throws IOException {
-		return get_recordings("");
+		return get_recordings("", 0, 0);
 	}
 	
-	public static List<Recording> get_recordings(String title_regex) throws IOException {
+	public static List<Recording> get_recordings(String title_regex, int count, int startindex) throws IOException {
 		List<Recording> recordings = new ArrayList<Recording>();
 		
 		/* ESCAPE MYTHTV's REGEX CHARACTERS MANUALLY */
 		String param = URLEncoder.encode(title_regex, "UTF-8");
 		param = param.replaceAll("%28", "%5C%28"); // Escape '('
 		param = param.replaceAll("%29", "%5C%29"); // Escape ')'
-		String url = "/Dvr/GetRecordedList?Descending=true&TitleRegEx=" + param;
+		String url = "/Dvr/GetRecordedList?Descending=true&TitleRegEx=" + param 
+				+ "&Count=" + count + "&StartIndex=" + startindex;
 		String result = Source.http_get(url);
 		
 		try {

@@ -108,7 +108,7 @@ public class RecordingRenderer extends DefaultTableCellRenderer implements Actio
 		programcontent.add(channame);
 					
 		Box content = Box.createHorizontalBox();
-		if (preview != null) content.add(new JLabel(preview));
+		if (preview != null) content.add(new JLabel(preview)); else content.add(Box.createRigidArea(_previewDimension));
 		content.add(textcontent);
 		content.add(programcontent);
 		content.add(new JLabel(banner));

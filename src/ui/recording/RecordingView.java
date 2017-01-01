@@ -58,6 +58,7 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 	private static final long serialVersionUID = 7537158574729297160L;
 	private static final String[] _sortTypeArray = {"Date", "Original Airdate", "Season/Episode", "Filesize"};
 	private static final String[] _sortDirectionArray = {"Ascending", "Descending"};
+	private static final int COUNT = 5;
 	
 	private TableRowSorter<TableModel> _sorter = new TableRowSorter<TableModel>();
 	private JList<Title> _titleList = new JList<Title>();
@@ -143,6 +144,7 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 		_recordingTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		_recordingTable.getSelectionModel().addListSelectionListener(this);
 		_recordingTable.setDefaultEditor(Object.class, null);
+    	_recordingTable.setDefaultRenderer(Recording.class, _renderer);
 		_recordingTable.setRowSorter(_sorter);
 		_recordingTable.addMouseListener(this);
 		_recordingTable.addMouseListener(_renderer);
@@ -200,31 +202,19 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 			_recordingTable.setModel(new DefaultTableModel());
 		
 		// Background Episode Download Task
-		SwingWorker<DefaultTableModel, Void> worker = new SwingWorker<DefaultTableModel, Void>() {
+		SwingWorker<Void, DefaultTableModel> worker = new SwingWorker<Void, DefaultTableModel>() {
 
 			@Override
-			protected DefaultTableModel doInBackground() {
+			protected Void doInBackground() {
 				DefaultTableModel model;
 				
 				if (selected == null) {
 					model = null;
-				} else if (!_models.containsKey(selected)) {
+				} else if (_models.containsKey(selected)) {
+					model = (DefaultTableModel) _models.get(selected);
+				} else {
 					try {
-						List<Recording> episodes = Recording.get_recordings(selected.get_title());
-						Recording[] recordings = new Recording[episodes.size()];
-						ZonedDateTime[] recdates = new ZonedDateTime[episodes.size()];
-						LocalDate[] airdates = new LocalDate[episodes.size()];
-						Double[] seasonepisodes = new Double[episodes.size()];
-						BigInteger[] filesizes = new BigInteger[episodes.size()];
-						
-						for (int i = 0; i < episodes.size(); i++) {
-							recordings[i] = episodes.get(i);
-							recdates[i] = episodes.get(i).get_starttime().withZoneSameInstant(ZoneId.systemDefault());
-							airdates[i] = episodes.get(i).get_airdate();
-							seasonepisodes[i] = episodes.get(i).get_season() + 0.001 * episodes.get(i).get_episode();
-							filesizes[i] = new BigInteger(episodes.get(i).get_filesize());
-						}
-						
+						/* Model Definition */
 						model = new DefaultTableModel() {
 							private static final long serialVersionUID = -1225467351008175463L;
 
@@ -240,48 +230,80 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 							}
 						};
 						
-						model.addColumn(null, recordings);
-						model.addColumn(null, recdates);
-						model.addColumn(null, airdates);
-						model.addColumn(null, seasonepisodes);
-						model.addColumn(null, filesizes);
+						/* Model Columns */
+						model.addColumn(null /* Recording */);
+						model.addColumn(null /* Record Date */);
+						model.addColumn(null /* Air Date */);
+						model.addColumn(null /* Season/Episode */);
+						model.addColumn(null /* File Size */);
 						
-						_models.put(selected, model);							
+						/* Iterate in Chunks of 5 Until Empty */
+						List<Recording> episodes; int chunk = 0;
+						do {
+							// Download Recordings
+							episodes = Recording.get_recordings(selected.get_title(), COUNT, COUNT * chunk);
+							chunk++;
+							
+							// Add new rows to model
+							for (Recording recording : episodes) {
+								Object[] row = {
+										(Object) recording,
+										(Object) recording.get_starttime().withZoneSameInstant(ZoneId.systemDefault()),
+										(Object) recording.get_airdate(),
+										(Object) (recording.get_season() + 0.001 * recording.get_episode()),
+										(Object) new BigInteger(recording.get_filesize())
+								};
+								
+								model.addRow(row);
+							}
+							
+							// Publish Intermediate Results
+							publish(model);
+							_models.put(selected, model);
+
+						} while (episodes.size() != 0);
+						
 					} catch (IOException e) {
 						e.printStackTrace();
 						model = null;
 					}
-				} else {
-					model = (DefaultTableModel) _models.get(selected);
 				}
 				
-				if (!_modelSelection.containsKey(selected))
-					_modelSelection.put(selected, 0);
-				
-				return model;
+				publish(model);
+				return null;
+			}
+			
+			@Override
+			protected void process(List<DefaultTableModel> models) {
+		    	// Get the most recent TableModel
+		    	DefaultTableModel model = models.get(models.size() - 1);
+		    	
+		    	if (model != null && _titleList.getSelectedValue() == selected) {
+			    	_recordingTable.setModel(model);
+		    		_sorter.setModel(model);
+		    		_sorter.setSortKeys(_sortKeys);
+		    		
+		    		// Hide extraneous "sort" columns
+		    		while (_recordingTable.getColumnCount() > 1)
+		    	    	_recordingTable.removeColumn(_recordingTable.getColumnModel().getColumn(1));
+		    	}
 			}
 			
 			@Override
 			protected void done() {
-			    try {
-			    	DefaultTableModel model = get();
-			    	
-			    	if (model != null) {
-				    	_recordingTable.setModel(model);
-			    		_sorter.setModel(model);
-			    		_sorter.setSortKeys(_sortKeys);
-			    		
-			    		// Hide extraneous "sort" columns
-			    		while (_recordingTable.getColumnCount() > 1)
-			    	    	_recordingTable.removeColumn(_recordingTable.getColumnModel().getColumn(1));
-			    		
-				    	_recordingTable.setDefaultRenderer(Recording.class, _renderer);
-				    	_recordingTable.getSelectionModel().setSelectionInterval(_modelSelection.get(selected), _modelSelection.get(selected));
-			    	}
-			    } catch (InterruptedException ignore) {
-			    } catch (ExecutionException e) {
-			    	e.printStackTrace();
-			    }
+				try {
+					get();
+				} catch (InterruptedException ignore) {
+				} catch (ExecutionException e) {
+					e.printStackTrace();
+				}
+				
+				// Default Selection is Element 0
+				_modelSelection.put(selected, 0);
+				
+				// Update Selection
+				if (_titleList.getSelectedValue() == selected)
+					_recordingTable.getSelectionModel().setSelectionInterval(0, _modelSelection.get(selected));
 			}
 		};
 		
@@ -301,14 +323,14 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 				}
 			}
 		};
-		
+
 		worker.execute();
 		imagedownloader.execute();
 	}
 	
 	private void onRecordingTableSelectionChanged(ListSelectionEvent e) {
 		// Update Selection Index
-		if (!e.getValueIsAdjusting() && _recordingTable.getSelectedRow() != -1) {
+		if (_recordingTable.getSelectedRow() != -1) {
 			Title selected = _titleList.getSelectedValue();
 			int row = _recordingTable.convertRowIndexToModel(_recordingTable.getSelectedRow());
 			_modelSelection.put(selected, row);
@@ -318,9 +340,11 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
 		if (e.getSource() == _titleList)
-			onTitleListSelectionChanged();
+			if (!e.getValueIsAdjusting())
+				onTitleListSelectionChanged();
 		else if (e.getSource() == _recordingTable.getSelectionModel())
-			onRecordingTableSelectionChanged(e);
+			if (!e.getValueIsAdjusting())
+				onRecordingTableSelectionChanged(e);
 	}
 
 	@Override
