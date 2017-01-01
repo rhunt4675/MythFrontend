@@ -33,7 +33,7 @@ public class AppProperties {
 	private static String _stagedSecure = _preferences.get(PreferencesEnum.Secure.toString(), "");
 	private static String _stagedPlayer = _preferences.get(PreferencesEnum.Player.toString(), "");
 	
-	public static void updateAndWrite() {
+	public static void commitChanges() {
 		_preferences.put(PreferencesEnum.Address.toString(), _stagedAddress);
 		_preferences.put(PreferencesEnum.Port.toString(), _stagedPort);
 		_preferences.put(PreferencesEnum.Secure.toString(), _stagedSecure);
@@ -291,7 +291,7 @@ public class AppProperties {
 				if (e.getSource() == _ok) {
 					try {
 						AppProperties.setPlayer(_playerPath.getText());
-						AppProperties.updateAndWrite();
+						AppProperties.commitChanges();
 						this.dispose();
 					} catch (FileNotFoundException ex) {
 						JOptionPane.showMessageDialog(this, ex.getMessage());

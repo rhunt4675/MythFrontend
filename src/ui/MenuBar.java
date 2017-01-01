@@ -88,7 +88,7 @@ public class MenuBar extends JMenuBar implements ActionListener {
 		    	
 		    	try {
 			    	Source.test_connection();
-			    	AppProperties.updateAndWrite();
+			    	AppProperties.commitChanges();
 			    	break;
 			    } catch (IOException ex) {
 			    	JOptionPane.showMessageDialog(null, "Connection failed!");

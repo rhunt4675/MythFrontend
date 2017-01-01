@@ -2,6 +2,7 @@ package ui;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.logging.LogManager;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -21,12 +22,18 @@ public class Init {
 	public static void run() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, IOException {
 	    // Set up Look & Feel, Application Properties
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-	    
+		
+		// Suppress Platform-Level Warnings
+		try {
+			LogManager.getLogManager().reset();
+		} catch (SecurityException ignore) {
+		}
+			    
 	    // Verify Connectivity to the Backend
 	    while (true) {
 		    try {
 		    	Source.test_connection();
-		    	AppProperties.updateAndWrite();
+		    	AppProperties.commitChanges();
 		    	break;
 		    } catch (IOException e) {
 		    	JOptionPane.showMessageDialog(null, "Connection failed!");
@@ -35,6 +42,7 @@ public class Init {
 		    }
 	    }
 		
+	    // Create a MainFrame on the EDT
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				MainFrame mainframe = new MainFrame();
