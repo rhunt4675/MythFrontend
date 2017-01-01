@@ -28,16 +28,26 @@ public class AppProperties {
 	private static enum PreferencesEnum {Address, Port, Secure, Player};
 	private static Preferences _preferences = Preferences.userRoot().node(_node);
 	
-	private static String _stagedAddress = _preferences.get(PreferencesEnum.Address.toString(), "");
-	private static String _stagedPort = _preferences.get(PreferencesEnum.Port.toString(), "");
-	private static String _stagedSecure = _preferences.get(PreferencesEnum.Secure.toString(), "");
-	private static String _stagedPlayer = _preferences.get(PreferencesEnum.Player.toString(), "");
+	private static String _stagedAddress;
+	private static String _stagedPort;
+	private static String _stagedSecure;
+	private static String _stagedPlayer;
+	
+	// Load settings at startup
+	static { loadSettings(); }
 	
 	public static void commitChanges() {
 		_preferences.put(PreferencesEnum.Address.toString(), _stagedAddress);
 		_preferences.put(PreferencesEnum.Port.toString(), _stagedPort);
 		_preferences.put(PreferencesEnum.Secure.toString(), _stagedSecure);
 		_preferences.put(PreferencesEnum.Player.toString(), _stagedPlayer);
+	}
+	
+	public static void loadSettings() {
+		_stagedAddress = _preferences.get(PreferencesEnum.Address.toString(), "");
+		_stagedPort = _preferences.get(PreferencesEnum.Port.toString(), "");
+		_stagedSecure = _preferences.get(PreferencesEnum.Secure.toString(), "");
+		_stagedPlayer = _preferences.get(PreferencesEnum.Player.toString(), "");
 	}
 	
 	public static String getSourceAddress() {

@@ -95,6 +95,7 @@ public class MenuBar extends JMenuBar implements ActionListener {
 			    }
 		    }
 		    
+		    AppProperties.loadSettings();
 			if (!cancelled) _refresh.doClick();
 		} else if (e.getSource() == _player) {
 			AppProperties.displayPlayerPropertiesWindow();
