@@ -87,11 +87,9 @@ public class Rule {
 	
 	public void commit() throws IOException {
 		String url = "/Dvr/"
-			+ (_id == -1 
-				? "AddRecordSchedule?ChanId=" + _channel.get_chanid() + "&Station=" 
-					+ URLEncoder.encode(_channel.get_callsign(), "utf-8") + "&" 
-				: "UpdateRecordSchedule?RecordId=" + _id + "&")
-			+ "ParentId=" + _parentid + "&StartOffset=" + _startoffset + "&EndOffset=" + _endoffset
+			+ (_id == -1 ? "AddRecordSchedule?" : "UpdateRecordSchedule?RecordId=" + _id)
+			+ "&ChanId=" + _channel.get_chanid() + "&Station=" + URLEncoder.encode(_channel.get_callsign(), "utf-8") 
+			+ "&ParentId=" + _parentid + "&StartOffset=" + _startoffset + "&EndOffset=" + _endoffset
 			+ "&Inactive=" + _inactive + "&AutoCommflag=" + _commflag + "&AutoTranscode=" + _transcode
 			+ "&AutoExpire=" + _autoexpire + "&FindDay=" + _findday + "&FindTime=" + _findtime.toString()
 			+ "&StartTime=" + _starttime.toString() + "&EndTime=" + _endtime.toString()
@@ -400,7 +398,15 @@ public class Rule {
 		try {
 			rule._channel = rule_json.getInt("ChanId") == 0 ? null : Channel.get_channel(rule_json.getInt("ChanId"));
 		} catch (IOException e) {
-			e.getMessage();
+			System.err.println("Missing Channel [id=" + rule_json.getInt("ChanId") + "]: " + e.getMessage());
+
+			// Put a "fake" channel in it's place, if the channel has been deleted
+			rule._channel = Channel.get_channel(new JSONObject()
+					.put("ChanId", rule_json.getInt("ChanId"))
+					.put("ChanNum", "-1")
+					.put("CallSign", "FAKE")
+					.put("IconURL", "")
+					.put("ChannelName", "Channel Deleted"));
 		}
 	}
 }

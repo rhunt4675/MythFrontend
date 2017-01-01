@@ -57,7 +57,8 @@ public class GuideView extends ContentView implements ListSelectionListener, Act
 		_guideTable.getSelectionModel().addListSelectionListener(this);
 		_guideTable.setDefaultEditor(Object.class, null);
 		_guideTable.addMouseListener(this);
-		_guideTable.addKeyListener(this);
+		_guideTable.getTableHeader().setReorderingAllowed(false);
+		_guideTable.getTableHeader().setResizingAllowed(false);
 		_guideTable.setRowHeight(100);
 	}
 	

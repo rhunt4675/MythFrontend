@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.PatternSyntaxException;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
@@ -34,10 +35,13 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.RowFilter;
 import javax.swing.RowSorter.SortKey;
 import javax.swing.SortOrder;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -49,7 +53,8 @@ import data.Title;
 import ui.ContentView;
 import ui.MainFrame;
 
-public class RecordingView extends ContentView implements ListSelectionListener, ActionListener, MouseListener, KeyListener {
+public class RecordingView extends ContentView implements ListSelectionListener, 
+			ActionListener, MouseListener, KeyListener, DocumentListener {
 	private static final long serialVersionUID = 7537158574729297160L;
 	private static final String[] _sortTypeArray = {"Date", "Original Airdate", "Season/Episode", "Filesize"};
 	private static final String[] _sortDirectionArray = {"Ascending", "Descending"};
@@ -72,6 +77,7 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 	private JComboBox<String> _sortDirectionComboBox = new JComboBox<String>();
 	private JButton _playButton = new JButton();
 	private JButton _deleteButton = new JButton();
+	private JButton _refreshButton = new JButton();
 
 	public RecordingView() {
 		JPanel sidepane = new JPanel();
@@ -82,6 +88,7 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 		JPanel recoperations = new JPanel();
 		recoperations.add(_playButton);
 		recoperations.add(_deleteButton);
+		recoperations.add(_refreshButton);
 		
 		JPanel recfiltering = new JPanel();
 		recfiltering.add(_searchLabel);
@@ -105,11 +112,20 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 		add(mainpane, BorderLayout.CENTER);
 		
 		_playButton.addActionListener(this);
+		_playButton.setFocusable(false);
+		_playButton.setToolTipText("Play");
 		_playButton.setIcon(new ImageIcon(getClass().getResource("/res/play.jpg")));
 		_deleteButton.addActionListener(this);
+		_deleteButton.setFocusable(false);
+		_deleteButton.setToolTipText("Delete");
 		_deleteButton.setIcon(new ImageIcon(getClass().getResource("/res/delete.jpg")));
+		_refreshButton.addActionListener(this);
+		_refreshButton.setFocusable(false);
+		_refreshButton.setToolTipText("Refresh");
+		_refreshButton.setIcon(new ImageIcon(getClass().getResource("/res/refresh.jpg")));
 		_searchLabel.setText("Search: ");
 		_searchTextField.setPreferredSize(new Dimension(100, 25));
+		_searchTextField.getDocument().addDocumentListener(this);
 		_sortLabel.setText("Sort: ");
 		_sortTypeComboBox.addActionListener(this);
 		_sortTypeComboBox.setModel(new DefaultComboBoxModel<String>(_sortTypeArray));
@@ -327,7 +343,8 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 			// Play on Double Click
 			JTable table = (JTable) e.getSource();
 			int row = table.rowAtPoint(e.getPoint());
-			Recording r = (Recording) table.getValueAt(row, 0);
+			int column = table.getSelectedColumn();
+			Recording r = (Recording) table.getValueAt(row, column);
 			
 			try {
 				r.play();
@@ -353,7 +370,7 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 				source = source.getParent();
 			
 			// Pass message to MainFrame
-			((MainFrame) source).keyPressed(e);
+			((MainFrame) source).refresh();
 		}
 	}
 
@@ -374,9 +391,9 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 		} else if (e.getSource() == _playButton) {
 			
 			// Play on Button Press
-			Title title = _titleList.getSelectedValue();
-			Integer row = _modelSelection.get(title);
-			Recording r = (Recording) _recordingTable.getValueAt(row, 0);
+			int row = _recordingTable.getSelectedRow();
+			int column = _recordingTable.getSelectedColumn();
+			Recording r = (Recording) _recordingTable.getValueAt(row, column);
 			
 			try {
 				r.play();
@@ -386,9 +403,9 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 		} else if (e.getSource() == _deleteButton) {
 			
 			// Delete on Button Press
-			Title title = _titleList.getSelectedValue();
-			Integer row = _modelSelection.get(title);
-			Recording recording = (Recording) _recordingTable.getValueAt(row, 0);
+			int row = _recordingTable.getSelectedRow();
+			int column = _recordingTable.getSelectedColumn();
+			Recording r = (Recording) _recordingTable.getValueAt(row, column);
 			
 			int result = JOptionPane.showConfirmDialog(null, "Allow re-record?", 
 					"Delete Recording", JOptionPane.YES_NO_CANCEL_OPTION);
@@ -401,7 +418,7 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 					boolean allow_rerecord = (result == JOptionPane.YES_OPTION);
 					
 					try {
-						recording.delete(allow_rerecord);
+						r.delete(allow_rerecord);
 					} catch (IOException e) {
 						JOptionPane.showMessageDialog(null, "Delete failed!", "Delete Recording", JOptionPane.WARNING_MESSAGE);
 					} catch (Exception e) {
@@ -413,6 +430,46 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 			};
 			
 			worker.execute();
+		} else if (e.getSource() == _refreshButton) {
+			// Find MainFrame by traversing tree
+			Component source = (Component) e.getSource();
+			while (source.getParent() != null)
+				source = source.getParent();
+			
+			// Refresh the MainFrame
+			((MainFrame) source).refresh();
 		}
 	}
+
+	@Override
+	public void insertUpdate(DocumentEvent e) {
+        String text = _searchTextField.getText();
+
+        if (text.trim().length() == 0) {
+            _sorter.setRowFilter(null);
+        } else {
+        	try {
+        		_sorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
+        	} catch (PatternSyntaxException ex) {
+        		System.err.println(ex.getMessage());
+        	}
+        }
+    }
+
+    @Override
+    public void removeUpdate(DocumentEvent e) {
+        String text = _searchTextField.getText();
+
+        if (text.trim().length() == 0) {
+            _sorter.setRowFilter(null);
+        } else {
+        	try {
+        		_sorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
+        	} catch (PatternSyntaxException ex) {
+        		System.err.println(ex.getMessage());
+        	}
+        }
+    }
+    
+    @Override public void changedUpdate(DocumentEvent e) {}
 }

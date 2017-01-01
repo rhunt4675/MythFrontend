@@ -17,7 +17,7 @@ import ui.rule.RuleView;
 import ui.status.StatusView;
 import ui.upcoming.UpcomingView;
 
-public class MainFrame extends JFrame implements KeyListener {
+public class MainFrame extends JFrame  {
 	private static final long serialVersionUID = 85923720912596620L;
 	private final MenuBar _menubar = new MenuBar();
 	private final RecordingView _rview = new RecordingView();
@@ -34,7 +34,6 @@ public class MainFrame extends JFrame implements KeyListener {
         setTitle("MythTV Frontend");
         setSize(new Dimension(1600, 900));
         setLocation(100, 100);
-        addKeyListener(this);
         /*setLocationByPlatform(true);*/
         
         // Initialize Tab Panels
@@ -97,19 +96,7 @@ public class MainFrame extends JFrame implements KeyListener {
 		}
 	}
 
-	@Override
-	public void keyTyped(KeyEvent e) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void keyPressed(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_F5)
-			_menubar.getMenu(0).getItem(0).doClick();
-	}
-
-	@Override
-	public void keyReleased(KeyEvent e) {
-		// TODO Auto-generated method stub
+	public void refresh() {
+		_menubar.getMenu(0).getItem(0).doClick();
 	}
 }

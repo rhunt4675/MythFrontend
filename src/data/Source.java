@@ -35,8 +35,8 @@ public abstract class Source {
 		con.setRequestMethod(method.toString());
 		
 		if (timeout) {
-			con.setConnectTimeout(2000);
-			con.setReadTimeout(2000);
+			con.setConnectTimeout(5000);
+			con.setReadTimeout(5000);
 		}
 		
 		if (con.getResponseCode() == HttpURLConnection.HTTP_OK) { 

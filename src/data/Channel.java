@@ -54,14 +54,15 @@ public class Channel {
 				JSONObject obj = new JSONObject(result);
 				JSONObject list = obj.getJSONObject("ChannelInfo");
 				
-				String proto_version = list.getString("ProtoVer");
+				// Apparently "ProtoVer" doesn't come down in "GetChannelInfo"
+				// String proto_version = list.getString("ProtoVer");
 				// String backend_version = list.getString("Version");
-				
-				if (!proto_version.equals(Source.get_version()))
-					throw new IOException("Proto version mismatch (" + proto_version + " vs. " + Source.get_version() + ").");
+				// if (!proto_version.equals(Source.get_version()))
+					// throw new IOException("Proto version mismatch (" + proto_version + " vs. " + Source.get_version() + ").");
 				
 				_channelcache.put(chan_id, new Channel(list));
 			} catch (JSONException e) {
+				System.err.println(e.getMessage() + " for " + url);
 				throw new IOException("Could not found channel for ChanID=" + chan_id);
 			}
 		}

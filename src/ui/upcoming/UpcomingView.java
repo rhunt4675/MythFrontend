@@ -95,7 +95,7 @@ public class UpcomingView extends ContentView implements ListSelectionListener, 
 				source = source.getParent();
 			
 			// Pass message to MainFrame
-			((MainFrame) source).keyPressed(e);
+			((MainFrame) source).refresh();
 		}
 	}
 }
