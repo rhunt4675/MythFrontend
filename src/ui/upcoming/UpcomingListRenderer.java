@@ -135,6 +135,8 @@ public class UpcomingListRenderer implements TableCellRenderer, MouseListener, M
 			panel.setBackground(Color.YELLOW);
 		} else if (u.get_status().getStatusInt() < 0) {
 			panel.setBackground(Color.GREEN);
+		} else {
+			panel.setBackground((new JLabel()).getBackground());
 		}
 		
 		if (u == _selectedUpcoming) {
@@ -164,7 +166,7 @@ public class UpcomingListRenderer implements TableCellRenderer, MouseListener, M
 			if (selectionIndex >= 0 && selectionIndex < upcominglist.get_upcoming().size()) {
 				_selectedUpcoming = upcominglist.get_upcoming().get(selectionIndex);
 				((DefaultTableModel) table.getModel()).fireTableCellUpdated(row, column);
-			} else {
+			} else if (SwingUtilities.isLeftMouseButton(e)){
 				_upcomingHiddenMap.put(upcominglist, !_upcomingHiddenMap.get(upcominglist));
 				((DefaultTableModel) table.getModel()).fireTableCellUpdated(row, column);
 			}
@@ -175,7 +177,7 @@ public class UpcomingListRenderer implements TableCellRenderer, MouseListener, M
 			if (e.isPopupTrigger()) {
 				if (selectionIndex != -1 && upcominglist != null) {
 					Upcoming upcoming = upcominglist.get_upcoming().get(selectionIndex);
-					JPopupMenu menu = new UpcomingPopup(upcoming);
+					JPopupMenu menu = new UpcomingPopup(upcoming, selectionIndex, 0);
 					menu.show(table, e.getX(), e.getY());
 				}
 			}

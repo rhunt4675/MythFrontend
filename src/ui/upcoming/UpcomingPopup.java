@@ -25,7 +25,7 @@ public class UpcomingPopup extends JPopupMenu {
 	private JMenuItem _properties;
 	private Upcoming _upcoming;
 
-	public UpcomingPopup(Upcoming upcoming) {
+	public UpcomingPopup(Upcoming upcoming, int row, int column) {
 		_upcoming = upcoming;
 		_enablerecording = new JMenuItem("Enable Recording");
 		_disablerecording = new JMenuItem("Disable Recording");
@@ -51,9 +51,7 @@ public class UpcomingPopup extends JPopupMenu {
 					@Override
 					protected Void doInBackground() throws Exception {
 						JTable table = (JTable) ((JPopupMenu)((JMenuItem) e.getSource()).getParent()).getInvoker();
-						int row = table.getSelectedRow();
-						int column = table.getSelectedColumn();
-						
+
 						try {
 							_upcoming.enable();
 							((DefaultTableModel) table.getModel()).fireTableCellUpdated(row, column);
@@ -84,8 +82,6 @@ public class UpcomingPopup extends JPopupMenu {
 					@Override
 					protected Void doInBackground() throws Exception {
 						JTable table = (JTable) ((JPopupMenu)((JMenuItem) e.getSource()).getParent()).getInvoker();
-						int row = table.getSelectedRow();
-						int column = table.getSelectedColumn();
 						
 						try {
 							_upcoming.disable();
@@ -117,8 +113,6 @@ public class UpcomingPopup extends JPopupMenu {
 					@Override
 					protected Void doInBackground() throws Exception {
 						JTable table = (JTable) ((JPopupMenu)((JMenuItem) e.getSource()).getParent()).getInvoker();
-						int row = table.getSelectedRow();
-						int column = table.getSelectedColumn();
 						
 						try {
 							_upcoming.add_override();
@@ -150,8 +144,6 @@ public class UpcomingPopup extends JPopupMenu {
 					@Override
 					protected Void doInBackground() throws Exception {
 						JTable table = (JTable) ((JPopupMenu)((JMenuItem) e.getSource()).getParent()).getInvoker();
-						int row = table.getSelectedRow();
-						int column = table.getSelectedColumn();
 						
 						try {
 							_upcoming.remove_override();
