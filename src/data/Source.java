@@ -13,9 +13,6 @@ import utils.AppProperties;
 
 public abstract class Source {
 	private enum HTTP_METHOD {GET, POST, PUT, DELETE, OPTIONS, HEAD, CONNECT};
-	//private static String _address;
-	//private static String _port;
-	//private static boolean _secure;
 	
 	protected static String get_version() {
 		return "88";

@@ -71,7 +71,7 @@ public class UpcomingView extends ContentView implements ListSelectionListener, 
 			protected void done() {
 			    try {
 			    	DefaultTableModel model = get();
-			    	_upcomingListByDay.setModel(model);
+			    	if (model != null) _upcomingListByDay.setModel(model);
 			    } catch (InterruptedException ignore) {
 			    } catch (java.util.concurrent.ExecutionException e) {
 		            e.printStackTrace();

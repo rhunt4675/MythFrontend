@@ -40,11 +40,11 @@ public class Recording extends Program {
 			JSONObject obj = new JSONObject(result);
 			JSONObject list = obj.getJSONObject("ProgramList");
 			
-			String proto_version = list.getString("ProtoVer");
+			//String proto_version = list.getString("ProtoVer");
 			// String backend_version = list.getString("Version");
 			
-			if (!proto_version.equals(Source.get_version()))
-				throw new IOException("Proto version mismatch (" + proto_version + " vs. " + Source.get_version() + ").");
+			//if (!proto_version.equals(Source.get_version()))
+			//	throw new IOException("Proto version mismatch (" + proto_version + " vs. " + Source.get_version() + ").");
 			
 			JSONArray programs = list.getJSONArray("Programs");
 			for (int i = 0; i < programs.length(); i++) {

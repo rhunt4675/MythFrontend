@@ -4,15 +4,11 @@ import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTable;
-import javax.swing.SwingWorker;
-import javax.swing.table.DefaultTableModel;
 
 import data.Recording;
 
@@ -44,103 +40,48 @@ public class RecordingPopup extends JPopupMenu {
 		_playitem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JTable table = (JTable) ((JPopupMenu)((JMenuItem) e.getSource()).getParent()).getInvoker();
-				int row = table.getSelectedRow();
-				int column = table.getSelectedColumn();
-				Recording r = (Recording) table.getValueAt(row, column);
+				// Search for RecordingView Panel
+				Component c = (Component) ((JPopupMenu)((JMenuItem) e.getSource()).getParent()).getInvoker();
+				while (!(c instanceof RecordingView))
+					c = c.getParent();
 				
-				try {
-					r.play();
-				} catch (IOException ex) {
-					JOptionPane.showMessageDialog(null, "Attempting to play video failed! [" + ex.getMessage() + "]");					
-				}
+				((RecordingView) c).playSelectedRecording();
 			}
 		});
 		
 		_deleteitem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JTable table = (JTable) ((JPopupMenu)((JMenuItem) e.getSource()).getParent()).getInvoker();
-				int row = table.getSelectedRow();
-				int column = table.getSelectedColumn();
-				if (row == -1) return;
+				// Search for RecordingView Panel
+				Component c = (Component) ((JPopupMenu)((JMenuItem) e.getSource()).getParent()).getInvoker();
+				while (!(c instanceof RecordingView))
+					c = c.getParent();
 				
-				int result = JOptionPane.showConfirmDialog(null, "Allow re-record?", "Delete Recording", JOptionPane.YES_NO_CANCEL_OPTION);
-				if (result == JOptionPane.CANCEL_OPTION) return;
-
-				Recording recording = (Recording) table.getValueAt(row, column);
-				((DefaultTableModel) table.getModel()).removeRow(row);
-				
-				SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-					@Override
-					protected Void doInBackground() throws Exception {
-						boolean allow_rerecord = (result == JOptionPane.YES_OPTION);
-						
-						try {
-							recording.delete(allow_rerecord);
-						} catch (IOException e) {
-							JOptionPane.showMessageDialog(null, "Delete failed!", "Delete Recording", JOptionPane.WARNING_MESSAGE);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-						
-						return null;
-					}
-				};
-				
-				worker.execute();
+				((RecordingView) c).deleteSelectedRecording();
 			}
 		});
 		
 		_markwatched.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-					@Override
-					protected Void doInBackground() throws Exception {
-						JTable table = (JTable) ((JPopupMenu)((JMenuItem) e.getSource()).getParent()).getInvoker();
-						int row = table.getSelectedRow();
-						int column = table.getSelectedColumn();
-						
-						Recording recording = (Recording) table.getValueAt(row, column);
-						try {
-							recording.mark_watched(true);
-						} catch (IOException exp) {
-							exp.printStackTrace();
-						}
-						
-						((DefaultTableModel) table.getModel()).fireTableCellUpdated(row, 0);
-						return null;
-					}
-				};
+			public void actionPerformed(ActionEvent e) {				
+				// Search for RecordingView Panel
+				Component c = (Component) ((JPopupMenu)((JMenuItem) e.getSource()).getParent()).getInvoker();
+				while (!(c instanceof RecordingView))
+					c = c.getParent();
 				
-				worker.execute();
+				((RecordingView) c).markSelectedRecordingWatched(true);
 			}
 		});
 		
 		_markunwatched.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-					@Override
-					protected Void doInBackground() throws Exception {
-						JTable table = (JTable) ((JPopupMenu)((JMenuItem) e.getSource()).getParent()).getInvoker();
-						int row = table.getSelectedRow();
-						int column = table.getSelectedColumn();
-						
-						Recording recording = (Recording) table.getValueAt(row, column);
-						try {
-							recording.mark_watched(false);
-						} catch (IOException exp) {
-							exp.printStackTrace();
-						}
-						
-						((DefaultTableModel) table.getModel()).fireTableCellUpdated(row, 0);
-						return null;
-					}
-				};
+				// Search for RecordingView Panel
+				Component c = (Component) ((JPopupMenu)((JMenuItem) e.getSource()).getParent()).getInvoker();
+				while (!(c instanceof RecordingView))
+					c = c.getParent();
 				
-				worker.execute();
+				((RecordingView) c).markSelectedRecordingWatched(false);
 			}
 		});
 		

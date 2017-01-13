@@ -53,8 +53,7 @@ import data.Title;
 import ui.ContentView;
 import ui.MainFrame;
 
-public class RecordingView extends ContentView implements ListSelectionListener, 
-			ActionListener, MouseListener, KeyListener, DocumentListener {
+public class RecordingView extends ContentView {
 	private static final long serialVersionUID = 7537158574729297160L;
 	private static final String[] _sortTypeArray = {"Date", "Original Airdate", "Season/Episode", "Filesize"};
 	private static final String[] _sortDirectionArray = {"Ascending", "Descending"};
@@ -112,44 +111,44 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 		add(sidepane, BorderLayout.WEST);
 		add(mainpane, BorderLayout.CENTER);
 		
-		_playButton.addActionListener(this);
+		_playButton.addActionListener(_actionListener);
 		_playButton.setFocusable(false);
 		_playButton.setToolTipText("Play");
 		_playButton.setIcon(new ImageIcon(getClass().getResource("/res/play.jpg")));
-		_deleteButton.addActionListener(this);
+		_deleteButton.addActionListener(_actionListener);
 		_deleteButton.setFocusable(false);
 		_deleteButton.setToolTipText("Delete");
 		_deleteButton.setIcon(new ImageIcon(getClass().getResource("/res/delete.jpg")));
-		_refreshButton.addActionListener(this);
+		_refreshButton.addActionListener(_actionListener);
 		_refreshButton.setFocusable(false);
 		_refreshButton.setToolTipText("Refresh");
 		_refreshButton.setIcon(new ImageIcon(getClass().getResource("/res/refresh.jpg")));
 		_searchLabel.setText("Search: ");
 		_searchTextField.setPreferredSize(new Dimension(100, 25));
-		_searchTextField.getDocument().addDocumentListener(this);
+		_searchTextField.getDocument().addDocumentListener(_documentListener);
 		_sortLabel.setText("Sort: ");
-		_sortTypeComboBox.addActionListener(this);
+		_sortTypeComboBox.addActionListener(_actionListener);
 		_sortTypeComboBox.setModel(new DefaultComboBoxModel<String>(_sortTypeArray));
 		_sortTypeComboBox.setPreferredSize(new Dimension(175, 25));
-		_sortDirectionComboBox.addActionListener(this);
+		_sortDirectionComboBox.addActionListener(_actionListener);
 		_sortDirectionComboBox.setModel(new DefaultComboBoxModel<String>(_sortDirectionArray));
 		_sortDirectionComboBox.setPreferredSize(new Dimension(175, 25));
 		_sortTypeComboBox.setSelectedIndex(0);				// Initial Sorting == Descending Record Date
 		_sortDirectionComboBox.setSelectedIndex(1); 		// Initial Sorting == Descending Record Date
 		
-		_titleList.addKeyListener(this);
-		_titleList.addListSelectionListener(this);
+		_titleList.addKeyListener(_keyListener);
+		_titleList.addListSelectionListener(_listSelectionListener);
 		_titleList.setSelectionBackground(Color.DARK_GRAY);
 				
 		_recordingTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		_recordingTable.getSelectionModel().addListSelectionListener(this);
+		_recordingTable.getSelectionModel().addListSelectionListener(_listSelectionListener);
 		_recordingTable.setDefaultEditor(Object.class, null);
     	_recordingTable.setDefaultRenderer(Recording.class, _renderer);
 		_recordingTable.setRowSorter(_sorter);
-		_recordingTable.addMouseListener(this);
+		_recordingTable.addMouseListener(_mouseListener);
 		_recordingTable.addMouseListener(_renderer);
 		_recordingTable.addMouseMotionListener(_renderer);
-		_recordingTable.addKeyListener(this);
+		_recordingTable.addKeyListener(_keyListener);
 		_recordingTable.setTableHeader(null);
 		_recordingTable.setRowHeight(100);
 	}
@@ -344,169 +343,204 @@ public class RecordingView extends ContentView implements ListSelectionListener,
 			_modelSelection.put(selected, row);
 		}
 	}
-
-	@Override
-	public void valueChanged(ListSelectionEvent e) {
-		if (e.getSource() == _titleList)
-			if (!e.getValueIsAdjusting())
-				onTitleListSelectionChanged();
-		else if (e.getSource() == _recordingTable.getSelectionModel())
-			if (!e.getValueIsAdjusting())
-				onRecordingTableSelectionChanged(e);
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		if (SwingUtilities.isRightMouseButton(e)) {
-			
-			// Launch Context-Menu on Right Click
-			JTable table = (JTable) e.getSource();
-			int row = table.rowAtPoint(e.getPoint());
-			int col = table.columnAtPoint(e.getPoint());
-			table.getSelectionModel().setSelectionInterval(row, row);
-			table.setColumnSelectionInterval(col, col);
-			
-			if (e.isPopupTrigger()) {
-				JPopupMenu menu = new RecordingPopup();
-				menu.show(table, e.getX(), e.getY());
-			}
-		} else if (e.getClickCount() == 2) {
-			
-			// Play on Double Click
-			JTable table = (JTable) e.getSource();
-			int row = table.rowAtPoint(e.getPoint());
-			int column = table.getSelectedColumn();
-			Recording r = (Recording) table.getValueAt(row, column);
-			
-			try {
-				r.play();
-			} catch (IOException ex) {
-				JOptionPane.showMessageDialog(this, "Attempting to play video failed! [" + ex.getMessage() + "]");
-			}
+	
+	public void playSelectedRecording() {
+		// Play on Button Press
+		int row = _recordingTable.getSelectedRow();
+		int column = _recordingTable.getSelectedColumn();
+		Recording r = (Recording) _recordingTable.getValueAt(row, column);
+		
+		try {
+			r.play();
+		} catch (IOException ex) {
+			JOptionPane.showMessageDialog(this, "Attempting to play video failed! [" + ex.getMessage() + "]");
 		}
 	}
+	
+	public void deleteSelectedRecording() {
+		// Delete on Button Press
+		int row = _recordingTable.getSelectedRow();
+		int column = _recordingTable.getSelectedColumn();
+		Recording r = (Recording) _recordingTable.getValueAt(row, column);
+		
+		int result = JOptionPane.showConfirmDialog(null, "Allow re-record?", 
+				"Delete Recording", JOptionPane.YES_NO_CANCEL_OPTION);
+		if (result == JOptionPane.CANCEL_OPTION) return;
 
-	@Override public void mouseClicked(MouseEvent e) {}
-	@Override public void mousePressed(MouseEvent e) {}
-	@Override public void mouseEntered(MouseEvent e) {}
-	@Override public void mouseExited(MouseEvent e) {}
-	@Override public void keyTyped(KeyEvent e) {}
-	@Override public void keyPressed(KeyEvent e) {}
-
-	@Override
-	public void keyReleased(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_F5) {
-			// Find MainFrame by traversing tree
-			Component source = (Component) e.getSource();
-			while (source.getParent() != null)
-				source = source.getParent();
-			
-			// Pass message to MainFrame
-			((MainFrame) source).refresh();
-		} else if (e.getKeyCode() == KeyEvent.VK_F) {
-			// ^F is find
-			if ((e.getModifiers() & ActionEvent.CTRL_MASK) != 0) {
-				_searchTextField.requestFocusInWindow();
-			}
-		}
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == _sortTypeComboBox || e.getSource() == _sortDirectionComboBox) {
-			// Get Selected Values
-			int sortColumn = _sortTypeComboBox.getSelectedIndex() + 1;
-			SortOrder sortOrder = _sortDirectionComboBox.getSelectedIndex() == 0 ? SortOrder.ASCENDING : SortOrder.DESCENDING;
-			
-			// Apply (unless sortOrder == 0)
-			_sortKeys.clear();
-    		_sortKeys.add(new SortKey(sortColumn, sortOrder));
-    		
-			// Check if TableModel is ready
-			if (_sorter.getModel() != null)
-	    		_sorter.setSortKeys(_sortKeys);
-		} else if (e.getSource() == _playButton) {
-			
-			// Play on Button Press
-			int row = _recordingTable.getSelectedRow();
-			int column = _recordingTable.getSelectedColumn();
-			Recording r = (Recording) _recordingTable.getValueAt(row, column);
-			
-			try {
-				r.play();
-			} catch (IOException ex) {
-				JOptionPane.showMessageDialog(this, "Attempting to play video failed! [" + ex.getMessage() + "]");
-			}
-		} else if (e.getSource() == _deleteButton) {
-			
-			// Delete on Button Press
-			int row = _recordingTable.getSelectedRow();
-			int column = _recordingTable.getSelectedColumn();
-			Recording r = (Recording) _recordingTable.getValueAt(row, column);
-			
-			int result = JOptionPane.showConfirmDialog(null, "Allow re-record?", 
-					"Delete Recording", JOptionPane.YES_NO_CANCEL_OPTION);
-			if (result == JOptionPane.CANCEL_OPTION) return;
-
-			((DefaultTableModel) _recordingTable.getModel()).removeRow(_recordingTable.convertRowIndexToModel(row));
-			SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-				@Override
-				protected Void doInBackground() throws Exception {
-					boolean allow_rerecord = (result == JOptionPane.YES_OPTION);
+		((DefaultTableModel) _recordingTable.getModel()).removeRow(_recordingTable.convertRowIndexToModel(row));
+		SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+			@Override
+			protected Void doInBackground() throws Exception {
+				boolean allow_rerecord = (result == JOptionPane.YES_OPTION);
+				
+				try {
+					r.delete(allow_rerecord);
 					
-					try {
-						r.delete(allow_rerecord);
-					} catch (IOException e) {
-						JOptionPane.showMessageDialog(null, "Delete failed!", "Delete Recording", JOptionPane.WARNING_MESSAGE);
-					} catch (Exception e) {
-						e.printStackTrace();
+					if (_recordingTable.getRowCount() == 0) {
+						_refreshButton.doClick();
+					} else {
+						_recordingTable.getSelectionModel().setSelectionInterval(0, row - 1);
+						_recordingTable.getSelectionModel().setSelectionInterval(0, 0);
 					}
-					
-					return null;
+				} catch (IOException e) {
+					JOptionPane.showMessageDialog(null, "Delete failed!", "Delete Recording", JOptionPane.WARNING_MESSAGE);
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-			};
-			
-			worker.execute();
-		} else if (e.getSource() == _refreshButton) {
-			// Find MainFrame by traversing tree
-			Component source = (Component) e.getSource();
-			while (source.getParent() != null)
-				source = source.getParent();
-			
-			// Refresh the MainFrame
-			((MainFrame) source).refresh();
-		}
+				
+				return null;
+			}
+		};
+		worker.execute();
+	}
+	
+	public void markSelectedRecordingWatched(boolean flag) {
+		SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+			@Override
+			protected Void doInBackground() throws Exception {
+				int row = _recordingTable.getSelectedRow();
+				int column = _recordingTable.getSelectedColumn();
+				
+				Recording recording = (Recording) _recordingTable.getValueAt(row, column);
+				try {
+					recording.mark_watched(flag);
+				} catch (IOException exp) {
+					exp.printStackTrace();
+				}
+				
+				((DefaultTableModel) _recordingTable.getModel()).fireTableCellUpdated(row, 0);
+				return null;
+			}
+		};
+		
+		worker.execute();
+	}
+	
+	public void refreshRecordingList() {
+		// Find MainFrame by traversing tree
+		Component source = (Component) this;
+		while (source.getParent() != null)
+			source = source.getParent();
+		
+		// Refresh the MainFrame
+		((MainFrame) source).refresh();
 	}
 
-	@Override
-	public void insertUpdate(DocumentEvent e) {
-        String text = _searchTextField.getText();
+	private ListSelectionListener _listSelectionListener = new ListSelectionListener() {
+		@Override
+		public void valueChanged(ListSelectionEvent e) {
+			if (e.getSource() == _titleList)
+				if (!e.getValueIsAdjusting())
+					onTitleListSelectionChanged();
+			else if (e.getSource() == _recordingTable.getSelectionModel())
+				if (!e.getValueIsAdjusting())
+					onRecordingTableSelectionChanged(e);
+		}
+	};
+	private ActionListener _actionListener = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == _sortTypeComboBox || e.getSource() == _sortDirectionComboBox) {
+				// Get Selected Values
+				int sortColumn = _sortTypeComboBox.getSelectedIndex() + 1;
+				SortOrder sortOrder = _sortDirectionComboBox.getSelectedIndex() == 0 ? SortOrder.ASCENDING : SortOrder.DESCENDING;
+				
+				// Apply (unless sortOrder == 0)
+				_sortKeys.clear();
+	    		_sortKeys.add(new SortKey(sortColumn, sortOrder));
+	    		
+				// Check if TableModel is ready
+				if (_sorter.getModel() != null)
+		    		_sorter.setSortKeys(_sortKeys);
+			} else if (e.getSource() == _playButton) {
+				playSelectedRecording();
+			} else if (e.getSource() == _deleteButton) {
+				deleteSelectedRecording();
+			} else if (e.getSource() == _refreshButton) {
+				refreshRecordingList();
+			}
+		}
+	};
+	private KeyListener _keyListener = new KeyListener() {
+		@Override
+		public void keyReleased(KeyEvent e) {
+			if (e.getKeyCode() == KeyEvent.VK_F5) {
+				// Find MainFrame by traversing tree
+				Component source = (Component) e.getSource();
+				while (source.getParent() != null)
+					source = source.getParent();
+				
+				// Pass message to MainFrame
+				((MainFrame) source).refresh();
+			} else if (e.getKeyCode() == KeyEvent.VK_F) {
+				// ^F is find
+				if ((e.getModifiers() & ActionEvent.CTRL_MASK) != 0) {
+					_searchTextField.requestFocusInWindow();
+				}
+			}
+		}
+		
+		@Override public void keyTyped(KeyEvent e) {}
+		@Override public void keyPressed(KeyEvent e) {}
+	};
+	private MouseListener _mouseListener = new MouseListener() {
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			if (SwingUtilities.isRightMouseButton(e)) {
+				
+				// Launch Context-Menu on Right Click
+				JTable table = (JTable) e.getSource();
+				int row = table.rowAtPoint(e.getPoint());
+				int col = table.columnAtPoint(e.getPoint());
+				table.getSelectionModel().setSelectionInterval(row, row);
+				table.setColumnSelectionInterval(col, col);
+				
+				if (e.isPopupTrigger()) {
+					JPopupMenu menu = new RecordingPopup();
+					menu.show(table, e.getX(), e.getY());
+				}
+			} else if (e.getClickCount() == 2) {
+				// Play on Double Click
+				playSelectedRecording();
+			}
+		}
 
-        if (text.trim().length() == 0) {
-            _sorter.setRowFilter(null);
-        } else {
-        	try {
-        		_sorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
-        	} catch (PatternSyntaxException ex) {
-        		System.err.println(ex.getMessage());
-        	}
-        }
-    }
-
-    @Override
-    public void removeUpdate(DocumentEvent e) {
-        String text = _searchTextField.getText();
-
-        if (text.trim().length() == 0) {
-            _sorter.setRowFilter(null);
-        } else {
-        	try {
-        		_sorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
-        	} catch (PatternSyntaxException ex) {
-        		System.err.println(ex.getMessage());
-        	}
-        }
-    }
-    
-    @Override public void changedUpdate(DocumentEvent e) {}
+		@Override public void mouseClicked(MouseEvent e) {}
+		@Override public void mousePressed(MouseEvent e) {}
+		@Override public void mouseEntered(MouseEvent e) {}
+		@Override public void mouseExited(MouseEvent e) {}
+	};
+	private DocumentListener _documentListener = new DocumentListener() {
+		@Override
+		public void insertUpdate(DocumentEvent e) {
+	        String text = _searchTextField.getText();
+	
+	        if (text.trim().length() == 0) {
+	            _sorter.setRowFilter(null);
+	        } else {
+	        	try {
+	        		_sorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
+	        	} catch (PatternSyntaxException ex) {
+	        		System.err.println(ex.getMessage());
+	        	}
+	        }
+	    }
+	
+	    @Override
+	    public void removeUpdate(DocumentEvent e) {
+	        String text = _searchTextField.getText();
+	
+	        if (text.trim().length() == 0) {
+	            _sorter.setRowFilter(null);
+	        } else {
+	        	try {
+	        		_sorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
+	        	} catch (PatternSyntaxException ex) {
+	        		System.err.println(ex.getMessage());
+	        	}
+	        }
+	    }
+	    
+	    @Override public void changedUpdate(DocumentEvent e) {}
+	};
 }

@@ -17,11 +17,11 @@ public class Status {
 			JSONObject root = XML.toJSONObject(result);
 			JSONObject status = root.getJSONObject("Status");
 			
-			String proto_version = Integer.toString(status.getInt("protoVer"));
+			//String proto_version = Integer.toString(status.getInt("protoVer"));
 			// String backend_version = status.getString("version");
 			
-			if (!proto_version.equals(Source.get_version()))
-				throw new IOException("Proto version mismatch (" + proto_version + " vs. " + Source.get_version() + ").");
+			//if (!proto_version.equals(Source.get_version()))
+			//	throw new IOException("Proto version mismatch (" + proto_version + " vs. " + Source.get_version() + ").");
 			
 			system_status = new Status(status);
 		} catch (JSONException e) {
@@ -53,8 +53,8 @@ public class Status {
 	private JSONObject _machineinfo;
 	
 	private Status(JSONObject status) throws JSONException {
-		_encoders = status.getJSONObject("Encoders").getJSONArray("Encoder");
-		_schedules = status.getJSONObject("Scheduled").getJSONArray("Program");
+		_encoders = status.getJSONObject("Encoders").has("Encoder") ? status.getJSONObject("Encoders").getJSONArray("Encoder") : null;
+		_schedules = status.getJSONObject("Scheduled").has("Program") ? status.getJSONObject("Scheduled").getJSONArray("Program") : null;
 		_jobs = status.getJSONObject("JobQueue");
 		_machineinfo = status.getJSONObject("MachineInfo");
 	}

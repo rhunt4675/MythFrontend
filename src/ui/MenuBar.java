@@ -13,7 +13,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
 import data.Source;
-import ui.MainFrame.ContentViewEnum;
 import utils.AppProperties;
 
 public class MenuBar extends JMenuBar implements ActionListener {
@@ -66,9 +65,8 @@ public class MenuBar extends JMenuBar implements ActionListener {
 	        JMenu invoker = (JMenu) popupMenu.getInvoker();
 	        MainFrame topLevel = (MainFrame) invoker.getTopLevelAncestor();
 
-	        // Refresh each ContentView Panel
-	        for (ContentViewEnum cve : ContentViewEnum.values())
-	        	topLevel.getContentView(cve).init();
+	        // Refresh current ContentView Panel
+	        topLevel.getSelectedContentView().init();
 
 		} else if (e.getSource() == _exit) {
 			JMenuItem menuItem = (JMenuItem) e.getSource();

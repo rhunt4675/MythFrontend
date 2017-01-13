@@ -80,7 +80,7 @@ public class RuleView extends ContentView implements ListSelectionListener, Mous
 			protected void done() {
 			    try {
 			    	DefaultTableModel model = get();
-			    	_ruleTable.setModel(model);
+			    	if (model != null) _ruleTable.setModel(model);
 			    } catch (InterruptedException ignore) {
 			    } catch (java.util.concurrent.ExecutionException e) {
 			            e.printStackTrace();

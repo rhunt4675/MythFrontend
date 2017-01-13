@@ -96,6 +96,9 @@ public class GuideView extends ContentView implements ListSelectionListener, Act
 					last_program = GuideProgram.get_latest_program();
 				} catch (IOException e) {
 					e.printStackTrace();
+				} finally {
+					if (source_list == null || first_program == null || last_program == null)
+						return null;
 				}
 				
 				do {
@@ -106,8 +109,9 @@ public class GuideView extends ContentView implements ListSelectionListener, Act
 					_hour.addItem(earliest);
 				} while ((earliest = earliest.plusHours(1)).isAfter(LocalTime.MIN));
 				
-				for (VideoSource source : source_list)
-					_sources.addItem(source);
+				if (source_list != null)
+					for (VideoSource source : source_list)
+						_sources.addItem(source);
 				_sources.setMaximumSize(_sources.getPreferredSize());
 				/*_day.setMaximumSize(_day.getPreferredSize());
 				_hour.setMaximumSize(_hour.getPreferredSize());*/
@@ -306,6 +310,7 @@ public class GuideView extends ContentView implements ListSelectionListener, Act
 				ZoneId.systemDefault()).withZoneSameInstant(ZoneOffset.UTC);
 		ZonedDateTime end = start.plusHours(3);
 		
-		fill_guidetable(source, start, end, _divisions);		
+		if (source != null)
+			fill_guidetable(source, start, end, _divisions);		
 	}
 }
