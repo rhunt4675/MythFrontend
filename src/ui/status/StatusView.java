@@ -40,7 +40,7 @@ public class StatusView extends ContentView {
 				try {
 					Status status = get();
 					String text = "Machine Info: " + status.get_machineinfo()
-						+ "\n\nJob Queue: " + status.get_jobs()
+						+ "\n\nJob Queue: " + "(add this here!!!)"
 						+ "\n\nEncoders: " + status.get_encoders()
 						+ "\n\nSchedules: " + status.get_schedules();
 					

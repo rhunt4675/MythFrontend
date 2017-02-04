@@ -10,13 +10,19 @@ import java.time.format.DateTimeFormatter;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 public abstract class Program {
 	protected abstract void refresh() throws IOException; 
 	
 	protected Program(JSONObject program_json) throws JSONException {
-		// Construct the program via the updateProgram function
 		updateProgram(this, program_json);
+	}
+	
+	protected Program(Node program_xml) {
+		updateProgramXML(this, program_xml);
 	}
 	
 	public ZonedDateTime get_starttime() {
@@ -193,5 +199,52 @@ public abstract class Program {
 		} catch (DateTimeException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	protected static void updateProgramXML(Program program, Node program_xml) {
+		NamedNodeMap nnm = program_xml.getAttributes();
+		NodeList nl = program_xml.getChildNodes();
+		
+		// Iterate Attributes
+		if (nnm != null) {
+			program._title = nnm.getNamedItem("title").getNodeValue();
+			program._subtitle = nnm.getNamedItem("subTitle").getNodeValue();
+			program._category = nnm.getNamedItem("category").getNodeValue();
+			program._seriesid = nnm.getNamedItem("seriesId").getNodeValue();
+			program._programid = nnm.getNamedItem("programId").getNodeValue();
+			program._filesize = nnm.getNamedItem("fileSize").getNodeValue();
+			program._starttime = LocalDateTime.parse(nnm.getNamedItem("startTime").getNodeValue()
+					.replaceFirst(".$",  "")).atZone(ZoneOffset.UTC);
+			program._endtime = LocalDateTime.parse(nnm.getNamedItem("endTime").getNodeValue()
+					.replaceFirst(".$",  "")).atZone(ZoneOffset.UTC);
+		}
+		
+		// Iterate Children
+		for (int i = 0; i < nl.getLength(); i++) {
+			Node child = nl.item(i);
+			
+			// <Channel>
+			if (child.getNodeName().equals("Channel")) {
+				NamedNodeMap channelNamedNodeMap = child.getAttributes();
+				
+				try {
+					program._channel = Channel.get_channel(Integer.parseInt(
+							channelNamedNodeMap.getNamedItem("chanId").getNodeValue()));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			// <Recording>
+			if (child.getNodeName().equals("Recording")) {
+				NamedNodeMap recordingNamedNodeMap = child.getAttributes();
+				program._recordid = Integer.parseInt(
+						recordingNamedNodeMap.getNamedItem("recordId").getNodeValue());
+				program._status = RecordingStatus.fromInt(Integer.parseInt(
+						recordingNamedNodeMap.getNamedItem("recStatus").getNodeValue()));
+			}
+		}
+		
+		program._description = program_xml.getTextContent();
 	}
 }
