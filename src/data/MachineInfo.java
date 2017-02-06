@@ -10,14 +10,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class MachineInfo {
-	@SuppressWarnings("unused")
 	private LocalDateTime _guideUpdateStart, _guideUpdateEnd, _guideDataThru;
-	@SuppressWarnings("unused")
 	private int _guideDays;
-	@SuppressWarnings("unused")
 	private String _guideStatus;
 	
-	@SuppressWarnings("unused")
 	private StorageGroup _total;
 	private List<StorageGroup> _stores = new ArrayList<StorageGroup>();
 	private float[] _machineload = new float[3];
@@ -75,19 +71,16 @@ public class MachineInfo {
 					// Create a StorageGroup from XML
 					StorageGroup sg = new StorageGroup(groups.item(j));
 					if (sg.get_id().equals("total")) _total = sg;
-					_stores.add(sg);
+					else _stores.add(sg);
 				}
 			}
 		}
 	}
 	
 	/* Inner Class to Model Storage */
-	private class StorageGroup {
-		@SuppressWarnings("unused")
+	public class StorageGroup {
 		private long _total, _expirable, _used, _free;
-		@SuppressWarnings("unused")
 		private String _id, _dir;
-		@SuppressWarnings("unused")
 		private boolean _livetv, _deleted;
 		
 		// Construct StorageGroup from XML
@@ -118,5 +111,65 @@ public class MachineInfo {
 		public String get_id() {
 			return _id;
 		}
+		
+		public long get_total() {
+			return _total;
+		}
+
+		public long get_expirable() {
+			return _expirable;
+		}
+
+		public long get_used() {
+			return _used;
+		}
+
+		public long get_free() {
+			return _free;
+		}
+
+		public String get_dir() {
+			return _dir;
+		}
+
+		public boolean is_livetv() {
+			return _livetv;
+		}
+
+		public boolean is_deleted() {
+			return _deleted;
+		}
+	}
+	
+	public LocalDateTime get_guideUpdateStart() {
+		return _guideUpdateStart;
+	}
+
+	public LocalDateTime get_guideUpdateEnd() {
+		return _guideUpdateEnd;
+	}
+
+	public LocalDateTime get_guideDataThru() {
+		return _guideDataThru;
+	}
+
+	public int get_guideDays() {
+		return _guideDays;
+	}
+
+	public String get_guideStatus() {
+		return _guideStatus;
+	}
+
+	public StorageGroup get_total() {
+		return _total;
+	}
+
+	public List<StorageGroup> get_stores() {
+		return _stores;
+	}
+
+	public float[] get_machineload() {
+		return _machineload;
 	}
 }

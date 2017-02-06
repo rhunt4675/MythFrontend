@@ -34,6 +34,10 @@ public class Encoder {
 	public String get_devlabel() {
 		return _devlabel;
 	}
+	
+	public List<StatusProgram> get_inProgressPrograms() {
+		return _inProgressPrograms;
+	}
 
 	private int _id;
 	private int _state;
