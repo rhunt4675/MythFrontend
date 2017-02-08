@@ -29,10 +29,6 @@ public class StatusView extends ContentView {
 	
 	private Status _status;
 	
-	public StatusView() {
-		
-	}
-	
 	@Override
 	public void init() {		
 		SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {

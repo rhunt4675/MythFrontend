@@ -5,6 +5,7 @@ import java.awt.Frame;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTabbedPane;
@@ -31,6 +32,7 @@ public class MainFrame extends JFrame  {
 		// Setup Main Window
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("MythTV Frontend");
+        setIconImage(new ImageIcon(getClass().getResource("/res/win32_icon.jpg")).getImage());
         setSize(new Dimension(1600, 900));
         setLocation(100, 100);
         /*setLocationByPlatform(true);*/

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.swing.ImageIcon;
 
@@ -18,7 +19,7 @@ import org.json.JSONObject;
 public class Title {
 	
 	public static List<Title> get_titles() throws IOException {
-		List<Title> titles = new ArrayList<Title>();
+		Map<String, Title> titles = new TreeMap<String, Title>();
 		String url = "/Dvr/GetTitleInfoList";
 		String result = Source.http_get(url);
 		
@@ -27,21 +28,21 @@ public class Title {
 			
 			JSONObject root = obj.getJSONObject("TitleInfoList");
 			JSONArray list = root.getJSONArray("TitleInfos");
-			
-			List<String> names = new ArrayList<String>();
-			
+						
 			for (int i = 0; i < list.length(); i++) {
 				Title title = new Title(list.getJSONObject(i));
-				if (names.contains(title.get_title())) continue;
-				else names.add(title.get_title());
+				if (titles.containsKey(title.get_title())) {
+					titles.get(title.get_title())._inetref.addAll(title._inetref);
+					continue;
+				}
 				
-				titles.add(title);
+				titles.put(title.get_title(), title);
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		
-		return titles;
+		 
+		return new ArrayList<Title>(titles.values());
 	}
 	
 	public ImageIcon get_title_artwork(Dimension dimension) throws IOException {
@@ -87,7 +88,9 @@ public class Title {
 	
 	private Title(JSONObject title) throws JSONException {
 		_title = title.getString("Title");
-		_inetref.add(title.getString("Inetref"));
 		_count = title.getInt("Count");
+		
+		String inetRef = title.getString("Inetref");
+		if (!inetRef.isEmpty()) _inetref.add(inetRef);
 	}
 }

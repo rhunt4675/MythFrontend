@@ -1,7 +1,6 @@
 package ui.recording;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -27,7 +26,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -59,15 +57,14 @@ public class RecordingView extends ContentView {
 	private static final String[] _sortDirectionArray = {"Ascending", "Descending"};
 	private static final int COUNT = 5;
 	
-	private TableRowSorter<TableModel> _sorter = new TableRowSorter<TableModel>();
-	private JList<Title> _titleList = new JList<Title>();
+	private static final TitleBarView _titleBarView = new TitleBarView();
+	private static final RecordingRenderer _renderer = new RecordingRenderer();
+	
 	private JTable _recordingTable = new JTable();
-	private JLabel _titleArtwork = new JLabel();
+	private TableRowSorter<TableModel> _sorter = new TableRowSorter<TableModel>();
 	
 	private Map<Title, TableModel> _models = new HashMap<Title, TableModel>();
 	private Map<Title, Integer> _modelSelection = new HashMap<Title, Integer>();
-	private static final Dimension _titleArtworkDimension = new Dimension(250, 0);
-	private static final RecordingRenderer _renderer = new RecordingRenderer();
 	
 	private List<SortKey> _sortKeys = new ArrayList<SortKey>();
 	private JLabel _searchLabel = new JLabel();
@@ -80,11 +77,6 @@ public class RecordingView extends ContentView {
 	private JButton _refreshButton = new JButton();
 
 	public RecordingView() {
-		JPanel sidepane = new JPanel();
-		sidepane.setLayout(new BorderLayout());
-		sidepane.add(new JScrollPane(_titleList), BorderLayout.CENTER);
-		sidepane.add(_titleArtwork, BorderLayout.SOUTH);
-		
 		JPanel recoperations = new JPanel();
 		recoperations.add(_playButton);
 		recoperations.add(_deleteButton);
@@ -108,7 +100,7 @@ public class RecordingView extends ContentView {
 		mainpane.add(selectors, BorderLayout.NORTH);
 		
 		setLayout(new BorderLayout());
-		add(sidepane, BorderLayout.WEST);
+		add(_titleBarView, BorderLayout.WEST);
 		add(mainpane, BorderLayout.CENTER);
 		
 		_playButton.addActionListener(_actionListener);
@@ -136,12 +128,11 @@ public class RecordingView extends ContentView {
 		_sortTypeComboBox.setSelectedIndex(0);				// Initial Sorting == Descending Record Date
 		_sortDirectionComboBox.setSelectedIndex(1); 		// Initial Sorting == Descending Record Date
 		
-		_titleList.addKeyListener(_keyListener);
-		_titleList.addListSelectionListener(_listSelectionListener);
-		_titleList.setSelectionBackground(Color.DARK_GRAY);
+		_titleBarView.addListSelectedListener(_titleListSelectionListener);
+		_titleBarView.addKeyListener(_keyListener);
 				
 		_recordingTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		_recordingTable.getSelectionModel().addListSelectionListener(_listSelectionListener);
+		_recordingTable.getSelectionModel().addListSelectionListener(_recordingTableListSelectionListener);
 		_recordingTable.setDefaultEditor(Object.class, null);
     	_recordingTable.setDefaultRenderer(Recording.class, _renderer);
 		_recordingTable.setRowSorter(_sorter);
@@ -156,192 +147,7 @@ public class RecordingView extends ContentView {
 	// Download a List of Titles
 	@Override
 	public void init() {
-		// Selection index before refresh
-		int selected = Math.max(_titleList.getSelectedIndex(), 0);
-		
-		SwingWorker<List<Title>, Void> worker = new SwingWorker<List<Title>, Void>() {
-			@Override
-			protected List<Title> doInBackground() {
-				List<Title> titles;
-				try {
-					titles = Title.get_titles();
-				} catch (IOException e) {
-					e.printStackTrace();
-					titles = new ArrayList<Title>();
-				}
-				
-				return titles;
-			}
-			
-			@Override
-			protected void done() {
-				List<Title> titles = null;
-			    try {
-			    	titles = get();
-			    } catch (Exception e) {
-			    	e.printStackTrace();
-			    }
-			    
-			    if (titles != null && !titles.isEmpty()) {
-			    	_titleList.setListData(titles.toArray(new Title[0]));
-			    	_titleList.setSelectedIndex(Math.min(selected, _titleList.getModel().getSize() - 1));
-			    }
-			}
-		};
-		
-		worker.execute();
-	}
-	
-	private void onTitleListSelectionChanged() {
-		// Download a List of Recordings for a Selected Title
-		Title selected = _titleList.getSelectedValue();
-		
-		// Clear the Recording List if Predicting a long wait time
-		if (selected == null || !_models.containsKey(selected))
-			_recordingTable.setModel(new DefaultTableModel());
-		
-		// Background Episode Download Task
-		SwingWorker<Void, DefaultTableModel> worker = new SwingWorker<Void, DefaultTableModel>() {
-
-			@Override
-			protected Void doInBackground() {
-				DefaultTableModel model;
-				
-				if (selected == null) {
-					model = null;
-				} else if (_models.containsKey(selected)) {
-					model = (DefaultTableModel) _models.get(selected);
-				} else {
-					try {
-						/* Model Definition */
-						model = new DefaultTableModel() {
-							private static final long serialVersionUID = -1225467351008175463L;
-
-							@Override public Class<?> getColumnClass(int columnIndex) {
-								switch (columnIndex) {
-								case 0: return Recording.class;
-								case 1: return ZonedDateTime.class;
-								case 2: return LocalDate.class;
-								case 3: return Double.class;
-								case 4: return BigInteger.class;
-								case 5: return String.class;
-								case 6: return String.class;
-								default: return null;
-								}
-							}
-						};
-						
-						/* Model Columns */
-						model.addColumn(null /* Recording */);
-						model.addColumn(null /* Record Date */);
-						model.addColumn(null /* Air Date */);
-						model.addColumn(null /* Season/Episode */);
-						model.addColumn(null /* File Size */);
-						model.addColumn(null /* Subtitle */);
-						model.addColumn(null /* Description */);
-						
-						/* Iterate in Chunks of 5 Until Empty */
-						List<Recording> episodes; int chunk = 0;
-						do {
-							// Download Recordings
-							episodes = Recording.get_recordings(selected.get_title(), COUNT, COUNT * chunk);
-							chunk++;
-							
-							// Add new rows to model
-							for (Recording recording : episodes) {
-								Object[] row = {
-										(Object) recording,
-										(Object) recording.get_starttime().withZoneSameInstant(ZoneId.systemDefault()),
-										(Object) recording.get_airdate(),
-										(Object) (recording.get_season() + 0.001 * recording.get_episode()),
-										(Object) new BigInteger(recording.get_filesize()),
-										(Object) recording.get_subtitle(),
-										(Object) recording.get_description()
-								};
-								
-								model.addRow(row);
-							}
-							
-							// Publish Intermediate Results
-							publish(model);
-							_models.put(selected, model);
-
-						} while (episodes.size() != 0);
-						
-					} catch (IOException e) {
-						e.printStackTrace();
-						model = null;
-					}
-				}
-				
-				publish(model);
-				return null;
-			}
-			
-			@Override
-			protected void process(List<DefaultTableModel> models) {
-		    	// Get the most recent TableModel
-		    	DefaultTableModel model = models.get(models.size() - 1);
-		    	
-		    	if (model != null && _titleList.getSelectedValue() == selected) {
-			    	_recordingTable.setModel(model);
-		    		_sorter.setModel(model);
-		    		_sorter.setSortKeys(_sortKeys);
-		    		
-		    		// Hide extraneous "sort" columns
-		    		while (_recordingTable.getColumnCount() > 1)
-		    	    	_recordingTable.removeColumn(_recordingTable.getColumnModel().getColumn(1));
-		    	}
-			}
-			
-			@Override
-			protected void done() {
-				try {
-					get();
-				} catch (InterruptedException ignore) {
-				} catch (ExecutionException e) {
-					e.printStackTrace();
-				}
-				
-				// Default Selection is Element 0
-				_modelSelection.put(selected, 0);
-				
-				// Update Selection
-				if (_titleList.getSelectedValue() == selected) {
-					_recordingTable.getSelectionModel().setSelectionInterval(0, _modelSelection.get(selected));
-					_recordingTable.setColumnSelectionInterval(0, 0); 
-				}
-			}
-		};
-		
-		// Background Artwork Download Task
-		SwingWorker<ImageIcon, Void> imagedownloader = new SwingWorker<ImageIcon, Void>() {
-			@Override
-			protected ImageIcon doInBackground() throws Exception {
-				return selected == null ? null : selected.get_title_artwork(_titleArtworkDimension);
-			}
-			
-			protected void done() {
-				try {
-					ImageIcon icon = get();
-					_titleArtwork.setIcon(icon);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		};
-
-		worker.execute();
-		imagedownloader.execute();
-	}
-	
-	private void onRecordingTableSelectionChanged(ListSelectionEvent e) {
-		// Update Selection Index
-		if (_recordingTable.getSelectedRow() != -1) {
-			Title selected = _titleList.getSelectedValue();
-			int row = _recordingTable.convertRowIndexToModel(_recordingTable.getSelectedRow());
-			_modelSelection.put(selected, row);
-		}
+		_titleBarView.downloadAllTitlesAsync();
 	}
 	
 	public void playSelectedRecording() {
@@ -426,17 +232,151 @@ public class RecordingView extends ContentView {
 		((MainFrame) source).refresh();
 	}
 
-	private ListSelectionListener _listSelectionListener = new ListSelectionListener() {
+	private ListSelectionListener _recordingTableListSelectionListener = new ListSelectionListener() {
 		@Override
 		public void valueChanged(ListSelectionEvent e) {
-			if (e.getSource() == _titleList)
-				if (!e.getValueIsAdjusting())
-					onTitleListSelectionChanged();
-			else if (e.getSource() == _recordingTable.getSelectionModel())
-				if (!e.getValueIsAdjusting())
-					onRecordingTableSelectionChanged(e);
+			// Ignore Intermediate Changes
+			if (e.getValueIsAdjusting()) return;
+			
+			// Update Selection Index
+			if (_recordingTable.getSelectedRow() != -1) {
+				Title selected = _titleBarView.getSelectedTitle();
+				int row = _recordingTable.convertRowIndexToModel(_recordingTable.getSelectedRow());
+				_modelSelection.put(selected, row);
+			}
 		}
 	};
+	
+	private ListSelectionListener _titleListSelectionListener = new ListSelectionListener() {
+		@Override
+		public void valueChanged(ListSelectionEvent e) {
+			// Ignore Intermediate Changes
+			if (e.getValueIsAdjusting()) return;
+			
+			// Download a List of Recordings for a Selected Title
+			Title selected = _titleBarView.getSelectedTitle();
+			
+			// Clear the Recording List if Predicting a long wait time
+			if (selected == null || !_models.containsKey(selected))
+				_recordingTable.setModel(new DefaultTableModel());
+			
+			// Background Episode Download Task
+			SwingWorker<Void, DefaultTableModel> worker = new SwingWorker<Void, DefaultTableModel>() {
+
+				@Override
+				protected Void doInBackground() {
+					DefaultTableModel model;
+					
+					if (selected == null) {
+						model = null;
+					} else if (_models.containsKey(selected)) {
+						model = (DefaultTableModel) _models.get(selected);
+					} else {
+						try {
+							/* Model Definition */
+							model = new DefaultTableModel() {
+								private static final long serialVersionUID = -1225467351008175463L;
+
+								@Override public Class<?> getColumnClass(int columnIndex) {
+									switch (columnIndex) {
+									case 0: return Recording.class;
+									case 1: return ZonedDateTime.class;
+									case 2: return LocalDate.class;
+									case 3: return Double.class;
+									case 4: return BigInteger.class;
+									case 5: return String.class;
+									case 6: return String.class;
+									default: return null;
+									}
+								}
+							};
+							
+							/* Model Columns */
+							model.addColumn(null /* Recording */);
+							model.addColumn(null /* Record Date */);
+							model.addColumn(null /* Air Date */);
+							model.addColumn(null /* Season/Episode */);
+							model.addColumn(null /* File Size */);
+							model.addColumn(null /* Subtitle */);
+							model.addColumn(null /* Description */);
+							
+							/* Iterate in Chunks of 5 Until Empty */
+							List<Recording> episodes; int chunk = 0;
+							do {
+								// Download Recordings
+								episodes = Recording.get_recordings(selected.get_title(), COUNT, COUNT * chunk);
+								chunk++;
+								
+								// Add new rows to model
+								for (Recording recording : episodes) {
+									Object[] row = {
+											(Object) recording,
+											(Object) recording.get_starttime().withZoneSameInstant(ZoneId.systemDefault()),
+											(Object) recording.get_airdate(),
+											(Object) (recording.get_season() + 0.001 * recording.get_episode()),
+											(Object) new BigInteger(recording.get_filesize()),
+											(Object) recording.get_subtitle(),
+											(Object) recording.get_description()
+									};
+									
+									model.addRow(row);
+								}
+								
+								// Publish Intermediate Results
+								publish(model);
+								_models.put(selected, model);
+
+							} while (episodes.size() != 0);
+							
+						} catch (IOException e) {
+							e.printStackTrace();
+							model = null;
+						}
+					}
+					
+					publish(model);
+					return null;
+				}
+				
+				@Override
+				protected void process(List<DefaultTableModel> models) {
+			    	// Get the most recent TableModel
+			    	DefaultTableModel model = models.get(models.size() - 1);
+			    	
+			    	if (model != null && _titleBarView.getSelectedTitle() == selected) {
+				    	_recordingTable.setModel(model);
+			    		_sorter.setModel(model);
+			    		_sorter.setSortKeys(_sortKeys);
+			    		
+			    		// Hide extraneous "sort" columns
+			    		while (_recordingTable.getColumnCount() > 1)
+			    	    	_recordingTable.removeColumn(_recordingTable.getColumnModel().getColumn(1));
+			    	}
+				}
+				
+				@Override
+				protected void done() {
+					try {
+						get();
+					} catch (InterruptedException ignore) {
+					} catch (ExecutionException e) {
+						e.printStackTrace();
+					}
+					
+					// Default Selection is Element 0
+					_modelSelection.put(selected, 0);
+					
+					// Update Selection
+					if (_titleBarView.getSelectedTitle() == selected) {
+						_recordingTable.getSelectionModel().setSelectionInterval(0, _modelSelection.get(selected));
+						_recordingTable.setColumnSelectionInterval(0, 0); 
+					}
+				}
+			};
+			worker.execute();						
+		}
+	};
+	
 	private ActionListener _actionListener = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
