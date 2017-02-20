@@ -30,6 +30,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
@@ -57,8 +58,8 @@ public class RecordingView extends ContentView {
 	private static final String[] _sortDirectionArray = {"Ascending", "Descending"};
 	private static final int COUNT = 5;
 	
-	private static final TitleBarView _titleBarView = new TitleBarView();
-	private static final RecordingRenderer _renderer = new RecordingRenderer();
+	private final TitleBarView _titleBarView = new TitleBarView();
+	private final RecordingRenderer _renderer = new RecordingRenderer();
 	
 	private JTable _recordingTable = new JTable();
 	private TableRowSorter<TableModel> _sorter = new TableRowSorter<TableModel>();
@@ -94,14 +95,18 @@ public class RecordingView extends ContentView {
 		selectors.add(recoperations, BorderLayout.WEST);
 		selectors.add(recfiltering, BorderLayout.EAST);
 		
-		JPanel mainpane = new JPanel();
-		mainpane.setLayout(new BorderLayout());
-		mainpane.add(new JScrollPane(_recordingTable), BorderLayout.CENTER);
-		mainpane.add(selectors, BorderLayout.NORTH);
+		JPanel recordingDetailPanel = new JPanel();
+		recordingDetailPanel.setLayout(new BorderLayout());
+		recordingDetailPanel.add(new JScrollPane(_recordingTable), BorderLayout.CENTER);
+		recordingDetailPanel.add(selectors, BorderLayout.NORTH);
+
+		JSplitPane splitPane = new JSplitPane();
+		splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
+		splitPane.setLeftComponent(_titleBarView);
+		splitPane.setRightComponent(recordingDetailPanel);
 		
 		setLayout(new BorderLayout());
-		add(_titleBarView, BorderLayout.WEST);
-		add(mainpane, BorderLayout.CENTER);
+		add(splitPane, BorderLayout.CENTER);
 		
 		_playButton.addActionListener(_actionListener);
 		_playButton.setFocusable(false);
@@ -181,6 +186,7 @@ public class RecordingView extends ContentView {
 				
 				try {
 					r.delete(allow_rerecord);
+					_titleBarView.updateSelectedTitle();
 					
 					if (_recordingTable.getRowCount() == 0) {
 						_refreshButton.doClick();
@@ -215,6 +221,7 @@ public class RecordingView extends ContentView {
 				}
 				
 				((DefaultTableModel) _recordingTable.getModel()).fireTableCellUpdated(row, 0);
+				_titleBarView.updateSelectedTitle();
 				return null;
 			}
 		};
@@ -255,6 +262,7 @@ public class RecordingView extends ContentView {
 			
 			// Download a List of Recordings for a Selected Title
 			Title selected = _titleBarView.getSelectedTitle();
+			final int index = _titleBarView.getSelectedTitleIndex();
 			
 			// Clear the Recording List if Predicting a long wait time
 			if (selected == null || !_models.containsKey(selected))
@@ -304,7 +312,7 @@ public class RecordingView extends ContentView {
 							List<Recording> episodes; int chunk = 0;
 							do {
 								// Download Recordings
-								episodes = Recording.get_recordings(selected.get_title(), COUNT, COUNT * chunk);
+								episodes = selected.get_recordings(COUNT, COUNT * chunk);
 								chunk++;
 								
 								// Add new rows to model
@@ -352,6 +360,9 @@ public class RecordingView extends ContentView {
 			    		while (_recordingTable.getColumnCount() > 1)
 			    	    	_recordingTable.removeColumn(_recordingTable.getColumnModel().getColumn(1));
 			    	}
+			    	
+		    		// Update TitleBarView
+		    		_titleBarView.updateTitle(index);
 				}
 				
 				@Override

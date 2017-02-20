@@ -65,7 +65,7 @@ public class RecordingRenderer extends DefaultTableCellRenderer implements Actio
 		JTextArea subtitle = new JTextArea(((r.get_season() != 0 && r.get_episode() != 0) 
 				? (r.get_season() + "x" + String.format("%02d - ",r.get_episode())) : " ")
 				+ (r.get_subtitle().isEmpty() ? r.get_title() : r.get_subtitle()));
-		subtitle.setFont(new Font("Arial", Font.BOLD, 18));
+		subtitle.setFont(new Font("Arial", r.is_watched() ? Font.PLAIN : Font.BOLD, 18));
 		subtitle.setEditable(false);
 		subtitle.setLineWrap(true);
 		subtitle.setWrapStyleWord(true);
@@ -143,8 +143,9 @@ public class RecordingRenderer extends DefaultTableCellRenderer implements Actio
 						e.printStackTrace();
 					}
 					
-					((DefaultTableModel) table.getModel()).fireTableCellUpdated(
-							table.convertRowIndexToModel(row), table.convertColumnIndexToModel(column));
+					if (row < table.getRowCount() && column < table.getColumnCount())
+						((DefaultTableModel) table.getModel()).fireTableCellUpdated(
+								table.convertRowIndexToModel(row), table.convertColumnIndexToModel(column));
 				}
 			};
 			

@@ -122,6 +122,7 @@ public class StatusView extends ContentView {
 		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 		scrollPane.setBorder(BorderFactory.createEmptyBorder());
 		
+		this.removeAll();
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		add(scrollPane);
 	}

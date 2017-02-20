@@ -87,7 +87,7 @@ public class Channel {
 			ImageIcon image = Source.image_get(url);
 			
 			// Filler Icon
-			if (image.getImageLoadStatus() == MediaTracker.ERRORED)
+			if (image == null || image.getImageLoadStatus() == MediaTracker.ERRORED)
 				image = new ImageIcon(getClass().getResource("/res/station.jpg"));
 			
 			_artworkcache.put(url, image);

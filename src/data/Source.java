@@ -1,10 +1,12 @@
 package data;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
+import java.net.SocketException;
 import java.net.URL;
 
 import javax.swing.ImageIcon;
@@ -62,10 +64,6 @@ public abstract class Source {
 		return http_do(get_base_url() + uri, HTTP_METHOD.POST, false);
 	}
 	
-	protected static ImageIcon image_get(String uri) throws MalformedURLException {
-		return new ImageIcon(new URL(get_base_url() + uri));
-	}
-	
 	protected static String playback_url(String uri) {
 		return get_base_url() + uri;
 	}
@@ -76,5 +74,36 @@ public abstract class Source {
 		} catch (IOException e) {
 			throw e;
 		}
+	}
+	
+	protected static ImageIcon image_get(String uri) throws IOException {
+		ImageIcon result = null;
+		URL obj = new URL(get_base_url() + uri);
+		
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+		con.setRequestMethod("GET");
+		
+		try {
+			if (con.getResponseCode() == HttpURLConnection.HTTP_OK) { 
+				InputStream in = con.getInputStream();
+				ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+				
+				int bytesRead; byte[] swap = new byte[8092];
+				while ((bytesRead = in.read(swap, 0, swap.length)) != -1)
+					byteBuffer.write(swap, 0, bytesRead);
+				in.close();
+				byteBuffer.flush();
+				
+				String filename = con.getHeaderField("Content-Disposition");
+				result = new ImageIcon(byteBuffer.toByteArray(), filename);
+			} else {
+				// Suppress Image Load Errors (like ImageIcon does)
+				// 		throw new IOException("Server returned status " + con.getResponseCode() + " for URL: " + obj.toString());
+			}
+		} catch (SocketException e) {
+			// Suppress Image Load Errors (like ImageIcon does)
+		}
+		
+		return result;
 	}
 }

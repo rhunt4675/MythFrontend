@@ -18,7 +18,8 @@ import org.json.JSONObject;
 import utils.AppProperties;
 
 public class Recording extends Program {
-	
+	private static Map<String, ImageIcon> _artworkcache = new HashMap<String, ImageIcon>();
+	private List<RecordingChangedEventListener> _recordingListeners = new ArrayList<RecordingChangedEventListener>();
 	public enum Artwork {FANART, COVERART, BANNER, PREVIEW};
 	
 	public static List<Recording> get_recordings() throws IOException {
@@ -88,6 +89,12 @@ public class Recording extends Program {
 				
 				Thread.sleep(100);
 			}
+			
+			// Success!
+			for (RecordingChangedEventListener listener : _recordingListeners) {
+				listener.onRecordingWatched(this);
+				listener.onRecordingDeleted(this);
+			}
 		} catch (JSONException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
@@ -98,17 +105,31 @@ public class Recording extends Program {
 	public void undelete() throws IOException {
 		String url = "/Dvr/UnDeleteRecording?RecordedId=" + get_recordedid();
 		Source.http_get(url);
+		
+		// Success!
+		for (RecordingChangedEventListener listener : _recordingListeners)
+			listener.onRecordingUndeleted(this);
 	}
 	
 	public void mark_watched(boolean flag) throws IOException {
 		String url = "/Dvr/UpdateRecordedWatchedStatus?RecordedId=" + get_recordedid() + "&Watched=" + flag;
 		Source.http_post(url);
 		
+		// Success!
+		for (RecordingChangedEventListener listener : _recordingListeners) {
+			if (flag) listener.onRecordingWatched(this);
+			else listener.onRecordingUnwatched(this);
+		}
+		
 		refresh();
 	}
 	
 	public void toggle_watched() throws IOException {
 		mark_watched(!is_watched());
+	}
+	
+	public void addRecordingChangedEventListener(RecordingChangedEventListener listener) {
+		_recordingListeners.add(listener);
 	}
 	
 	public ImageIcon get_artwork(Artwork type, Dimension d) throws IOException {
@@ -118,7 +139,7 @@ public class Recording extends Program {
 			ImageIcon image = Source.image_get(url);
 			
 			// Filler Icon
-			if (image.getImageLoadStatus() == MediaTracker.ERRORED) {
+			if (image == null || image.getImageLoadStatus() == MediaTracker.ERRORED) {
 				switch (type) {
 				case BANNER:
 					image = new ImageIcon(getClass().getResource("/res/mythtv.jpg")); break;
@@ -151,10 +172,15 @@ public class Recording extends Program {
 						? "coverart" : (type == Artwork.FANART ? "fanart" : "")))))
 				+ "&Width=" + width + "&Height=" + height;
 	}
-	
-	private static Map<String, ImageIcon> _artworkcache = new HashMap<String, ImageIcon>();
-	
+		
 	private Recording(JSONObject recording_json) throws JSONException {
 		super(recording_json);
+	}
+	
+	public interface RecordingChangedEventListener {
+		void onRecordingDeleted(Recording r);
+		void onRecordingUndeleted(Recording r);
+		void onRecordingWatched(Recording r);
+		void onRecordingUnwatched(Recording r);
 	}
 }
