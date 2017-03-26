@@ -65,8 +65,8 @@ public class MenuBar extends JMenuBar implements ActionListener {
 	        JMenu invoker = (JMenu) popupMenu.getInvoker();
 	        MainFrame topLevel = (MainFrame) invoker.getTopLevelAncestor();
 
-	        // Refresh current ContentView Panel
-	        topLevel.getSelectedContentView().init();
+	        // Refresh Entire MainFrame
+	        topLevel.init();
 
 		} else if (e.getSource() == _exit) {
 			JMenuItem menuItem = (JMenuItem) e.getSource();

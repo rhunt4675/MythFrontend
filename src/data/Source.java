@@ -9,8 +9,6 @@ import java.net.HttpURLConnection;
 import java.net.SocketException;
 import java.net.URL;
 
-import javax.swing.ImageIcon;
-
 import utils.AppProperties;
 
 public abstract class Source {
@@ -64,8 +62,8 @@ public abstract class Source {
 		return http_do(get_base_url() + uri, HTTP_METHOD.POST, false);
 	}
 	
-	protected static String playback_url(String uri) {
-		return get_base_url() + uri;
+	public static String playback_url(String uri) {
+		return get_base_url() + "/Content/GetRecording?RecordedId=" + uri;
 	}
 	
 	public static void test_connection() throws IOException {
@@ -76,8 +74,8 @@ public abstract class Source {
 		}
 	}
 	
-	protected static ImageIcon image_get(String uri) throws IOException {
-		ImageIcon result = null;
+	protected static byte[] image_get(String uri, StringBuffer filename /* Out */) throws IOException {
+		byte[] result = null;
 		URL obj = new URL(get_base_url() + uri);
 		
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
@@ -94,11 +92,18 @@ public abstract class Source {
 				in.close();
 				byteBuffer.flush();
 				
-				String filename = con.getHeaderField("Content-Disposition");
-				result = new ImageIcon(byteBuffer.toByteArray(), filename);
+				// Extract Content-Disposition Filename Header
+				String header = con.getHeaderField("Content-Disposition");
+				if (header != null) header = header.split("\"")[1];
+				
+				// Return Results
+				result = byteBuffer.toByteArray();
+				if (filename != null) {
+					filename.setLength(0);
+					filename.append(header);
+				}
 			} else {
 				// Suppress Image Load Errors (like ImageIcon does)
-				// 		throw new IOException("Server returned status " + con.getResponseCode() + " for URL: " + obj.toString());
 			}
 		} catch (SocketException e) {
 			// Suppress Image Load Errors (like ImageIcon does)

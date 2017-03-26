@@ -169,7 +169,7 @@ public abstract class Program {
 	private boolean _watched;
 	private Channel _channel;
 	private ZonedDateTime _starttime;
-	private ZonedDateTime _endtime;	
+	private ZonedDateTime _endtime;
 	private LocalDate _airdate;
 	private RecordingStatus _status;
 	

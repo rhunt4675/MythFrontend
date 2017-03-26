@@ -4,22 +4,28 @@ import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.IOException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 
+import data.Source;
 import ui.guide.GuideView;
 import ui.recording.RecordingView;
 import ui.rule.RuleView;
 import ui.status.StatusView;
 import ui.upcoming.UpcomingView;
+import utils.AppProperties;
 
 public class MainFrame extends JFrame  {
 	private static final long serialVersionUID = 85923720912596620L;
+	private static final Dimension _tabDimension = new Dimension(80, 15);
+	
 	private final MenuBar _menubar = new MenuBar();
 	private final JTabbedPane _tabbedpane = new JTabbedPane();
 	private final RecordingView _rview = new RecordingView();
@@ -35,14 +41,9 @@ public class MainFrame extends JFrame  {
         setIconImage(new ImageIcon(getClass().getResource("/res/win32_icon.jpg")).getImage());
         setSize(new Dimension(1600, 900));
         setLocation(100, 100);
-        /*setLocationByPlatform(true);*/
-        
-        // Initialize Tab Panels
-        _rview.init();
-        _uview.init();
-        _ruview.init();
-        _gview.init();
-        _sview.init();     
+        setJMenuBar(_menubar);
+        addKeyListener(_keyListener);
+        /*setLocationByPlatform(true);*/    
         
         // Setup Tab Labels
         JLabel rlabel = new JLabel("Recordings", SwingConstants.CENTER);
@@ -50,11 +51,11 @@ public class MainFrame extends JFrame  {
         JLabel rulabel = new JLabel("Rules", SwingConstants.CENTER);
         JLabel glabel = new JLabel("Guide", SwingConstants.CENTER);
         JLabel slabel = new JLabel("Status", SwingConstants.CENTER);
-        rlabel.setPreferredSize(new Dimension(80, 15));
-        ulabel.setPreferredSize(new Dimension(80, 15));
-        rulabel.setPreferredSize(new Dimension(80, 15));
-        glabel.setPreferredSize(new Dimension(80, 15));
-        slabel.setPreferredSize(new Dimension(80, 15));
+        rlabel.setPreferredSize(_tabDimension);
+        ulabel.setPreferredSize(_tabDimension);
+        rulabel.setPreferredSize(_tabDimension);
+        glabel.setPreferredSize(_tabDimension);
+        slabel.setPreferredSize(_tabDimension);
         
         // Setup Main Window Tabs
         _tabbedpane.setTabPlacement(JTabbedPane.BOTTOM);
@@ -68,19 +69,32 @@ public class MainFrame extends JFrame  {
         _tabbedpane.setTabComponentAt(2, rulabel);
         _tabbedpane.setTabComponentAt(3, glabel);
         _tabbedpane.setTabComponentAt(4, slabel);
-        //_tabbedpane.addKeyListener(_keyListener);
         add(_tabbedpane);
-        
-        // Refresh Window on F5
-        addKeyListener(_keyListener);
-        
-        // Setup the Menu Bar
-        setJMenuBar(_menubar);
-        
+                
         // Show the Window
         setVisible(true);
         requestFocus();
         setState(Frame.NORMAL);
+        
+        // Check Network Connectivity
+	    while (true) {
+		    try {
+		    	Source.test_connection();
+		    	AppProperties.commitChanges();
+		    	break;
+		    } catch (IOException e) {
+		    	JOptionPane.showMessageDialog(null, "Connection failed!");
+		    	boolean cancelled = AppProperties.displayBackendPropertiesWindow();
+		    	if (cancelled) return;
+		    }
+	    }
+        
+        // Initialize Tab Panels
+        _rview.init();
+        _uview.init();
+        _ruview.init();
+        _gview.init();
+        _sview.init(); 
 	}
 	
 	// Return the Requested ContentView JPanel

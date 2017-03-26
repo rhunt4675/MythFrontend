@@ -4,7 +4,6 @@ import java.awt.Dimension;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -69,25 +68,19 @@ public class Title {
 		
 		for (String inetref : _inetref) {
 			/* Get Current Season (leave season parameter off) Coverart */
-			String currentSeasonURL = "/Content/GetRecordingArtwork?Width=" + dimension.width
+			String currentSeasonURI = "/Content/GetRecordingArtwork?Width=" + dimension.width
 				+ "&Height=" + dimension.height + "&Inetref=" + URLEncoder.encode(inetref, "utf-8");
 			
-			if (!_artworkcache.containsKey(currentSeasonURL))
-				_artworkcache.put(currentSeasonURL, Source.image_get(currentSeasonURL));
-			
-			ImageIcon image = _artworkcache.get(currentSeasonURL);
-			if (image != null && !result.containsKey(image.getDescription()))
+			ImageIcon image = ArtworkManager.getArtwork(currentSeasonURI);
+			if (image != null && image.getDescription() != null && !result.containsKey(image.getDescription()))
 				result.put(image.getDescription(), image);
 			
 			/* Get Previous Seasons' Coverart */
 			int failures = 0;
 			for (int season = 1; failures < 5; season++) {
-				String newSeasonURL = currentSeasonURL + "&Season=" + season;
+				String newSeasonURL = currentSeasonURI + "&Season=" + season;
+				ImageIcon newImage = ArtworkManager.getArtwork(newSeasonURL);
 				
-				if (!_artworkcache.containsKey(newSeasonURL))
-					_artworkcache.put(newSeasonURL, Source.image_get(newSeasonURL));		
-				
-				ImageIcon newImage = _artworkcache.get(newSeasonURL);
 				if (newImage != null && !result.containsKey(newImage.getDescription())) {
 					result.put(newImage.getDescription(), newImage); failures = 0;
 				} else {
@@ -120,7 +113,6 @@ public class Title {
 	private String _title;
 	private List<String> _inetref = new ArrayList<String>();
 	private int _count;
-	private Map<String, ImageIcon> _artworkcache = new HashMap<String, ImageIcon>();
 	
 	private Set<Recording> _recordings = new HashSet<Recording>();
 	private Set<Recording> _unwatchedRecordings = new HashSet<Recording>();

@@ -8,12 +8,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.prefs.Preferences;
 
 import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
@@ -21,17 +22,19 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
-import javax.swing.GroupLayout.Alignment;
 
 public class AppProperties {
 	private static final String _node = "mythfrontend";
-	private static enum PreferencesEnum {Address, Port, Secure, Player};
+	private static enum PreferencesEnum {Address, Port, Secure, Player, TraktAccessCode, TraktRefreshCode};
 	private static Preferences _preferences = Preferences.userRoot().node(_node);
 	
 	private static String _stagedAddress;
 	private static String _stagedPort;
 	private static String _stagedSecure;
 	private static String _stagedPlayer;
+	private static String _stagedTraktAccessCode;
+	private static String _stagedTraktRefreshCode;
+	
 	
 	// Load settings at startup
 	static { loadSettings(); }
@@ -41,6 +44,8 @@ public class AppProperties {
 		_preferences.put(PreferencesEnum.Port.toString(), _stagedPort);
 		_preferences.put(PreferencesEnum.Secure.toString(), _stagedSecure);
 		_preferences.put(PreferencesEnum.Player.toString(), _stagedPlayer);
+		_preferences.put(PreferencesEnum.TraktAccessCode.toString(), _stagedTraktAccessCode);
+		_preferences.put(PreferencesEnum.TraktRefreshCode.toString(), _stagedTraktRefreshCode);
 	}
 	
 	public static void loadSettings() {
@@ -48,6 +53,8 @@ public class AppProperties {
 		_stagedPort = _preferences.get(PreferencesEnum.Port.toString(), "");
 		_stagedSecure = _preferences.get(PreferencesEnum.Secure.toString(), "");
 		_stagedPlayer = _preferences.get(PreferencesEnum.Player.toString(), "");
+		_stagedTraktAccessCode = _preferences.get(PreferencesEnum.TraktAccessCode.toString(), "");
+		_stagedTraktRefreshCode = _preferences.get(PreferencesEnum.TraktRefreshCode.toString(), "");
 	}
 	
 	public static String getSourceAddress() {
@@ -66,6 +73,14 @@ public class AppProperties {
 		return _stagedPlayer;
 	}
 	
+	public static String getTraktAccessCode() {
+		return _stagedTraktAccessCode;
+	}
+	
+	public static String getTraktRefreshCode() {
+		return _stagedTraktRefreshCode;
+	}
+	
 	public static void setSourceAddress(String address) throws NumberFormatException {
 		if (INetAddress.validateIPv4(address))
 			_stagedAddress = address;
@@ -74,16 +89,11 @@ public class AppProperties {
 	}
 	
 	public static void setSourcePort(String port) throws NumberFormatException {
-		try {
-			int parsed_port = Integer.parseInt(port);
-			if (parsed_port > 0)
-				_stagedPort = port;
-			else
-				throw new NumberFormatException();
-			
-		} catch (NumberFormatException e) {
+		int parsed_port = Integer.parseInt(port);
+		if (parsed_port > 0)
+			_stagedPort = port;
+		else
 			throw new NumberFormatException("Invalid Port Number: " + port);
-		}
 	}
 	
 	public static void setSourceSecure(boolean secure) {
@@ -99,9 +109,18 @@ public class AppProperties {
 			throw new FileNotFoundException("The path " + executableFile + " does not point to an executable file.");
 	}
 	
+	public static void setTraktAccessCode(String code) {
+		_stagedTraktAccessCode = code;
+	}
+	
+	public static void setTraktRefreshCode(String code) {
+		_stagedTraktRefreshCode = code;
+	}
+	
 	public static boolean displayBackendPropertiesWindow() {
+		AtomicBoolean userCancelled = new AtomicBoolean(false);
 		
-		class AppPropertiesDialog extends JDialog implements WindowListener, ActionListener, KeyListener {
+		class AppPropertiesDialog extends JDialog implements /*WindowListener,*/ ActionListener, KeyListener {
 			private static final long serialVersionUID = 8432521595616564569L;
 
 			private JTextField _addressTextField, _portTextField;
@@ -110,8 +129,8 @@ public class AppProperties {
 
 			public AppPropertiesDialog() {
 				super(null, "Connect to the Backend", Dialog.ModalityType.DOCUMENT_MODAL);
-				setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-				addWindowListener(this);
+				//setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+				//addWindowListener(this);
 				
 				_ok = new JButton("OK");
 				_ok.addActionListener(this);
@@ -184,21 +203,15 @@ public class AppProperties {
 						AppProperties.setSourceAddress(_addressTextField.getText());
 						AppProperties.setSourcePort(_portTextField.getText());
 						AppProperties.setSourceSecure(_secureCheckBox.isSelected());
-						setVisible(false);
+						dispose();
 					} catch (NumberFormatException ex) {
 						JOptionPane.showMessageDialog(this, ex.getMessage());
 						return;
 					}
 				} else if (e.getSource() == _cancel) {
-					dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+					userCancelled.set(true);
+					dispose();
 				}
-			}
-			
-			@Override
-			public void windowClosing(WindowEvent e) {
-				setEnabled(false);
-				setVisible(false);
-				return;
 			}
 			
 			@Override
@@ -210,13 +223,6 @@ public class AppProperties {
 				}
 			}
 			
-			// Required WindowListener Events
-			@Override public void windowOpened(WindowEvent e) {}
-			@Override public void windowClosed(WindowEvent e) {}
-			@Override public void windowIconified(WindowEvent e) {}
-			@Override public void windowDeiconified(WindowEvent e) {}
-			@Override public void windowActivated(WindowEvent e) {}
-			@Override public void windowDeactivated(WindowEvent e) {}
 			@Override public void keyTyped(KeyEvent e) {}
 			@Override public void keyPressed(KeyEvent e) {}
 		}
@@ -224,11 +230,7 @@ public class AppProperties {
 		AppPropertiesDialog dialog = new AppPropertiesDialog();
 		dialog.setModal(true);
 		dialog.setVisible(true);
-		
-		// This is our signal that the user cancelled configuration
-		boolean cancelled = !dialog.isEnabled();
-		dialog.dispose();
-		return cancelled;
+		return userCancelled.get();
 	}
 
 	public static void displayPlayerPropertiesWindow() {

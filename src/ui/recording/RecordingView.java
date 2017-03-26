@@ -161,11 +161,26 @@ public class RecordingView extends ContentView {
 		int column = _recordingTable.getSelectedColumn();
 		Recording r = (Recording) _recordingTable.getValueAt(row, column);
 		
-		try {
-			r.play();
-		} catch (IOException ex) {
-			JOptionPane.showMessageDialog(this, "Attempting to play video failed! [" + ex.getMessage() + "]");
-		}
+		SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+			@Override protected Void doInBackground() {
+				try {
+					r.play();
+				} catch (IOException ex) {
+					JOptionPane.showMessageDialog(RecordingView.this, "Attempting to play video failed! [" + ex.getMessage() + "]");
+				}
+				
+				return null;
+			}
+			
+			@Override protected void done() {
+				try {
+					get();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		};
+		worker.execute();
 	}
 	
 	public void deleteSelectedRecording() {
@@ -435,8 +450,9 @@ public class RecordingView extends ContentView {
 		@Override public void keyPressed(KeyEvent e) {}
 	};
 	private MouseListener _mouseListener = new MouseListener() {
-		@Override
-		public void mouseReleased(MouseEvent e) {
+		@Override public void mouseReleased(MouseEvent e) {}
+		@Override public void mouseClicked(MouseEvent e) {}
+		@Override public void mousePressed(MouseEvent e) {
 			if (SwingUtilities.isRightMouseButton(e)) {
 				
 				// Launch Context-Menu on Right Click
@@ -455,9 +471,6 @@ public class RecordingView extends ContentView {
 				playSelectedRecording();
 			}
 		}
-
-		@Override public void mouseClicked(MouseEvent e) {}
-		@Override public void mousePressed(MouseEvent e) {}
 		@Override public void mouseEntered(MouseEvent e) {}
 		@Override public void mouseExited(MouseEvent e) {}
 	};

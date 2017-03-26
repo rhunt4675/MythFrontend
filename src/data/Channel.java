@@ -80,31 +80,23 @@ public class Channel {
 	}
 	
 	public ImageIcon get_artwork(Dimension d) throws IOException {
-		String url = "/Guide/GetChannelIcon?ChanId=" + _chanid 
+		String uri = "/Guide/GetChannelIcon?ChanId=" + _chanid 
 				+ "&Width=" + (int) d.getWidth() + "&Height=" + (int) d.getHeight();
+		ImageIcon image = ArtworkManager.getArtwork(uri);
+			
+		// Filler Icon
+		if (image == null || image.getImageLoadStatus() == MediaTracker.ERRORED)
+			image = new ImageIcon(getClass().getResource("/res/station.jpg"));
 		
-		if (!_artworkcache.containsKey(url)) {
-			ImageIcon image = Source.image_get(url);
-			
-			// Filler Icon
-			if (image == null || image.getImageLoadStatus() == MediaTracker.ERRORED)
-				image = new ImageIcon(getClass().getResource("/res/station.jpg"));
-			
-			_artworkcache.put(url, image);
-		}
-
-		return _artworkcache.get(url);
+		return image;
 	}
 	
 	public boolean artwork_downloaded(Dimension d) {
-		String url = "/Guide/GetChannelIcon?ChanId=" + _chanid 
+		String uri = "/Guide/GetChannelIcon?ChanId=" + _chanid 
 				+ "&Width=" + (int) d.getWidth() + "&Height=" + (int) d.getHeight();
 		
-		return _artworkcache.containsKey(url);
-	}
-	
-	private static Map<String, ImageIcon> _artworkcache = new HashMap<String, ImageIcon>();
-	
+		return ArtworkManager.artworkDownloaded(uri);
+	}	
 	
 	public int get_chanid() {
 		return _chanid;

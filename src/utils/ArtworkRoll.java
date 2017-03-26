@@ -49,7 +49,7 @@ public class ArtworkRoll extends JPanel {
 	private ActionListener _onBackPressed = new ActionListener() {
 		@Override public void actionPerformed(ActionEvent e) {
 			if (_artwork != null) {
-				_artworkIterator = (_artworkIterator - 1) % _artwork.size();
+				_artworkIterator = Math.floorMod(_artworkIterator - 1, _artwork.size());
 				ImageIcon newImage = _artwork.get(_artworkIterator);
 				_iconLabel.setIcon(newImage);
 				_indexLabel.setText("Image: " + (_artworkIterator + 1) + " of " + _artwork.size());
@@ -60,7 +60,7 @@ public class ArtworkRoll extends JPanel {
 	private ActionListener _onNextPressed = new ActionListener() {
 		@Override public void actionPerformed(ActionEvent e) {
 			if (_artwork != null) {
-				_artworkIterator = (_artworkIterator + 1) % _artwork.size();
+				_artworkIterator = Math.floorMod(_artworkIterator + 1, _artwork.size());
 				ImageIcon newImage = _artwork.get(_artworkIterator);
 				_iconLabel.setIcon(newImage);
 				_indexLabel.setText("Image: " + (_artworkIterator + 1) + " of " + _artwork.size());

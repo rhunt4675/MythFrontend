@@ -1,26 +1,33 @@
 package data;
 
 import java.awt.Dimension;
-import java.awt.MediaTracker;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import utils.AppProperties;
+import trakt.TraktSource;
+import ui.ExternalPlayer;
 
 public class Recording extends Program {
-	private static Map<String, ImageIcon> _artworkcache = new HashMap<String, ImageIcon>();
-	private List<RecordingChangedEventListener> _recordingListeners = new ArrayList<RecordingChangedEventListener>();
 	public enum Artwork {FANART, COVERART, BANNER, PREVIEW};
+	
+	private List<RecordingChangedEventListener> _recordingListeners = new ArrayList<RecordingChangedEventListener>();
+	private ExternalPlayer _player;
+	private Long _traktId;
+	
+	private ZonedDateTime _startts;
+	private ZonedDateTime _endts;
 	
 	public static List<Recording> get_recordings() throws IOException {
 		return get_recordings("", 0, 0);
@@ -74,8 +81,17 @@ public class Recording extends Program {
 	}
 	
 	public void play() throws IOException {
-		String url = Source.playback_url("/Content/GetRecording?RecordedId=" + get_recordedid());
-		new ProcessBuilder(AppProperties.getPlayer(), url).start();
+		// Only One Stream at any Instance
+		if (_player != null && _player.isActive()) {
+			JOptionPane.showMessageDialog(null, "The selected recording is already playing.", 
+					"Duplicate Stream", JOptionPane.INFORMATION_MESSAGE);
+			return;
+		}
+		
+		// Start Playback
+		if (_player == null)
+			_player = new ExternalPlayer();
+		_player.play(this);
 	}
 	
 	public void delete(boolean allow_rerecord) throws IOException {
@@ -128,43 +144,60 @@ public class Recording extends Program {
 		mark_watched(!is_watched());
 	}
 	
+	public String get_playback_url() {
+		return Source.playback_url(String.valueOf(get_recordedid()));
+	}
+	
+	public Long get_trakt_episodeId(String authCode) {
+		// Check Cache
+		if (_traktId != null)
+			return _traktId;
+		
+		// Recording Must be Identifiable
+		if (get_season() != 0 && get_episode() != 0) {
+			try {
+				// Lookup Show ID
+				String show = TraktSource.doGet("search/show?query=" + URLEncoder.encode(get_title(), "UTF-8"), authCode);
+				Long showId = ((JSONObject) (new JSONArray(show)).get(0)).getJSONObject("show")
+						.getJSONObject("ids").getLong("trakt");
+				
+				// Lookup Episode ID
+				String episode = TraktSource.doGet("shows/" + showId + "/seasons/" + get_season() +
+						"/episodes/" + get_episode(), authCode);
+				_traktId = (new JSONObject(episode)).getJSONObject("ids").getLong("trakt");
+			} catch (IOException | JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		return _traktId;
+	}
+	
 	public void addRecordingChangedEventListener(RecordingChangedEventListener listener) {
 		_recordingListeners.add(listener);
 	}
 	
 	public ImageIcon get_artwork(Artwork type, Dimension d) throws IOException {
-		String url = get_artwork_url(type, d.width, d.height);
+		String uri = get_artwork_uri(type, d.width, d.height);
 		
-		if (!_artworkcache.containsKey(url)) {
-			ImageIcon image = Source.image_get(url);
-			
-			// Filler Icon
-			if (image == null || image.getImageLoadStatus() == MediaTracker.ERRORED) {
-				switch (type) {
-				case BANNER:
-					image = new ImageIcon(getClass().getResource("/res/mythtv.jpg")); break;
-				case COVERART:
-				case FANART:
-					break;
-				case PREVIEW:
-					image = new ImageIcon(getClass().getResource("/res/notfound.jpg")); break;
-				default: break;
-				}
+		ImageIcon image = ArtworkManager.getArtwork(uri);
+		
+		// Filler Icon
+		if (image == null) {
+			switch (type) {
+			case BANNER:
+				image = new ImageIcon(getClass().getResource("/res/mythtv.jpg")); break;
+			case COVERART:
+			case FANART:
+				break;
+			case PREVIEW:
+				image = new ImageIcon(getClass().getResource("/res/notfound.jpg")); break;
+			default: break;
 			}
-
-			_artworkcache.put(url, image);
 		}
-
-		return _artworkcache.get(url);
+		return image;
 	}
 	
-	public boolean artwork_downloaded(Artwork type, Dimension d) {
-		String url = get_artwork_url(type, d.width, d.height);
-		
-		return _artworkcache.containsKey(url);
-	}
-	
-	private String get_artwork_url(Artwork type, int width, int height) {
+	private String get_artwork_uri(Artwork type, int width, int height) {
 		return (type == Artwork.PREVIEW 
 				? "/Content/GetPreviewImage?RecordedId=" + get_recordedid() 
 				: ("/Content/GetRecordingArtwork?Inetref=" + get_inetref() + "&Season=" + get_season() + "&Type="
@@ -172,9 +205,20 @@ public class Recording extends Program {
 						? "coverart" : (type == Artwork.FANART ? "fanart" : "")))))
 				+ "&Width=" + width + "&Height=" + height;
 	}
+	
+	public ZonedDateTime get_startts() {
+		return _startts;
+	}
+	
+	public ZonedDateTime get_endts() {
+		return _endts;
+	}
 		
 	private Recording(JSONObject recording_json) throws JSONException {
 		super(recording_json);
+		
+		_startts = LocalDateTime.parse(recording_json.getJSONObject("Recording").getString("StartTs").replaceFirst(".$", "")).atZone(ZoneOffset.UTC);
+		_endts = LocalDateTime.parse(recording_json.getJSONObject("Recording").getString("EndTs").replaceFirst(".$", "")).atZone(ZoneOffset.UTC);
 	}
 	
 	public interface RecordingChangedEventListener {

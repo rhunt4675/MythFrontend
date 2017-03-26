@@ -4,15 +4,13 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.logging.LogManager;
 
-import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import org.json.JSONException;
 
-import data.Source;
-import utils.AppProperties;
+import data.ArtworkManager;
 
 public class Init {
 	public static void main(String[] args) throws IOException, JSONException, InvocationTargetException, InterruptedException, ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException {
@@ -23,24 +21,15 @@ public class Init {
 	    // Set up Look & Feel, Application Properties
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		
+		// Initialize Local Artwork Cache
+		ArtworkManager.initializeArtworkManager();
+		
 		// Suppress Platform-Level Warnings
 		try {
 			LogManager.getLogManager().reset();
-		} catch (SecurityException ignore) {
+		} catch (SecurityException e) {
+			e.printStackTrace();
 		}
-			    
-	    // Verify Connectivity to the Backend
-	    while (true) {
-		    try {
-		    	Source.test_connection();
-		    	AppProperties.commitChanges();
-		    	break;
-		    } catch (IOException e) {
-		    	JOptionPane.showMessageDialog(null, "Connection failed!");
-		    	boolean cancelled = AppProperties.displayBackendPropertiesWindow();
-		    	if (cancelled) System.exit(1);
-		    }
-	    }
 		
 	    // Create a MainFrame on the EDT
 		SwingUtilities.invokeLater(new Runnable() {
