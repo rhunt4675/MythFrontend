@@ -1,19 +1,13 @@
 package ui;
 
+import data.Source;
+import utils.AppProperties;
+
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
-
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPopupMenu;
-
-import data.Source;
-import utils.AppProperties;
 
 public class MenuBar extends JMenuBar implements ActionListener {
 	private static final long serialVersionUID = 8648195999870453299L;
@@ -59,42 +53,39 @@ public class MenuBar extends JMenuBar implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == _refresh) {
-			JMenuItem menuItem = (JMenuItem) e.getSource();
-	        JPopupMenu popupMenu = (JPopupMenu) menuItem.getParent();
-	        JMenu invoker = (JMenu) popupMenu.getInvoker();
-	        MainFrame topLevel = (MainFrame) invoker.getTopLevelAncestor();
+		JMenuItem menuItem = (JMenuItem) e.getSource();
+		JPopupMenu popupMenu = (JPopupMenu) menuItem.getParent();
+		JMenu invoker = (JMenu) popupMenu.getInvoker();
+		MainFrame topLevel = (MainFrame) invoker.getTopLevelAncestor();
 
+		if (e.getSource() == _refresh) {
 	        // Refresh Entire MainFrame
 	        topLevel.init();
 
 		} else if (e.getSource() == _exit) {
-			JMenuItem menuItem = (JMenuItem) e.getSource();
-	        JPopupMenu popupMenu = (JPopupMenu) menuItem.getParent();
-	        JMenu invoker = (JMenu) popupMenu.getInvoker();
-	        JFrame topLevel = (JFrame) invoker.getTopLevelAncestor();
-	        
 	        // Close the Top Window
 	        topLevel.dispose();
+
 		} else if (e.getSource() == _properties) {
 			
 			// Prompt user for Properties
-			boolean cancelled = false;
 		    while (true) {
-		    	cancelled = AppProperties.displayBackendPropertiesWindow();
-		    	if (cancelled) break;
+		    	boolean cancelled = AppProperties.displayBackendPropertiesWindow(topLevel);
+		    	if (cancelled) {
+		    		AppProperties.loadSettings();
+		    		break;
+				}
 		    	
 		    	try {
 			    	Source.test_connection();
 			    	AppProperties.commitChanges();
+			    	_refresh.doClick();
 			    	break;
 			    } catch (IOException ex) {
-			    	JOptionPane.showMessageDialog(null, "Connection failed!");
+			    	JOptionPane.showMessageDialog(topLevel, "Connection failed!");
 			    }
 		    }
-		    
-		    AppProperties.loadSettings();
-			if (!cancelled) _refresh.doClick();
+
 		} else if (e.getSource() == _player) {
 			AppProperties.displayPlayerPropertiesWindow();
 		}

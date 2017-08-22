@@ -1,14 +1,21 @@
 package ui.recording;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import data.Recording;
+import data.Title;
+import ui.ContentView;
+import ui.MainFrame;
+
+import javax.swing.*;
+import javax.swing.RowSorter.SortKey;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
+import java.awt.*;
+import java.awt.event.*;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.time.LocalDate;
@@ -20,37 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.PatternSyntaxException;
-
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
-import javax.swing.RowFilter;
-import javax.swing.RowSorter.SortKey;
-import javax.swing.SortOrder;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
-
-import data.Recording;
-import data.Title;
-import ui.ContentView;
-import ui.MainFrame;
 
 public class RecordingView extends ContentView {
 	private static final long serialVersionUID = 7537158574729297160L;
@@ -78,22 +54,22 @@ public class RecordingView extends ContentView {
 	private JButton _refreshButton = new JButton();
 
 	public RecordingView() {
-		JPanel recoperations = new JPanel();
-		recoperations.add(_playButton);
-		recoperations.add(_deleteButton);
-		recoperations.add(_refreshButton);
+		JPanel recOperations = new JPanel();
+		recOperations.add(_playButton);
+		recOperations.add(_deleteButton);
+		recOperations.add(_refreshButton);
 		
-		JPanel recfiltering = new JPanel();
-		recfiltering.add(_searchLabel);
-		recfiltering.add(_searchTextField);
-		recfiltering.add(_sortLabel);
-		recfiltering.add(_sortTypeComboBox);
-		recfiltering.add(_sortDirectionComboBox);
+		JPanel recFiltering = new JPanel();
+		recFiltering.add(_searchLabel);
+		recFiltering.add(_searchTextField);
+		recFiltering.add(_sortLabel);
+		recFiltering.add(_sortTypeComboBox);
+		recFiltering.add(_sortDirectionComboBox);
 		
 		JPanel selectors = new JPanel();
 		selectors.setLayout(new BorderLayout());
-		selectors.add(recoperations, BorderLayout.WEST);
-		selectors.add(recfiltering, BorderLayout.EAST);
+		selectors.add(recOperations, BorderLayout.WEST);
+		selectors.add(recFiltering, BorderLayout.EAST);
 		
 		JPanel recordingDetailPanel = new JPanel();
 		recordingDetailPanel.setLayout(new BorderLayout());
@@ -125,10 +101,10 @@ public class RecordingView extends ContentView {
 		_searchTextField.getDocument().addDocumentListener(_documentListener);
 		_sortLabel.setText("Sort: ");
 		_sortTypeComboBox.addActionListener(_actionListener);
-		_sortTypeComboBox.setModel(new DefaultComboBoxModel<String>(_sortTypeArray));
+		_sortTypeComboBox.setModel(new DefaultComboBoxModel<>(_sortTypeArray));
 		_sortTypeComboBox.setPreferredSize(new Dimension(175, 25));
 		_sortDirectionComboBox.addActionListener(_actionListener);
-		_sortDirectionComboBox.setModel(new DefaultComboBoxModel<String>(_sortDirectionArray));
+		_sortDirectionComboBox.setModel(new DefaultComboBoxModel<>(_sortDirectionArray));
 		_sortDirectionComboBox.setPreferredSize(new Dimension(175, 25));
 		_sortTypeComboBox.setSelectedIndex(0);				// Initial Sorting == Descending Record Date
 		_sortDirectionComboBox.setSelectedIndex(1); 		// Initial Sorting == Descending Record Date
@@ -155,7 +131,7 @@ public class RecordingView extends ContentView {
 		_titleBarView.downloadAllTitlesAsync();
 	}
 	
-	public void playSelectedRecording() {
+	void playSelectedRecording() {
 		// Play on Button Press
 		int row = _recordingTable.getSelectedRow();
 		int column = _recordingTable.getSelectedColumn();
@@ -183,7 +159,7 @@ public class RecordingView extends ContentView {
 		worker.execute();
 	}
 	
-	public void deleteSelectedRecording() {
+	void deleteSelectedRecording() {
 		// Delete on Button Press
 		int row = _recordingTable.getSelectedRow();
 		int column = _recordingTable.getSelectedColumn();
@@ -221,7 +197,7 @@ public class RecordingView extends ContentView {
 		worker.execute();
 	}
 	
-	public void markSelectedRecordingWatched(boolean flag) {
+	void markSelectedRecordingWatched(boolean flag) {
 		SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 			@Override
 			protected Void doInBackground() throws Exception {
@@ -244,7 +220,7 @@ public class RecordingView extends ContentView {
 		worker.execute();
 	}
 	
-	public void refreshRecordingList() {
+	private void refreshRecordingList() {
 		// Find MainFrame by traversing tree
 		Component source = (Component) this;
 		while (source.getParent() != null)
@@ -274,14 +250,10 @@ public class RecordingView extends ContentView {
 		public void valueChanged(ListSelectionEvent e) {
 			// Ignore Intermediate Changes
 			if (e.getValueIsAdjusting()) return;
-			
+
 			// Download a List of Recordings for a Selected Title
 			Title selected = _titleBarView.getSelectedTitle();
 			final int index = _titleBarView.getSelectedTitleIndex();
-			
-			// Clear the Recording List if Predicting a long wait time
-			if (selected == null || !_models.containsKey(selected))
-				_recordingTable.setModel(new DefaultTableModel());
 			
 			// Background Episode Download Task
 			SwingWorker<Void, DefaultTableModel> worker = new SwingWorker<Void, DefaultTableModel>() {
@@ -333,13 +305,13 @@ public class RecordingView extends ContentView {
 								// Add new rows to model
 								for (Recording recording : episodes) {
 									Object[] row = {
-											(Object) recording,
-											(Object) recording.get_starttime().withZoneSameInstant(ZoneId.systemDefault()),
-											(Object) recording.get_airdate(),
-											(Object) (recording.get_season() + 0.001 * recording.get_episode()),
-											(Object) new BigInteger(recording.get_filesize()),
-											(Object) recording.get_subtitle(),
-											(Object) recording.get_description()
+											recording,
+											recording.get_starttime().withZoneSameInstant(ZoneId.systemDefault()),
+											recording.get_airdate(),
+											(recording.get_season() + 0.001 * recording.get_episode()),
+											new BigInteger(recording.get_filesize()),
+											recording.get_subtitle(),
+											recording.get_description()
 									};
 									
 									model.addRow(row);
@@ -399,7 +371,19 @@ public class RecordingView extends ContentView {
 					}
 				}
 			};
-			worker.execute();						
+			worker.execute();
+
+			// Perform Timely UI Update w/ whatever is Available Right Now
+			DefaultTableModel model = (DefaultTableModel) _models.get(selected);
+			if (model != null) {
+				_recordingTable.setModel(model);
+				_sorter.setModel(model);
+				_sorter.setSortKeys(_sortKeys);
+
+				// Hide extraneous "sort" columns
+				while (_recordingTable.getColumnCount() > 1)
+					_recordingTable.removeColumn(_recordingTable.getColumnModel().getColumn(1));
+			}
 		}
 	};
 	
@@ -449,6 +433,7 @@ public class RecordingView extends ContentView {
 		@Override public void keyTyped(KeyEvent e) {}
 		@Override public void keyPressed(KeyEvent e) {}
 	};
+
 	private MouseListener _mouseListener = new MouseListener() {
 		@Override public void mouseReleased(MouseEvent e) {}
 		@Override public void mouseClicked(MouseEvent e) {}

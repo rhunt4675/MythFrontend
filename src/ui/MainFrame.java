@@ -1,19 +1,5 @@
 package ui;
 
-import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.io.IOException;
-
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JTabbedPane;
-import javax.swing.SwingConstants;
-import javax.swing.WindowConstants;
-
 import data.Source;
 import ui.guide.GuideView;
 import ui.recording.RecordingView;
@@ -21,6 +7,12 @@ import ui.rule.RuleView;
 import ui.status.StatusView;
 import ui.upcoming.UpcomingView;
 import utils.AppProperties;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.io.IOException;
 
 public class MainFrame extends JFrame  {
 	private static final long serialVersionUID = 85923720912596620L;
@@ -77,24 +69,28 @@ public class MainFrame extends JFrame  {
         setState(Frame.NORMAL);
         
         // Check Network Connectivity
-	    while (true) {
-		    try {
-		    	Source.test_connection();
-		    	AppProperties.commitChanges();
-		    	break;
-		    } catch (IOException e) {
-		    	JOptionPane.showMessageDialog(null, "Connection failed!");
-		    	boolean cancelled = AppProperties.displayBackendPropertiesWindow();
-		    	if (cancelled) return;
-		    }
-	    }
-        
-        // Initialize Tab Panels
-        _rview.init();
-        _uview.init();
-        _ruview.init();
-        _gview.init();
-        _sview.init(); 
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override public void run() {
+                while (true) {
+                    try {
+                        Source.test_connection();
+                        AppProperties.commitChanges();
+                        break;
+                    } catch (IOException e) {
+                        JOptionPane.showMessageDialog(MainFrame.this, "Connection failed!");
+                        boolean cancelled = AppProperties.displayBackendPropertiesWindow(MainFrame.this);
+                        if (cancelled) return;
+                    }
+                }
+
+                // Initialize Tab Panels
+                _rview.init();
+                _uview.init();
+                _ruview.init();
+                _gview.init();
+                _sview.init();
+            }
+        });
 	}
 	
 	// Return the Requested ContentView JPanel

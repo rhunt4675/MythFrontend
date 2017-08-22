@@ -1,23 +1,19 @@
 package ui;
 
+import data.ArtworkManager;
+import org.json.JSONException;
+
+import javax.swing.*;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.logging.LogManager;
-
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-
-import org.json.JSONException;
-
-import data.ArtworkManager;
 
 public class Init {
 	public static void main(String[] args) throws IOException, JSONException, InvocationTargetException, InterruptedException, ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException {
 		run();
 	}
 	
-	public static void run() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, IOException {
+	private static void run() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, IOException {
 	    // Set up Look & Feel, Application Properties
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		

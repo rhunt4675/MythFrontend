@@ -1,13 +1,12 @@
 package ui;
 
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
-
-import javax.swing.JOptionPane;
-
 import data.Recording;
 import trakt.TraktManager;
 import utils.AppProperties;
+
+import javax.swing.*;
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 public class ExternalPlayer {	
 	private boolean _isActive;
@@ -80,8 +79,7 @@ public class ExternalPlayer {
 				}
 				
 				// Cleanup the Player
-				stop(progress == null ? 100 : progress);
-				return;
+				stop(progress != null ? progress : 100);
 				
 			} catch (InterruptedException e) {
 				e.printStackTrace();

@@ -1,13 +1,12 @@
 package ui.upcoming;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Rectangle;
+import data.Upcoming;
+import data.UpcomingList;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -15,21 +14,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
-
-import data.Upcoming;
-import data.UpcomingList;
 
 public class UpcomingListRenderer implements TableCellRenderer, MouseListener, MouseMotionListener {
 	private static final int _labelHeight = 75;
@@ -94,7 +78,7 @@ public class UpcomingListRenderer implements TableCellRenderer, MouseListener, M
 		}
 		
 		panel.add(Box.createVerticalStrut(_strutHeight), cons);
-		return (Component) panel;
+		return panel;
 	}
 	
 	private JPanel getUpcomingPanel(Upcoming u, boolean isSelected, boolean firstInList) {
@@ -150,7 +134,7 @@ public class UpcomingListRenderer implements TableCellRenderer, MouseListener, M
 	}
 	
 	@Override
-	public void mouseReleased(MouseEvent e) {
+	public void mousePressed(MouseEvent e) {
 		// Highlight the Selected Upcoming Panel
 		JTable table = (JTable) e.getSource();
 		UpcomingList upcominglist = null;
@@ -208,7 +192,7 @@ public class UpcomingListRenderer implements TableCellRenderer, MouseListener, M
 	@Override public void mouseEntered(MouseEvent e) {}
 	@Override public void mouseExited(MouseEvent e) {}
 	@Override public void mouseClicked(MouseEvent e) {}
-	@Override public void mousePressed(MouseEvent e) {}
+	@Override public void mouseReleased(MouseEvent e) {}
 	@Override public void mouseDragged(MouseEvent e) {}
 	
 	private int indexFromCoordinates(int x, int y, Rectangle r) {

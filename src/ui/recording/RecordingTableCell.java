@@ -1,28 +1,15 @@
 package ui.recording;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.concurrent.ExecutionException;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.SwingWorker;
-import javax.swing.table.DefaultTableModel;
-
 import data.Channel;
 import data.Recording;
 import data.Recording.Artwork;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.concurrent.ExecutionException;
 
 public class RecordingTableCell extends JPanel {
 	private static final long serialVersionUID = 751464801131533093L;
@@ -81,11 +68,11 @@ public class RecordingTableCell extends JPanel {
 		_textcontent.add(Box.createGlue());
 		
 		// Surrounding Box
-		Box programcontent = Box.createVerticalBox();
-		programcontent.setOpaque(true);
-		programcontent.setBackground(Color.WHITE);
-		programcontent.add(_channel);
-		programcontent.add(_channame);
+		Box programContent = Box.createVerticalBox();
+		programContent.setOpaque(true);
+		programContent.setBackground(Color.WHITE);
+		programContent.add(_channel);
+		programContent.add(_channame);
 		
 		// Artwork Containers
 		_preview = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
@@ -95,7 +82,7 @@ public class RecordingTableCell extends JPanel {
 		// Master Container
 		JPanel content = new JPanel(new BorderLayout());
 		content.add(_textcontent, BorderLayout.CENTER);
-		content.add(programcontent, BorderLayout.EAST);
+		content.add(programContent, BorderLayout.EAST);
 		
 		setLayout(new BorderLayout());
 		add(_preview, BorderLayout.WEST);

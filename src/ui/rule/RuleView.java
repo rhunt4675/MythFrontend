@@ -1,22 +1,17 @@
 package ui.rule;
 
-import java.awt.BorderLayout;
+import data.Rule;
+import ui.ContentView;
+
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.List;
-
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.table.DefaultTableModel;
-
-import data.Rule;
-import ui.ContentView;
 
 public class RuleView extends ContentView implements ListSelectionListener, MouseListener {
 	private static final long serialVersionUID = -8855317235931128425L;
@@ -91,26 +86,14 @@ public class RuleView extends ContentView implements ListSelectionListener, Mous
 		worker.execute();
 	}
 
-	@Override
-	public void valueChanged(ListSelectionEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
+	@Override public void valueChanged(ListSelectionEvent e) {}
+	@Override public void mouseClicked(MouseEvent e) {}
+	@Override public void mouseReleased(MouseEvent e) {}
+	@Override public void mouseEntered(MouseEvent e) {}
+	@Override public void mouseExited(MouseEvent e) {}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
 		if (SwingUtilities.isRightMouseButton(e)) {
 			JTable table = (JTable) e.getSource();
 			int row = table.rowAtPoint(e.getPoint());
@@ -124,17 +107,5 @@ public class RuleView extends ContentView implements ListSelectionListener, Mous
             // Refresh Rule Table
 			init();
         }
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
 	}
 }

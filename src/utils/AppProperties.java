@@ -1,27 +1,13 @@
 package utils;
 
-import java.awt.Dialog;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.WindowEvent;
+import javax.swing.*;
+import javax.swing.GroupLayout.Alignment;
+import java.awt.*;
+import java.awt.event.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.prefs.Preferences;
-
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
 
 public class AppProperties {
 	private static final String _node = "mythfrontend";
@@ -117,7 +103,7 @@ public class AppProperties {
 		_stagedTraktRefreshCode = code;
 	}
 	
-	public static boolean displayBackendPropertiesWindow() {
+	public static boolean displayBackendPropertiesWindow(JFrame parent) {
 		AtomicBoolean userCancelled = new AtomicBoolean(false);
 		
 		class AppPropertiesDialog extends JDialog implements /*WindowListener,*/ ActionListener, KeyListener {
@@ -128,7 +114,7 @@ public class AppProperties {
 			private JButton _ok, _cancel;
 
 			public AppPropertiesDialog() {
-				super(null, "Connect to the Backend", Dialog.ModalityType.DOCUMENT_MODAL);
+				super(parent, "Connect to the Backend", Dialog.ModalityType.DOCUMENT_MODAL);
 				//setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 				//addWindowListener(this);
 				
