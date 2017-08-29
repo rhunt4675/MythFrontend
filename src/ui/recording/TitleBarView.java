@@ -65,7 +65,7 @@ public class TitleBarView extends JPanel {
 					titles = Title.get_titles();
 				} catch (IOException e) {
 					LOGGER.log(Level.SEVERE, e.toString(), e);
-					titles = new ArrayList<Title>();
+					titles = new ArrayList<>();
 				}
 				
 				return titles;
@@ -84,8 +84,10 @@ public class TitleBarView extends JPanel {
 			    	_titleList.setListData(titles.toArray(new Title[0]));
 			    	
 			    	// Trigger Download of All Recordings
-			    	for (int i = 0; i < titles.size(); i++) _titleList.setSelectedIndex(i);			    	
-			    	_titleList.setSelectedIndex(Math.min(selected, _titleList.getModel().getSize() - 1));
+					int nextSelection = Math.min(selected, _titleList.getModel().getSize() - 1);
+			    	for (int i = 0; i < titles.size(); i++)
+			    		if (i != nextSelection) _titleList.setSelectedIndex(i);
+			    	_titleList.setSelectedIndex(nextSelection);
 			    }
 			}
 		};

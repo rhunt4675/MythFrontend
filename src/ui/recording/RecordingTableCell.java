@@ -99,7 +99,8 @@ public class RecordingTableCell extends JPanel {
 		// Subtitle
 		_subtitle.setText(((_r.get_season() != 0 && _r.get_episode() != 0) 
 				? (_r.get_season() + "x" + String.format("%02d - ",_r.get_episode())) : " ")
-				+ (_r.get_subtitle().isEmpty() ? _r.get_title() : _r.get_subtitle()));
+				+ (_r.get_subtitle().isEmpty() ? _r.get_title() : _r.get_subtitle())
+				+ (_r.get_trakt_watched() ? " *** " : ""));
 		_subtitle.setFont(new Font("Arial", _r.is_watched() ? Font.PLAIN : Font.BOLD, 18));
 		
 		// Description

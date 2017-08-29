@@ -209,7 +209,7 @@ public class RecordingView extends ContentView {
 	
 	private void refreshRecordingList() {
 		// Find MainFrame by traversing tree
-		Component source = (Component) this;
+		Component source = this;
 		while (source.getParent() != null)
 			source = source.getParent();
 		
@@ -280,7 +280,7 @@ public class RecordingView extends ContentView {
 							model.addColumn(null /* Subtitle */);
 							model.addColumn(null /* Description */);
 							
-							/* Iterate in Chunks of 5 Until Empty */
+							/* Iterate in Chunks of COUNT Until Empty */
 							List<Recording> episodes; int chunk = 0;
 							do {
 								// Download Recordings
@@ -301,7 +301,7 @@ public class RecordingView extends ContentView {
 									
 									model.addRow(row);
 								}
-								
+
 								// Publish Intermediate Results
 								publish(model);
 								_models.put(selected, model);

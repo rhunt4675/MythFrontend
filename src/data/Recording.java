@@ -3,6 +3,7 @@ package data;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import trakt.TraktManager;
 import trakt.TraktSource;
 import ui.ExternalPlayer;
 
@@ -25,6 +26,7 @@ public class Recording extends Program {
 	private List<RecordingChangedEventListener> _recordingListeners = new ArrayList<RecordingChangedEventListener>();
 	private ExternalPlayer _player;
 	private Long _traktId;
+	private boolean _traktWatched;
 	
 	private ZonedDateTime _startts;
 	private ZonedDateTime _endts;
@@ -137,6 +139,14 @@ public class Recording extends Program {
 		
 		refresh();
 	}
+
+	public void mark_trakt_watched() {
+		_traktWatched = true;
+	}
+
+	public boolean get_trakt_watched() {
+		return _traktWatched;
+	}
 	
 	public void toggle_watched() throws IOException {
 		mark_watched(!is_watched());
@@ -217,6 +227,7 @@ public class Recording extends Program {
 		
 		_startts = LocalDateTime.parse(recording_json.getJSONObject("Recording").getString("StartTs").replaceFirst(".$", "")).atZone(ZoneOffset.UTC);
 		_endts = LocalDateTime.parse(recording_json.getJSONObject("Recording").getString("EndTs").replaceFirst(".$", "")).atZone(ZoneOffset.UTC);
+		_traktWatched = TraktManager.isEpisodeWatched(this);
 	}
 	
 	public interface RecordingChangedEventListener {

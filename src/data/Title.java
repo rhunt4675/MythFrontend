@@ -18,7 +18,7 @@ public class Title {
 	private static final Logger LOGGER = Logger.getLogger(Title.class.getName());
 
 	public static List<Title> get_titles() throws IOException {
-		Map<String, Title> titles = new TreeMap<String, Title>();
+		Map<String, Title> titles = new TreeMap<>();
 		String url = "/Dvr/GetTitleInfoList";
 		String result = Source.http_get(url);
 		
@@ -41,7 +41,7 @@ public class Title {
 			LOGGER.log(Level.SEVERE, e.toString(), e);
 		}
 		 
-		return new ArrayList<Title>(titles.values());
+		return new ArrayList<>(titles.values());
 	}
 	
 	public List<Recording> get_recordings(int count, int startIndex) throws IOException {
@@ -61,7 +61,7 @@ public class Title {
 	}
 	
 	public List<ImageIcon> get_title_artwork(Dimension dimension) throws IOException {
-		Map<String, ImageIcon> result = new TreeMap<String, ImageIcon>();
+		Map<String, ImageIcon> result = new TreeMap<>();
 		
 		for (String inetref : _inetref) {
 			/* Get Current Season (leave season parameter off) Coverart */
@@ -87,7 +87,7 @@ public class Title {
 		}
 		
 		// Filler Icon
-		List<ImageIcon> coverarts = new ArrayList<ImageIcon>(result.values());
+		List<ImageIcon> coverarts = new ArrayList<>(result.values());
 		if (coverarts.size() == 0)
 			coverarts.add(new ImageIcon(getClass().getResource("/res/coverart.jpg")));
 			
@@ -108,11 +108,11 @@ public class Title {
 	}
 
 	private String _title;
-	private List<String> _inetref = new ArrayList<String>();
+	private List<String> _inetref = new ArrayList<>();
 	private int _count;
 	
-	private Set<Recording> _recordings = new HashSet<Recording>();
-	private Set<Recording> _unwatchedRecordings = new HashSet<Recording>();
+	private Set<Recording> _recordings = new HashSet<>();
+	private Set<Recording> _unwatchedRecordings = new HashSet<>();
 	
 	private Title(JSONObject title) throws JSONException {
 		_title = title.getString("Title");

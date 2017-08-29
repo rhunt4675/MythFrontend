@@ -1,6 +1,7 @@
 package trakt;
 
 import data.Recording;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import utils.AppProperties;
@@ -16,21 +17,62 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class TraktManager {
-	public static final String BUILD_DATE = "2017-02-25";
-	public static final String BUILD_VERSION = "1.0";
+	private static final String BUILD_DATE = "2017-02-25";
+	private static final String BUILD_VERSION = "1.0";
 	
 	public static final String BASE_URL = "https://api.trakt.tv/";
 	public static final String REDIRECT_URI = "https://api.trakt.tv/";
-	
+
 	public static final String CLIENT_ID = "b9a03e552dc3c14a03928740f146f00b45d222401104da830eaded5711925878";
 	public static final String CLIENT_SECRET = "45e36696a92f498121cd90b635e2531ea81df3e2bd10d36c1ccc6cbf7fcd408b";
 	private static final Logger LOGGER = Logger.getLogger(TraktManager.class.getName());
 
 	private static String _code = null;
+
+	public static boolean isEpisodeWatched(Recording recording) {
+		// Acquire Prerequisites
+		String code = getCode(false);
+		if (code == null) return false;
+		Long episodeId = recording.get_trakt_episodeId(code);
+		if (episodeId == null) return false;
+
+		// Ask Trakt
+		try {
+			String result = TraktSource.doGet("sync/history/episodes/" + episodeId, code);
+			JSONArray response = new JSONArray(result);
+
+			if (response.length() != 0)
+				return true;
+		} catch (IOException | JSONException e) {
+			LOGGER.log(Level.SEVERE, "Get Episode History Failed: " + e.getMessage(), e);
+		}
+
+		return false;
+	}
+
+	/*private static Integer getShowTraktId(String title) {
+		// Acquire Prerequisites
+		String code = getCode(false);
+		if (code == null) return null;
+
+		// Ask Trakt
+		try {
+			String result = TraktSource.doGet("search/show?query=" + URLEncoder.encode(title, "UTF-8") + "&limit=1000", code);
+			JSONArray response = new JSONArray(result);
+			for (int i = 0; i < response.length(); i++) // Sorted by Likelihood
+				if (((JSONObject) response.get(i)).getString("type").equals("show"))
+					return ((JSONObject) response.get(i)).getJSONObject("show").getJSONObject("ids").getInt("trakt");
+		} catch (IOException | JSONException e) {
+			LOGGER.log(Level.SEVERE, "Get Show ID Failed: " + e.getMessage(), e);
+		}
+
+		// Failure
+		return null;
+	}*/
 	
 	public static void notifyPlay(Recording r) {
 		// Acquire Prerequisites
-		String code = getCode();
+		String code = getCode(false);
 		if (code == null) return;
 		Long episodeId = r.get_trakt_episodeId(code);
 		if (episodeId == null) return;
@@ -50,7 +92,7 @@ public class TraktManager {
 	
 	public static void notifyStop(Recording r, float progress) {
 		// Acquire Prerequisites
-		String code = getCode();
+		String code = getCode(true);
 		if (code == null) return;
 		Long episodeId = r.get_trakt_episodeId(code);
 		if (episodeId == null) return;
@@ -68,7 +110,7 @@ public class TraktManager {
 		}
 	}
 	
-	private static String getCode() {
+	private static String getCode(boolean importantRequest) {
 		// Case 1: We already have the code from an earlier request.
 		if (_code != null)
 			return _code;
@@ -81,7 +123,7 @@ public class TraktManager {
 		}
 		
 		// Case 3: Prompt User for Manual Authorization.
-		if (shouldPromptForTraktLogin()) {
+		if (importantRequest && shouldPromptForTraktLogin()) {
 			promptForTraktLogin();
 			return _code;
 		}
