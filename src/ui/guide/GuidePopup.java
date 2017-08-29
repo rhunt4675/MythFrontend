@@ -1,22 +1,19 @@
 package ui.guide;
 
-import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.IOException;
-
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.JTable;
-
 import data.GuideProgram;
 import data.Rule;
 import ui.rule.RuleModifier;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class GuidePopup extends JPopupMenu {
-	private static final long serialVersionUID = -365737674696220771L;
+	private static final Logger LOGGER = Logger.getLogger(GuidePopup.class.getName());
 	private JMenuItem _addSchedule;
 	private JMenuItem _properties;
 	
@@ -45,7 +42,7 @@ public class GuidePopup extends JPopupMenu {
 					RuleModifier modifier = new RuleModifier(toplevel, newrule);
 					modifier.setVisible(true);
 				} catch (IOException e1) {
-					e1.printStackTrace();
+					LOGGER.log(Level.SEVERE, e1.toString(), e1);
 				}
 				
 			}

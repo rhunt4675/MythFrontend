@@ -1,21 +1,12 @@
 package ui.guide;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Font;
-
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableCellRenderer;
-
 import data.GuideProgram;
 
-public class GuideProgramRenderer extends DefaultTableCellRenderer  {
-	private static final long serialVersionUID = 7113533907086125788L;
+import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
+import java.awt.*;
 
+public class GuideProgramRenderer extends DefaultTableCellRenderer  {
 	public GuideProgramRenderer() {
 		setOpaque(true);
 	}
@@ -71,7 +62,7 @@ public class GuideProgramRenderer extends DefaultTableCellRenderer  {
 		
 		case "":
 		default: 
-			return Color.LIGHT_GRAY; /*System.out.println("Unknown category " + category);*/
+			return Color.LIGHT_GRAY;
 		}
 
 		/*case "Adult": return new Color(112, 32, 32); 

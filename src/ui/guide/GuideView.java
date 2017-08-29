@@ -14,9 +14,11 @@ import java.awt.event.*;
 import java.io.IOException;
 import java.time.*;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class GuideView extends ContentView implements ListSelectionListener, ActionListener, MouseListener, KeyListener {
-	private static final long serialVersionUID = -4244429202057252386L;
+	private static final Logger LOGGER = Logger.getLogger(GuideView.class.getName());
 	private JTable _guideTable = new JTable();
 	
 	private JPanel _settingsPanel = new JPanel();
@@ -74,7 +76,7 @@ public class GuideView extends ContentView implements ListSelectionListener, Act
 					first_program = GuideProgram.get_earliest_program();
 					last_program = GuideProgram.get_latest_program();
 				} catch (IOException e) {
-					e.printStackTrace();
+					LOGGER.log(Level.SEVERE, e.toString(), e);
 				} finally {
 					if (source_list == null || first_program == null || last_program == null)
 						return null;
@@ -108,7 +110,7 @@ public class GuideView extends ContentView implements ListSelectionListener, Act
 				try {
 					get();
 				} catch (Exception e) {
-					e.printStackTrace();
+					LOGGER.log(Level.SEVERE, e.toString(), e);
 				}
 			}
 		};
@@ -131,7 +133,7 @@ public class GuideView extends ContentView implements ListSelectionListener, Act
 					List<Channel> channels = get();
 					fill_guidetablehelper(channels, start, end, divisions);
 				} catch (Exception e) {
-					e.printStackTrace();
+					LOGGER.log(Level.SEVERE, e.toString(), e);
 				}
 			}
 		};
@@ -183,7 +185,7 @@ public class GuideView extends ContentView implements ListSelectionListener, Act
 					
 					for (int i = 0; i < divisions; i++) {
 						if (guideIndex < 0 || guideIndex >= channelguide.size()) {
-							System.err.println("Missing data, chanIndex=" + chanIndex); break;
+							LOGGER.log(Level.WARNING, "Missing data, chanIndex=" + chanIndex);
 						}
 						
 						GuideProgram program = channelguide.get(guideIndex);
@@ -208,7 +210,7 @@ public class GuideView extends ContentView implements ListSelectionListener, Act
 				try {
 					get();
 				} catch (Exception e) {
-					e.printStackTrace();
+					LOGGER.log(Level.SEVERE, e.toString(), e);
 				}
 			}
 		};

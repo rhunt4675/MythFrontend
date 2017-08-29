@@ -1,22 +1,16 @@
 package ui.recording;
 
-import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
+import data.Recording;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-
-import data.Recording;
-
 public class RecordingRenderer extends DefaultTableCellRenderer implements ActionListener, MouseMotionListener, MouseListener {
-	private static final long serialVersionUID = 7124170992120515156L;
 	public static final int _unselectedCellHeight = 100, _channelIconHeight = 85;
 	
 	private Map<Recording, RecordingTableCell> _panelMap = new HashMap<>();

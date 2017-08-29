@@ -15,7 +15,6 @@ import java.awt.event.KeyListener;
 import java.io.IOException;
 
 public class MainFrame extends JFrame  {
-	private static final long serialVersionUID = 85923720912596620L;
 	private static final Dimension _tabDimension = new Dimension(80, 15);
 	
 	private final MenuBar _menubar = new MenuBar();
@@ -28,7 +27,7 @@ public class MainFrame extends JFrame  {
         
 	public void init() {
 		// Setup Main Window
-        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setTitle("MythTV Frontend");
         setIconImage(new ImageIcon(getClass().getResource("/res/win32_icon.jpg")).getImage());
         setSize(new Dimension(1600, 900));
@@ -77,7 +76,8 @@ public class MainFrame extends JFrame  {
                         AppProperties.commitChanges();
                         break;
                     } catch (IOException e) {
-                        JOptionPane.showMessageDialog(MainFrame.this, "Connection failed!");
+                        if (!AppProperties.getSourceAddress().isEmpty())
+                            JOptionPane.showMessageDialog(MainFrame.this, "Connection failed!");
                         boolean cancelled = AppProperties.displayBackendPropertiesWindow(MainFrame.this);
                         if (cancelled) return;
                     }
@@ -98,11 +98,13 @@ public class MainFrame extends JFrame  {
 		return (ContentView) _tabbedpane.getSelectedComponent();
 	}
 
+	public void setSelectedContentView(ContentView cv) { _tabbedpane.setSelectedComponent(cv); }
+
 	public void refresh() {
 		_menubar.getMenu(0).getItem(0).doClick();
 	}
-	
-	private KeyListener _keyListener = new KeyListener() {
+
+    private KeyListener _keyListener = new KeyListener() {
 		@Override public void keyTyped(KeyEvent e) {}
 		@Override public void keyPressed(KeyEvent e) {}
 		

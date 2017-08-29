@@ -6,8 +6,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ArtworkManager {
+	private static final Logger LOGGER = Logger.getLogger(ArtworkManager.class.getName());
 	private static final String USER_DATA_DIR = ".mythfrontend";
 	private static final String PROPERTIES_FILE = "index";
 	private static final File DATA_PATH = new File(System.getProperty("user.home"), USER_DATA_DIR);
@@ -15,7 +18,7 @@ public class ArtworkManager {
 	private static Properties _artworkRegistry = new Properties();
 	private static Map<String /* Filename */, ImageIcon /* Image */> _loadedArtwork = new HashMap<>();
 
-	public static synchronized ImageIcon getArtwork(String uri) throws IOException {
+	public static ImageIcon getArtwork(String uri) throws IOException {
 		// 1. In Memory
 		if (_loadedArtwork.containsKey(uri)) {
             return _loadedArtwork.get(uri);
@@ -25,35 +28,40 @@ public class ArtworkManager {
 		if (_artworkRegistry.containsKey(uri)) {
 			String filename = _artworkRegistry.getProperty(uri);
 			ImageIcon image = new ImageIcon(new File(DATA_PATH, filename).getAbsolutePath());
-			
-			_loadedArtwork.put(uri, image); return image;
+			_loadedArtwork.put(uri, image);
+			return image;
 		}
 		
 		// 3. On Network
-		System.out.println("Network Request: " + uri);
+		LOGGER.log(Level.INFO, "Network Request: " + uri);
 		StringBuffer fileNameBuffer = new StringBuffer();
 		byte[] image = Source.image_get(uri, fileNameBuffer /* Out Param */);
 		if (image == null)
 			return null;
-		
+
 		String filename = fileNameBuffer.toString();
 		ImageIcon iconImage = new ImageIcon(image, filename);
 		if (!_artworkRegistry.containsValue(filename)) {
+
+			// Update Caches
 			_loadedArtwork.put(uri, iconImage);
 			_artworkRegistry.put(uri, filename);
-			
+
+			// Store New Data to Properties File
+			synchronized (ArtworkManager.class) {
+				File propertiesFile = new File(DATA_PATH, PROPERTIES_FILE);
+				try (FileOutputStream out = new FileOutputStream(propertiesFile)) {
+					_artworkRegistry.store(out, "Mapping of URIs to Filenames.");
+				} catch (IOException e) {
+					LOGGER.log(Level.SEVERE, e.toString(), e);
+				}
+			}
+
 			// Store Image to File
 			FileOutputStream outputStream = new FileOutputStream(new File(DATA_PATH, filename));
 			outputStream.write(image);
 			outputStream.close();
-			
-			// Store New Data to Properties File
-			File propertiesFile = new File(DATA_PATH, PROPERTIES_FILE);
-			try (FileOutputStream out = new FileOutputStream(propertiesFile)) {
-				_artworkRegistry.store(out, "Mapping of URIs to Filenames.");
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+
 			return iconImage;
 		} else {
 			// Don't Store the Association, but return the Matched Image File
@@ -79,7 +87,7 @@ public class ArtworkManager {
 			try (FileInputStream in = new FileInputStream(propertiesFile)) {
 				_artworkRegistry.load(in);
 			} catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.log(Level.SEVERE, e.toString(), e);
 			}
 		}
 		
@@ -97,7 +105,7 @@ public class ArtworkManager {
 		diskSet.removeAll(indexSet);
 		for (String s : diskSet) {
 		    boolean success = (new File(DATA_PATH, s)).delete();
-		    if (!success) System.err.println("Failed to delete " + s);
+		    if (!success) LOGGER.log(Level.WARNING, "Failed to delete " + s);
 		}
 		
 		// Missing from Index Files
@@ -108,7 +116,7 @@ public class ArtworkManager {
 		try (FileOutputStream out = new FileOutputStream(propertiesFile)) {
 			_artworkRegistry.store(out, "Mapping of URIs to Filenames.");
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.toString(), e);
 		}
 	}
 

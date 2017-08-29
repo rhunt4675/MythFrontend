@@ -12,9 +12,11 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class RuleView extends ContentView implements ListSelectionListener, MouseListener {
-	private static final long serialVersionUID = -8855317235931128425L;
+	private static final Logger LOGGER = Logger.getLogger(RuleView.class.getName());
 	private JTable _ruleTable = new JTable();
 
 	public RuleView() {
@@ -40,8 +42,6 @@ public class RuleView extends ContentView implements ListSelectionListener, Mous
 				try {
 					List<Rule> rules = Rule.get_rules();
 					model = new DefaultTableModel() {
-						private static final long serialVersionUID = -4009413705354498771L;
-
 						@Override
 						public int getRowCount() {
 							return rules.size();
@@ -64,7 +64,7 @@ public class RuleView extends ContentView implements ListSelectionListener, Mous
 					};
 					
 				} catch (IOException e) {
-					e.printStackTrace();
+					LOGGER.log(Level.SEVERE, e.toString(), e);
 					model = null;
 				}
 				
@@ -78,7 +78,7 @@ public class RuleView extends ContentView implements ListSelectionListener, Mous
 			    	if (model != null) _ruleTable.setModel(model);
 			    } catch (InterruptedException ignore) {
 			    } catch (java.util.concurrent.ExecutionException e) {
-			            e.printStackTrace();
+			    	LOGGER.log(Level.SEVERE, e.toString(), e);
 			    }
 			}
 		};

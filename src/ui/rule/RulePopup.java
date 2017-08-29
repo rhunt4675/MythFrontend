@@ -1,23 +1,18 @@
 package ui.rule;
 
-import java.awt.Component;
-import java.awt.Point;
+import data.Rule;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-
-import javax.swing.JFrame;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPopupMenu;
-import javax.swing.JTable;
-import javax.swing.SwingWorker;
-import javax.swing.table.DefaultTableModel;
-
-import data.Rule;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class RulePopup extends JPopupMenu {
-	private static final long serialVersionUID = -1370490057232727856L;
+	private static final Logger LOGGER = Logger.getLogger(RulePopup.class.getName());
 	private JMenuItem _modifyrule;
 	private JMenuItem _enablerule;
 	private JMenuItem _disablerule;
@@ -66,7 +61,7 @@ public class RulePopup extends JPopupMenu {
 							((Rule) table.getValueAt(row, column)).enable(true);
 							((DefaultTableModel) table.getModel()).fireTableCellUpdated(row, column);
 						} catch (IOException e1) {
-							e1.printStackTrace();
+							LOGGER.log(Level.SEVERE, e1.toString(), e1);
 						}
 						return null;
 					}	
@@ -90,7 +85,7 @@ public class RulePopup extends JPopupMenu {
 							((Rule) table.getValueAt(row, column)).enable(false);
 							((DefaultTableModel) table.getModel()).fireTableCellUpdated(row, column);
 						} catch (IOException e1) {
-							e1.printStackTrace();
+							LOGGER.log(Level.SEVERE, e1.toString(), e1);
 						}
 						return null;
 					}	

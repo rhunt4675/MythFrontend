@@ -1,5 +1,9 @@
 package data;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.time.LocalDateTime;
@@ -8,12 +12,11 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Rule {
+	private static final Logger LOGGER = Logger.getLogger(Rule.class.getName());
 	
 	public static List<Rule> get_rules() throws IOException {
 		List<Rule> rules = new ArrayList<Rule>();
@@ -35,7 +38,7 @@ public class Rule {
 				rules.add(new Rule(recrules.getJSONObject(i)));
 			}
 		} catch (JSONException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.toString(), e);
 		}
 		
 		return rules;
@@ -52,7 +55,7 @@ public class Rule {
 			
 			rule = new Rule(list);
 		} catch (JSONException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.toString(), e);
 		}
 		return rule;
 	}
@@ -68,7 +71,7 @@ public class Rule {
 			
 			rule = new Rule(list);
 		} catch (JSONException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.toString(), e);
 		}
 		
 		rule._id = -1;
@@ -111,12 +114,12 @@ public class Rule {
 					break;
 				} catch (IOException e) {
 				} catch (InterruptedException e) {
-					e.printStackTrace();
+					LOGGER.log(Level.SEVERE, e.toString(), e);
 				}
 			}
 			refresh();
 		} catch (JSONException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.toString(), e);
 		}
 	}
 	
@@ -154,7 +157,7 @@ public class Rule {
 			
 			update_rule(this, list);
 		} catch (JSONException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.toString(), e);
 		}
 	}
 	
@@ -398,7 +401,7 @@ public class Rule {
 		try {
 			rule._channel = rule_json.getInt("ChanId") == 0 ? null : Channel.get_channel(rule_json.getInt("ChanId"));
 		} catch (IOException e) {
-			System.err.println("Missing Channel [id=" + rule_json.getInt("ChanId") + "]: " + e.getMessage());
+			LOGGER.log(Level.WARNING, "Missing Channel [id=" + rule_json.getInt("ChanId") + "]: " + e.getMessage(), e);
 
 			// Put a "fake" channel in it's place, if the channel has been deleted
 			rule._channel = Channel.get_channel(new JSONObject()

@@ -1,18 +1,12 @@
 package utils;
 
-import java.awt.BorderLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-
 public class ArtworkRoll extends JPanel {
-	private static final long serialVersionUID = 6375826821868427307L;
 	private JLabel _iconLabel = new JLabel();
 	private JPanel _navPanel = new JPanel();
 	private JLabel _indexLabel = new JLabel();

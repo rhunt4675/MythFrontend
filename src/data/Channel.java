@@ -1,20 +1,21 @@
 package data;
 
-import java.awt.Dimension;
-import java.awt.MediaTracker;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import javax.swing.*;
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.swing.ImageIcon;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Channel {
+	private static final Logger LOGGER = Logger.getLogger(Channel.class.getName());
 	
 	public static List<Channel> get_channels(int source_id) throws IOException {
 		List<Channel> channels = new ArrayList<Channel>();
@@ -39,7 +40,7 @@ public class Channel {
 				_channelcache.put(channel._chanid, channel);
 			}
 		} catch (JSONException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.toString(), e);
 		}
 		
 		return channels;
@@ -62,8 +63,8 @@ public class Channel {
 				
 				_channelcache.put(chan_id, new Channel(list));
 			} catch (JSONException e) {
-				System.err.println(e.getMessage() + " for " + url);
-				throw new IOException("Could not found channel for ChanID=" + chan_id);
+				LOGGER.log(Level.SEVERE, e.getMessage() + " for " + url, e);
+				throw new IOException("Could not find channel for ChanID=" + chan_id);
 			}
 		}
 		
@@ -132,5 +133,10 @@ public class Channel {
 		_callsign = channel_json.getString("CallSign");
 		_iconurl = channel_json.getString("IconURL");
 		_channame = channel_json.getString("ChannelName");
+	}
+
+	@Override
+	public String toString() {
+		return Integer.toString(_chanid);
 	}
 }

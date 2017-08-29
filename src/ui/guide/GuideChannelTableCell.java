@@ -6,8 +6,11 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class GuideChannelTableCell extends JPanel {
+    private static final Logger LOGGER = Logger.getLogger(GuideChannelTableCell.class.getName());
     private static final Dimension _iconDimension = new Dimension(0, 80);
 
     // Channel Data
@@ -55,7 +58,7 @@ public class GuideChannelTableCell extends JPanel {
                     _channelIcon = get();
                     _iconLabel.setIcon(_channelIcon);
                 } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
+                    LOGGER.log(Level.SEVERE, e.toString(), e);
                 }
 
                 // Force Row Update

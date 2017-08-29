@@ -26,10 +26,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.PatternSyntaxException;
 
 public class RecordingView extends ContentView {
-	private static final long serialVersionUID = 7537158574729297160L;
+	private static final Logger LOGGER = Logger.getLogger(RecordingView.class.getName());
 	private static final String[] _sortTypeArray = {"Date", "Original Airdate", "Season/Episode", "Filesize"};
 	private static final String[] _sortDirectionArray = {"Ascending", "Descending"};
 	private static final int COUNT = 5;
@@ -136,27 +138,12 @@ public class RecordingView extends ContentView {
 		int row = _recordingTable.getSelectedRow();
 		int column = _recordingTable.getSelectedColumn();
 		Recording r = (Recording) _recordingTable.getValueAt(row, column);
-		
-		SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-			@Override protected Void doInBackground() {
-				try {
-					r.play();
-				} catch (IOException ex) {
-					JOptionPane.showMessageDialog(RecordingView.this, "Attempting to play video failed! [" + ex.getMessage() + "]");
-				}
-				
-				return null;
-			}
-			
-			@Override protected void done() {
-				try {
-					get();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		};
-		worker.execute();
+
+		try {
+			r.play();
+		} catch (IOException ex) {
+			JOptionPane.showMessageDialog(this, "Attempting to play video failed! [" + ex.getMessage() + "]");
+		}
 	}
 	
 	void deleteSelectedRecording() {
@@ -188,7 +175,7 @@ public class RecordingView extends ContentView {
 				} catch (IOException e) {
 					JOptionPane.showMessageDialog(null, "Delete failed!", "Delete Recording", JOptionPane.WARNING_MESSAGE);
 				} catch (Exception e) {
-					e.printStackTrace();
+					LOGGER.log(Level.SEVERE, e.toString(), e);
 				}
 				
 				return null;
@@ -207,8 +194,8 @@ public class RecordingView extends ContentView {
 				Recording recording = (Recording) _recordingTable.getValueAt(row, column);
 				try {
 					recording.mark_watched(flag);
-				} catch (IOException exp) {
-					exp.printStackTrace();
+				} catch (IOException e) {
+					LOGGER.log(Level.SEVERE, e.toString(), e);
 				}
 				
 				((DefaultTableModel) _recordingTable.getModel()).fireTableCellUpdated(row, 0);
@@ -270,8 +257,6 @@ public class RecordingView extends ContentView {
 						try {
 							/* Model Definition */
 							model = new DefaultTableModel() {
-								private static final long serialVersionUID = -1225467351008175463L;
-
 								@Override public Class<?> getColumnClass(int columnIndex) {
 									switch (columnIndex) {
 									case 0: return Recording.class;
@@ -324,7 +309,7 @@ public class RecordingView extends ContentView {
 							} while (episodes.size() != 0);
 							
 						} catch (IOException e) {
-							e.printStackTrace();
+							LOGGER.log(Level.SEVERE, e.toString(), e);
 							model = null;
 						}
 					}
@@ -358,7 +343,7 @@ public class RecordingView extends ContentView {
 						get();
 					} catch (InterruptedException ignore) {
 					} catch (ExecutionException e) {
-						e.printStackTrace();
+						LOGGER.log(Level.SEVERE, e.toString(), e);
 					}
 					
 					// Default Selection is Element 0
@@ -470,7 +455,7 @@ public class RecordingView extends ContentView {
 	        	try {
 	        		_sorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
 	        	} catch (PatternSyntaxException ex) {
-	        		System.err.println(ex.getMessage());
+	        		LOGGER.log(Level.SEVERE, ex.toString(), ex);
 	        	}
 	        }
 	    }
@@ -485,7 +470,7 @@ public class RecordingView extends ContentView {
 	        	try {
 	        		_sorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
 	        	} catch (PatternSyntaxException ex) {
-	        		System.err.println(ex.getMessage());
+	        		LOGGER.log(Level.SEVERE, ex.toString(), ex);
 	        	}
 	        }
 	    }

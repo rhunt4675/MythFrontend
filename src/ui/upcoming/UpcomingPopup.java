@@ -1,23 +1,20 @@
 package ui.upcoming;
 
-import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.IOException;
-
-import javax.swing.JFrame;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.JTable;
-import javax.swing.SwingWorker;
-import javax.swing.table.DefaultTableModel;
-
 import data.Rule;
 import data.Upcoming;
 import ui.rule.RuleModifier;
 
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class UpcomingPopup extends JPopupMenu {
-	private static final long serialVersionUID = -3473095245933394365L;
+	private static final Logger LOGGER = Logger.getLogger(UpcomingPopup.class.getName());
 	private JMenuItem _enablerecording;
 	private JMenuItem _disablerecording;
 	private JMenuItem _addoverride;
@@ -56,7 +53,7 @@ public class UpcomingPopup extends JPopupMenu {
 							_upcoming.enable();
 							((DefaultTableModel) table.getModel()).fireTableCellUpdated(row, column);
 						} catch (IOException e1) {
-							e1.printStackTrace();
+							LOGGER.log(Level.SEVERE, e1.toString(), e1);
 						}
 						return null;
 					}
@@ -66,7 +63,7 @@ public class UpcomingPopup extends JPopupMenu {
 						try {
 							get();
 						} catch (Exception ex) {
-							ex.printStackTrace();
+							LOGGER.log(Level.SEVERE, ex.toString(), ex);
 						}
 					}
 				};
@@ -87,7 +84,7 @@ public class UpcomingPopup extends JPopupMenu {
 							_upcoming.disable();
 							((DefaultTableModel) table.getModel()).fireTableCellUpdated(row, column);
 						} catch (IOException e1) {
-							e1.printStackTrace();
+							LOGGER.log(Level.SEVERE, e1.toString(), e1);
 						}
 						return null;
 					}
@@ -97,7 +94,7 @@ public class UpcomingPopup extends JPopupMenu {
 						try {
 							get();
 						} catch (Exception ex) {
-							ex.printStackTrace();
+							LOGGER.log(Level.SEVERE, ex.toString(), ex);
 						}
 					}
 				};
@@ -118,7 +115,7 @@ public class UpcomingPopup extends JPopupMenu {
 							_upcoming.add_override();
 							((DefaultTableModel) table.getModel()).fireTableCellUpdated(row, column);
 						} catch (IOException e1) {
-							e1.printStackTrace();
+							LOGGER.log(Level.SEVERE, e1.toString(), e1);
 						}
 						return null;
 					}
@@ -128,7 +125,7 @@ public class UpcomingPopup extends JPopupMenu {
 						try {
 							get();
 						} catch (Exception ex) {
-							ex.printStackTrace();
+							LOGGER.log(Level.SEVERE, ex.toString(), ex);
 						}
 					}
 				};
@@ -149,7 +146,7 @@ public class UpcomingPopup extends JPopupMenu {
 							_upcoming.remove_override();
 							((DefaultTableModel) table.getModel()).fireTableCellUpdated(row, column);
 						} catch (IOException e1) {
-							e1.printStackTrace();
+							LOGGER.log(Level.SEVERE, e1.toString(), e1);
 						}
 						return null;
 					}
@@ -159,7 +156,7 @@ public class UpcomingPopup extends JPopupMenu {
 						try {
 							get();
 						} catch (Exception ex) {
-							ex.printStackTrace();
+							LOGGER.log(Level.SEVERE, ex.toString(), ex);
 						}
 					}
 				};

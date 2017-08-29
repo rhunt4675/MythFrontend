@@ -1,14 +1,18 @@
 package data;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class VideoSource {
+	private static final Logger LOGGER = Logger.getLogger(VideoSource.class.getName());
+
 	public static List<VideoSource> get_videosources() throws IOException {
 		List<VideoSource> sources = new ArrayList<VideoSource>();
 		String url = "/Channel/GetVideoSourceList";
@@ -29,7 +33,7 @@ public class VideoSource {
 				sources.add(new VideoSource(videosources.getJSONObject(i)));
 			}
 		} catch (JSONException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.toString(), e);
 		}
 		
 		return sources;
@@ -46,7 +50,7 @@ public class VideoSource {
 			
 			source = new VideoSource(list);
 		} catch (JSONException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.toString(), e);
 		}
 		return source;
 	}

@@ -9,13 +9,18 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class RecordingTableCell extends JPanel {
-	private static final long serialVersionUID = 751464801131533093L;
+	private static final Logger LOGGER = Logger.getLogger(RecordingTableCell.class.getName());
 	private static final Dimension _previewDimension = new Dimension((RecordingRenderer._unselectedCellHeight * 16) / 9, RecordingRenderer._unselectedCellHeight);
 	private static final Dimension _bannerDimension = new Dimension(0, RecordingRenderer._unselectedCellHeight);
 	private static final Dimension _channelDimension = new Dimension(0, RecordingRenderer._channelIconHeight);
+	private static final Set<String> _requests = new HashSet<>();
 	
 	// Recording Data
 	private Recording _r;
@@ -115,6 +120,11 @@ public class RecordingTableCell extends JPanel {
 	}
 	
 	private void getRecordingArtwork(Artwork type, Dimension dimension, JTable table, int row, int column) {
+		// Deny Concurrent Requests
+		final String requestId = _r.get_recordedid() + type.toString() + dimension.toString();
+		if (_requests.contains(requestId)) return;
+		_requests.add(requestId);
+
 		new SwingWorker<ImageIcon, Void>() {
 			@Override
 			protected ImageIcon doInBackground() throws Exception {
@@ -135,19 +145,25 @@ public class RecordingTableCell extends JPanel {
 						_previewIcon = recordingArtwork;
 					}
 				} catch (InterruptedException | ExecutionException e) {
-					e.printStackTrace();
+					LOGGER.log(Level.SEVERE, e.toString(), e);
 				}
-				
+
 				// Force Row Update
 				if (row < table.getRowCount() && column < table.getColumnCount())
 					((DefaultTableModel) table.getModel()).fireTableCellUpdated(
 							table.convertRowIndexToModel(row), table.convertColumnIndexToModel(column));
+				_requests.remove(requestId);
 			}
 		}.execute();
 	}
 	
 	
 	private void getChannelArtwork(Channel channel, Dimension dimension, JTable table, int row, int column) {
+		// Deny Concurrent Requests
+		final String requestId = _r.get_recordedid() + channel.toString() + dimension.toString();
+		if (_requests.contains(requestId)) return;
+		_requests.add(requestId);
+
 		new SwingWorker<ImageIcon, Void>() {
 			@Override
 			protected ImageIcon doInBackground() throws Exception {
@@ -160,13 +176,14 @@ public class RecordingTableCell extends JPanel {
 					_channelIcon = get();
 					_channel.setIcon(_channelIcon);
 				} catch (InterruptedException | ExecutionException e) {
-					e.printStackTrace();
+					LOGGER.log(Level.SEVERE, e.toString(), e);
 				}
 				
 				// Force Row Update
 				if (row < table.getRowCount() && column < table.getColumnCount())
 					((DefaultTableModel) table.getModel()).fireTableCellUpdated(
 							table.convertRowIndexToModel(row), table.convertColumnIndexToModel(column));
+				_requests.remove(requestId);
 			}
 		}.execute();
 	}

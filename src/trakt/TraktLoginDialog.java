@@ -1,13 +1,5 @@
 package trakt;
 
-import java.awt.Dimension;
-import java.io.IOException;
-
-import javax.swing.JDialog;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.event.EventHandler;
@@ -15,10 +7,15 @@ import javafx.scene.Scene;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebEvent;
 import javafx.scene.web.WebView;
+import org.json.JSONException;
+import org.json.JSONObject;
 import utils.AppProperties;
 
+import javax.swing.*;
+import java.awt.*;
+import java.io.IOException;
+
 public class TraktLoginDialog extends JDialog {
-	private static final long serialVersionUID = -2621415244884006921L;
 	private static final Dimension _webFrameDimension = new Dimension(800, 800);
 	
 	private JFXPanel _webpanel = new JFXPanel();
@@ -42,7 +39,7 @@ public class TraktLoginDialog extends JDialog {
 						if (location.startsWith(TraktManager.REDIRECT_URI)) {
 							
 							// Permission Granted
-							if (location.indexOf("code=") != -1) {
+							if (location.contains("code=")) {
 								String code = location.substring(location.indexOf("code=") + 5);
 								_authPackage = exchangeCodeForAuthToken(code);
 							}

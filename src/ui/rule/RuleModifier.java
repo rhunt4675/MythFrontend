@@ -1,9 +1,10 @@
 package ui.rule;
 
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Window;
+import data.Rule;
+
+import javax.swing.*;
+import javax.swing.GroupLayout.Alignment;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -12,21 +13,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import javax.swing.Box;
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-
-import data.Rule;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class RuleModifier extends JDialog implements ActionListener, KeyListener {
-	private static final long serialVersionUID = -8685640624319272471L;
+	private static final Logger LOGGER = Logger.getLogger(RuleModifier.class.getName());
 	
 	private JComboBox<Rule.RecordingType> _typecombobox;
 	private JComboBox<Rule.RecordingDupMethodType> _dupmethodcombobox;
@@ -173,7 +164,7 @@ public class RuleModifier extends JDialog implements ActionListener, KeyListener
 			try {
 				_rule.commit();
 			} catch (IOException e1) {
-				e1.printStackTrace();
+				LOGGER.log(Level.SEVERE, e1.toString(), e1);
 			}
 		}
 		

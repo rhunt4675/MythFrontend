@@ -7,8 +7,12 @@ import utils.AppProperties;
 import javax.swing.*;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class ExternalPlayer {	
+public class ExternalPlayer {
+	private static final Logger LOGGER = Logger.getLogger(ExternalPlayer.class.getName());
+	
 	private boolean _isActive;
 	private Recording _recording;
 	private Process _process;
@@ -27,6 +31,7 @@ public class ExternalPlayer {
 
 		// Start Other Video Players
 		final String url = r.get_playback_url();
+		if (AppProperties.getPlayer().isEmpty()) AppProperties.displayPlayerPropertiesWindow();
 		_process = new ProcessBuilder(AppProperties.getPlayer(), url).start();
 		
 		// Start Process WatchDog
@@ -51,7 +56,7 @@ public class ExternalPlayer {
 			try {
 				_recording.mark_watched(true);
 			} catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.log(Level.SEVERE, e.toString(), e);
 			}
 		}
 		_isActive = false;
@@ -82,7 +87,7 @@ public class ExternalPlayer {
 				stop(progress != null ? progress : 100);
 				
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				LOGGER.log(Level.SEVERE, e.toString(), e);
 			}
 		}
 	};

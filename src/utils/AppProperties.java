@@ -11,7 +11,7 @@ import java.util.prefs.Preferences;
 
 public class AppProperties {
 	private static final String _node = "mythfrontend";
-	private static enum PreferencesEnum {Address, Port, Secure, Player, TraktAccessCode, TraktRefreshCode};
+	private enum PreferencesEnum {Address, Port, Secure, Player, TraktAccessCode, TraktRefreshCode, TraktPromptLogin}
 	private static Preferences _preferences = Preferences.userRoot().node(_node);
 	
 	private static String _stagedAddress;
@@ -20,7 +20,7 @@ public class AppProperties {
 	private static String _stagedPlayer;
 	private static String _stagedTraktAccessCode;
 	private static String _stagedTraktRefreshCode;
-	
+	private static boolean _stagedTraktPromptLogin;
 	
 	// Load settings at startup
 	static { loadSettings(); }
@@ -32,15 +32,17 @@ public class AppProperties {
 		_preferences.put(PreferencesEnum.Player.toString(), _stagedPlayer);
 		_preferences.put(PreferencesEnum.TraktAccessCode.toString(), _stagedTraktAccessCode);
 		_preferences.put(PreferencesEnum.TraktRefreshCode.toString(), _stagedTraktRefreshCode);
+		_preferences.put(PreferencesEnum.TraktPromptLogin.toString(), Boolean.toString(_stagedTraktPromptLogin));
 	}
 	
 	public static void loadSettings() {
 		_stagedAddress = _preferences.get(PreferencesEnum.Address.toString(), "");
-		_stagedPort = _preferences.get(PreferencesEnum.Port.toString(), "");
+		_stagedPort = _preferences.get(PreferencesEnum.Port.toString(), "6544");
 		_stagedSecure = _preferences.get(PreferencesEnum.Secure.toString(), "");
 		_stagedPlayer = _preferences.get(PreferencesEnum.Player.toString(), "");
 		_stagedTraktAccessCode = _preferences.get(PreferencesEnum.TraktAccessCode.toString(), "");
 		_stagedTraktRefreshCode = _preferences.get(PreferencesEnum.TraktRefreshCode.toString(), "");
+		_stagedTraktPromptLogin = Boolean.valueOf(_preferences.get(PreferencesEnum.TraktPromptLogin.toString(), Boolean.TRUE.toString()));
 	}
 	
 	public static String getSourceAddress() {
@@ -52,7 +54,7 @@ public class AppProperties {
 	}
 	
 	public static boolean isSourceSecure() {
-		return new Boolean(_stagedSecure);
+		return Boolean.valueOf(_stagedSecure);
 	}
 	
 	public static String getPlayer() {
@@ -67,14 +69,14 @@ public class AppProperties {
 		return _stagedTraktRefreshCode;
 	}
 	
-	public static void setSourceAddress(String address) throws NumberFormatException {
+	private static void setSourceAddress(String address) throws NumberFormatException {
 		if (INetAddress.validateIPv4(address))
 			_stagedAddress = address;
 		else
 			throw new NumberFormatException("Invalid IP Address: " + address);
 	}
 	
-	public static void setSourcePort(String port) throws NumberFormatException {
+	private static void setSourcePort(String port) throws NumberFormatException {
 		int parsed_port = Integer.parseInt(port);
 		if (parsed_port > 0)
 			_stagedPort = port;
@@ -82,11 +84,11 @@ public class AppProperties {
 			throw new NumberFormatException("Invalid Port Number: " + port);
 	}
 	
-	public static void setSourceSecure(boolean secure) {
+	private static void setSourceSecure(boolean secure) {
 		_stagedSecure = Boolean.toString(secure);
 	}
 	
-	public static void setPlayer(String executableFile) throws FileNotFoundException {
+	private static void setPlayer(String executableFile) throws FileNotFoundException {
 		// Test validity of 'executableFile'
 		File file = new File(executableFile);
 		if (file.exists() && file.canExecute())
@@ -102,18 +104,20 @@ public class AppProperties {
 	public static void setTraktRefreshCode(String code) {
 		_stagedTraktRefreshCode = code;
 	}
+
+	public static boolean getTraktPromptLogin() { return _stagedTraktPromptLogin; }
+
+	public static void setTraktPromptLogin(boolean flag) { _stagedTraktPromptLogin = flag; }
 	
 	public static boolean displayBackendPropertiesWindow(JFrame parent) {
 		AtomicBoolean userCancelled = new AtomicBoolean(false);
 		
 		class AppPropertiesDialog extends JDialog implements /*WindowListener,*/ ActionListener, KeyListener {
-			private static final long serialVersionUID = 8432521595616564569L;
-
 			private JTextField _addressTextField, _portTextField;
 			private JCheckBox _secureCheckBox;
 			private JButton _ok, _cancel;
 
-			public AppPropertiesDialog() {
+			private AppPropertiesDialog() {
 				super(parent, "Connect to the Backend", Dialog.ModalityType.DOCUMENT_MODAL);
 				//setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 				//addWindowListener(this);
@@ -192,7 +196,6 @@ public class AppProperties {
 						dispose();
 					} catch (NumberFormatException ex) {
 						JOptionPane.showMessageDialog(this, ex.getMessage());
-						return;
 					}
 				} else if (e.getSource() == _cancel) {
 					userCancelled.set(true);
@@ -222,12 +225,10 @@ public class AppProperties {
 	public static void displayPlayerPropertiesWindow() {
 		
 		class PlayerPropertiesDialog extends JDialog implements ActionListener, KeyListener {
-			private static final long serialVersionUID = 6505123236194576995L;
-			
 			private JTextField _playerPath;
 			private JButton _ok, _cancel, _browse;
 
-			public PlayerPropertiesDialog() {
+			private PlayerPropertiesDialog() {
 				super(null, "Playback Configuration", Dialog.ModalityType.DOCUMENT_MODAL);
 				setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 				addKeyListener(this);
@@ -293,7 +294,6 @@ public class AppProperties {
 						this.dispose();
 					} catch (FileNotFoundException ex) {
 						JOptionPane.showMessageDialog(this, ex.getMessage());
-						return;
 					}
 				} else if (e.getSource() == _browse) {
 					final JFileChooser fc = new JFileChooser();

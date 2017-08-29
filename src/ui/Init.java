@@ -6,7 +6,6 @@ import org.json.JSONException;
 import javax.swing.*;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.logging.LogManager;
 
 public class Init {
 	public static void main(String[] args) throws IOException, JSONException, InvocationTargetException, InterruptedException, ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException {
@@ -19,13 +18,6 @@ public class Init {
 		
 		// Initialize Local Artwork Cache
 		ArtworkManager.initializeArtworkManager();
-		
-		// Suppress Platform-Level Warnings
-		try {
-			LogManager.getLogManager().reset();
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		}
 		
 	    // Create a MainFrame on the EDT
 		SwingUtilities.invokeLater(new Runnable() {

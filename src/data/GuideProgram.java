@@ -1,17 +1,20 @@
 package data;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class GuideProgram extends Program {
+	private static final Logger LOGGER = Logger.getLogger(GuideProgram.class.getName());
 	
 	public static List<GuideProgram> get_guideprogram_list(int chanid, ZonedDateTime start, ZonedDateTime end) throws IOException {
 		
@@ -35,7 +38,7 @@ public class GuideProgram extends Program {
 				guides.add(new GuideProgram(programs.getJSONObject(i)));
 			}
 		} catch (JSONException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.toString(), e);
 		}
 		
 		return guides;
@@ -70,7 +73,7 @@ public class GuideProgram extends Program {
 				date = program.get_starttime().withZoneSameInstant(ZoneId.systemDefault()).toLocalDate();
 			}
 		} catch (JSONException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.toString(), e);
 		}
 		
 		return date;
@@ -86,7 +89,7 @@ public class GuideProgram extends Program {
 			JSONObject guide_program = new JSONObject(result);
 			updateProgram(this, guide_program);
 		} catch (JSONException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.toString(), e);
 		}
 	}
 

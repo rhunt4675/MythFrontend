@@ -7,8 +7,11 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class TraktSource {	
+public class TraktSource {
+	private static final Logger LOGGER = Logger.getLogger(TraktSource.class.getName());
 	private enum HTTP_METHOD { GET, POST, PUT, DELETE; };
 	
 	public static String doGet(String uri, String authCode) throws IOException {
@@ -35,7 +38,7 @@ public class TraktSource {
 		try {
 			obj = new URL(TraktManager.BASE_URL + uri);
 		} catch (MalformedURLException e) {
-			e.printStackTrace(); return null;
+			LOGGER.log(Level.SEVERE, e.toString(), e); return null;
 		}
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
@@ -43,7 +46,7 @@ public class TraktSource {
 		try {
 			con.setRequestMethod(method.toString());
 		} catch (ProtocolException e) {
-			e.printStackTrace(); return result;
+			LOGGER.log(Level.SEVERE, e.toString(), e); return null;
 		}
 
 		// Set Important Connection Headers
@@ -63,7 +66,7 @@ public class TraktSource {
 		 
 		// Read Server Response
 		BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-		StringBuffer response = new StringBuffer();
+		StringBuilder response = new StringBuilder();
 		String inputLine;
 		while ((inputLine = in.readLine()) != null)
 			response.append(inputLine);

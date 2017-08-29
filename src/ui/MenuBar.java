@@ -1,6 +1,7 @@
 package ui;
 
 import data.Source;
+import trakt.TraktManager;
 import utils.AppProperties;
 
 import javax.swing.*;
@@ -10,8 +11,7 @@ import java.awt.event.KeyEvent;
 import java.io.IOException;
 
 public class MenuBar extends JMenuBar implements ActionListener {
-	private static final long serialVersionUID = 8648195999870453299L;
-	private JMenuItem _refresh, _exit, _properties, _player;
+	private JMenuItem _refresh, _exit, _properties, _player, _trakt;
 	
 	public MenuBar() {
 		// Define Menus
@@ -40,8 +40,11 @@ public class MenuBar extends JMenuBar implements ActionListener {
 		_properties.addActionListener(this);
 		_player = new JMenuItem("Player Settings", KeyEvent.VK_L);
 		_player.addActionListener(this);
+		_trakt = new JMenuItem("Login to Trakt", KeyEvent.VK_T);
+		_trakt.addActionListener(this);
 		edit.add(_properties);
 		edit.add(_player);
+		edit.add(_trakt);
 		
 		// Add Menus to Menu Bar
 		add(file);
@@ -60,7 +63,9 @@ public class MenuBar extends JMenuBar implements ActionListener {
 
 		if (e.getSource() == _refresh) {
 	        // Refresh Entire MainFrame
+			ContentView selected = topLevel.getSelectedContentView();
 	        topLevel.init();
+	        topLevel.setSelectedContentView(selected);
 
 		} else if (e.getSource() == _exit) {
 	        // Close the Top Window
@@ -88,6 +93,8 @@ public class MenuBar extends JMenuBar implements ActionListener {
 
 		} else if (e.getSource() == _player) {
 			AppProperties.displayPlayerPropertiesWindow();
+		} else if (e.getSource() == _trakt) {
+			TraktManager.promptForTraktLogin();
 		}
 	}
 }

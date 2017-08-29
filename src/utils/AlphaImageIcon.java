@@ -1,27 +1,20 @@
 package utils;
 
-import java.awt.AlphaComposite;
-import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.image.ImageObserver;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 
 /**
  * An Icon  wrapper that paints the contained icon with a specified transparency.
  * <P>
  * This class is suitable for wrapping an <CODE>ImageIcon</CODE>
  * that holds an animated image.  To show a non-animated Icon with transparency,
- * the companion class {@link AlphaIcon} is a lighter alternative.
+ * the companion class is a lighter alternative.
  *
  * @version 1.0 08/16/10
  * @author Darryl
  */
 public class AlphaImageIcon extends ImageIcon {
-
-	private static final long serialVersionUID = -7728305624688548586L;
 	private Icon icon;
 	private Image image;
 	private float alpha;

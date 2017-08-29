@@ -1,17 +1,11 @@
 package ui.recording;
 
-import java.awt.Window;
-
-import javax.swing.GroupLayout;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-
 import data.Recording;
 
+import javax.swing.*;
+import java.awt.*;
+
 public class RecordingProperties extends JDialog {
-	private static final long serialVersionUID = -119252464633818211L;
-	
 	public RecordingProperties(Window owner, Recording r) {
 		super(owner);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);

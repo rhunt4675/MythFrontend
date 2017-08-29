@@ -1,26 +1,20 @@
 package ui.recording;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.ImageIcon;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.SwingWorker;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-
 import data.Title;
 import utils.ArtworkRoll;
 
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import java.awt.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class TitleBarView extends JPanel {
-	private static final long serialVersionUID = -6719505254196147245L;
-	
+	private static final Logger LOGGER = Logger.getLogger(TitleBarView.class.getName());
 	private JList<Title> _titleList = new JList<Title>();
 	private ArtworkRoll _artworkRoll = new ArtworkRoll();
 	
@@ -29,6 +23,7 @@ public class TitleBarView extends JPanel {
 	public TitleBarView() {
 		_titleList.setSelectionBackground(Color.DARK_GRAY);
 		_titleList.addListSelectionListener(_onListSelectionChanged);
+		_titleList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 				
 		setLayout(new BorderLayout());
 		setPreferredSize(_titleArtworkDimension);
@@ -69,7 +64,7 @@ public class TitleBarView extends JPanel {
 				try {
 					titles = Title.get_titles();
 				} catch (IOException e) {
-					e.printStackTrace();
+					LOGGER.log(Level.SEVERE, e.toString(), e);
 					titles = new ArrayList<Title>();
 				}
 				
@@ -82,7 +77,7 @@ public class TitleBarView extends JPanel {
 			    try {
 			    	titles = get();
 			    } catch (Exception e) {
-			    	e.printStackTrace();
+					LOGGER.log(Level.SEVERE, e.toString(), e);
 			    }
 			    
 			    if (titles != null && !titles.isEmpty()) {
@@ -123,7 +118,7 @@ public class TitleBarView extends JPanel {
 							_artworkRoll.setArtwork(artwork);
 						}
 					} catch (Exception e) {
-						e.printStackTrace();
+						LOGGER.log(Level.SEVERE, e.toString(), e);
 					}
 				}
 			};

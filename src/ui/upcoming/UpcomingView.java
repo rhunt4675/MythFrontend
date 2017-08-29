@@ -1,26 +1,23 @@
 package ui.upcoming;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.io.IOException;
-import java.util.List;
-
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingWorker;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.table.DefaultTableModel;
-
 import data.UpcomingList;
 import ui.ContentView;
 import ui.MainFrame;
 
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.io.IOException;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class UpcomingView extends ContentView implements ListSelectionListener, KeyListener {
-	private static final long serialVersionUID = -7264563780524135180L;
+	private static final Logger LOGGER = Logger.getLogger(UpcomingView.class.getName());
 	private JTable _upcomingListByDay = new JTable();
 	
 	public UpcomingView() {
@@ -52,7 +49,6 @@ public class UpcomingView extends ContentView implements ListSelectionListener, 
 				try {
 					List<UpcomingList> upcominglist = UpcomingList.get_upcoming_by_day();
 					model = new DefaultTableModel() {
-						private static final long serialVersionUID = -2950671252908293184L;
 						@Override public Class<?> getColumnClass(int columnIndex) {
 							return UpcomingList.class;
 						}
@@ -60,7 +56,7 @@ public class UpcomingView extends ContentView implements ListSelectionListener, 
 					
 					model.addColumn(null, upcominglist.toArray(new UpcomingList[0]));
 				} catch (IOException e) {
-					e.printStackTrace();
+					LOGGER.log(Level.SEVERE, e.toString(), e);
 					model = null;
 				}
 				
@@ -74,7 +70,7 @@ public class UpcomingView extends ContentView implements ListSelectionListener, 
 			    	if (model != null) _upcomingListByDay.setModel(model);
 			    } catch (InterruptedException ignore) {
 			    } catch (java.util.concurrent.ExecutionException e) {
-		            e.printStackTrace();
+		            LOGGER.log(Level.SEVERE, e.toString(), e);
 			    }
 			}
 		};

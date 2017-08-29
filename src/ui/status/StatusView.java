@@ -1,29 +1,19 @@
 package ui.status;
 
-import java.awt.BorderLayout;
-import java.awt.Font;
-import java.util.Arrays;
-
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.DefaultListModel;
-import javax.swing.GroupLayout;
-import javax.swing.JEditorPane;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.SwingWorker;
-
 import data.Encoder;
 import data.MachineInfo.StorageGroup;
 import data.Status;
 import data.StatusProgram;
 import ui.ContentView;
 
+import javax.swing.*;
+import java.awt.*;
+import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class StatusView extends ContentView {
-	private static final long serialVersionUID = 1560578633736651326L;
+	private static final Logger LOGGER = Logger.getLogger(StatusView.class.getName());
 	private JList<StatusProgram> _scheduledProgramList;
 	private JList<Encoder> _encoderList;
 	
@@ -44,7 +34,7 @@ public class StatusView extends ContentView {
 					get();
 					generateLayout();
 				} catch (Exception e) {
-					e.printStackTrace();
+					LOGGER.log(Level.SEVERE, e.toString(), e);
 				}
 			}
 		};

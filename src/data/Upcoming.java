@@ -1,20 +1,21 @@
 package data;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.List;
-
 import java.util.ArrayList;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Upcoming extends Program {
-	
+	private static final Logger LOGGER = Logger.getLogger(Upcoming.class.getName());
 	private Rule _rule;
 	
 	public static List<Upcoming> get_upcoming() throws IOException {
@@ -37,7 +38,7 @@ public class Upcoming extends Program {
 				upcomings.add(new Upcoming(programs.getJSONObject(i)));
 			}
 		} catch (JSONException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.toString(), e);
 		}
 		
 		return upcomings;
@@ -78,7 +79,7 @@ public class Upcoming extends Program {
 			updateProgram(this, matchingschedule);
 			_rule = Rule.get_rule(get_recordid());
 		} catch (JSONException e) {
-			e.printStackTrace();
+
 		}
 	}
 	
@@ -117,12 +118,12 @@ public class Upcoming extends Program {
 					break;
 				} catch (IOException e) {
 				} catch (InterruptedException e) {
-					e.printStackTrace();
+					LOGGER.log(Level.SEVERE, e.toString(), e);
 				}
 			}
 			refresh();
 		} catch (JSONException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.toString(), e);
 		}
 	}
 
@@ -139,7 +140,7 @@ public class Upcoming extends Program {
 				break;
 			} catch (IOException e) {
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				LOGGER.log(Level.SEVERE, e.toString(), e);
 			}
 		}
 

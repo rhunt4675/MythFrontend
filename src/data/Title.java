@@ -1,25 +1,22 @@
 package data;
 
-import java.awt.Dimension;
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-
-import javax.swing.ImageIcon;
-
+import data.Recording.RecordingChangedEventListener;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import data.Recording.RecordingChangedEventListener;
+import javax.swing.*;
+import java.awt.*;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.*;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Title {
-	
+	private static final Logger LOGGER = Logger.getLogger(Title.class.getName());
+
 	public static List<Title> get_titles() throws IOException {
 		Map<String, Title> titles = new TreeMap<String, Title>();
 		String url = "/Dvr/GetTitleInfoList";
@@ -41,7 +38,7 @@ public class Title {
 				titles.put(title.get_title(), title);
 			}
 		} catch (JSONException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.toString(), e);
 		}
 		 
 		return new ArrayList<Title>(titles.values());

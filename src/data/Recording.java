@@ -1,6 +1,13 @@
 package data;
 
-import java.awt.Dimension;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import trakt.TraktSource;
+import ui.ExternalPlayer;
+
+import javax.swing.*;
+import java.awt.*;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.time.LocalDateTime;
@@ -8,18 +15,11 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import trakt.TraktSource;
-import ui.ExternalPlayer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Recording extends Program {
+	private static final Logger LOGGER = Logger.getLogger(Recording.class.getName());
 	public enum Artwork {FANART, COVERART, BANNER, PREVIEW};
 	
 	private List<RecordingChangedEventListener> _recordingListeners = new ArrayList<RecordingChangedEventListener>();
@@ -59,7 +59,7 @@ public class Recording extends Program {
 				recordings.add(new Recording(programs.getJSONObject(i)));
 			}
 		} catch (JSONException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.toString(), e);
 		}
 		
 		return recordings;
@@ -76,7 +76,7 @@ public class Recording extends Program {
 			
 			updateProgram(this, program);
 		} catch (JSONException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.toString(), e);
 		}
 	}
 	
@@ -111,10 +111,8 @@ public class Recording extends Program {
 				listener.onRecordingWatched(this);
 				listener.onRecordingDeleted(this);
 			}
-		} catch (JSONException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+		} catch (JSONException | InterruptedException e) {
+			LOGGER.log(Level.SEVERE, e.toString(), e);
 		}
 	}
 	
@@ -166,7 +164,7 @@ public class Recording extends Program {
 						"/episodes/" + get_episode(), authCode);
 				_traktId = (new JSONObject(episode)).getJSONObject("ids").getLong("trakt");
 			} catch (IOException | JSONException e) {
-				e.printStackTrace();
+				LOGGER.log(Level.SEVERE, e.toString(), e);
 			}
 		}
 		return _traktId;

@@ -1,20 +1,19 @@
 package data;
 
-import java.io.IOException;
-import java.time.DateTimeException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import java.io.IOException;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public abstract class Program {
+	private static final Logger LOGGER = Logger.getLogger(Program.class.getName());
 	protected abstract void refresh() throws IOException; 
 	
 	protected Program(JSONObject program_json) throws JSONException {
@@ -197,7 +196,7 @@ public abstract class Program {
 			program._endtime = LocalDateTime.parse(program_json.getString("EndTime").replaceFirst(".$",  "")).atZone(ZoneOffset.UTC);
 			program._airdate = LocalDate.parse(program_json.getString("Airdate"), DateTimeFormatter.ISO_LOCAL_DATE);
 		} catch (DateTimeException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.toString(), e);
 		}
 	}
 	
@@ -231,7 +230,7 @@ public abstract class Program {
 					program._channel = Channel.get_channel(Integer.parseInt(
 							channelNamedNodeMap.getNamedItem("chanId").getNodeValue()));
 				} catch (IOException e) {
-					e.printStackTrace();
+					LOGGER.log(Level.SEVERE, e.toString(), e);
 				}
 			}
 			
