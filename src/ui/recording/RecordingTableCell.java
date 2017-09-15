@@ -20,16 +20,17 @@ public class RecordingTableCell extends JPanel {
 	private static final Dimension _previewDimension = new Dimension((RecordingRenderer._unselectedCellHeight * 16) / 9, RecordingRenderer._unselectedCellHeight);
 	private static final Dimension _bannerDimension = new Dimension(0, RecordingRenderer._unselectedCellHeight);
 	private static final Dimension _channelDimension = new Dimension(0, RecordingRenderer._channelIconHeight);
+	private static final Dimension _traktDimension = new Dimension(0, 20);
 	private static final Set<String> _requests = new HashSet<>();
 	
 	// Recording Data
 	private Recording _r;
-	private ImageIcon _channelIcon, _previewIcon, _bannerIcon;
+	private ImageIcon _channelIcon, _previewIcon, _bannerIcon, _traktIcon;
 	
 	// Layout Containers
 	private JTextArea _subtitle, _description;
 	private JLabel _channel, _channame;
-	private JPanel _preview, _banner;
+	private JPanel _preview, _banner, _traktLogo, _subtitlecontainer;
 	private Box _textcontent;
 	
 	// Default Coloring Reference Object
@@ -37,6 +38,13 @@ public class RecordingTableCell extends JPanel {
 	
 	public RecordingTableCell(Recording r) {
 		_r = r;
+
+		// Artwork Containers
+		_preview = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+		_preview.add(Box.createRigidArea(_previewDimension));
+		_banner = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+		_traktLogo = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		_traktLogo.add(Box.createRigidArea(_traktDimension));
 		
 		// Subtitle
 		_subtitle = new JTextArea();
@@ -47,6 +55,12 @@ public class RecordingTableCell extends JPanel {
 		_subtitle.setBackground(label.getBackground());
 		_subtitle.setForeground(label.getForeground());
 		_subtitle.setOpaque(label.isOpaque());
+
+		// Subtitle Container
+		_subtitlecontainer = new JPanel(new BorderLayout());
+		_subtitlecontainer.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 5));
+		_subtitlecontainer.add(_traktLogo, BorderLayout.EAST);
+		_subtitlecontainer.add(_subtitle, BorderLayout.CENTER);
 
 		// Description
 		_description = new JTextArea();
@@ -68,7 +82,7 @@ public class RecordingTableCell extends JPanel {
 		// Text Content Container
 		_textcontent = Box.createVerticalBox();
 		_textcontent.add(Box.createVerticalStrut(10));
-		_textcontent.add(_subtitle);
+		_textcontent.add(_subtitlecontainer);
 		_textcontent.add(_description);
 		_textcontent.add(Box.createGlue());
 		
@@ -78,11 +92,6 @@ public class RecordingTableCell extends JPanel {
 		programContent.setBackground(Color.WHITE);
 		programContent.add(_channel);
 		programContent.add(_channame);
-		
-		// Artwork Containers
-		_preview = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-		_preview.add(Box.createRigidArea(_previewDimension));
-		_banner = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
 		
 		// Master Container
 		JPanel content = new JPanel(new BorderLayout());
@@ -97,14 +106,17 @@ public class RecordingTableCell extends JPanel {
 	
 	public void update(boolean isSelected, boolean isHovered, boolean hasFocus, JTable table, int row, int column) {
 		// Subtitle
-		_subtitle.setText(((_r.get_season() != 0 && _r.get_episode() != 0) 
-				? (_r.get_season() + "x" + String.format("%02d - ",_r.get_episode())) : " ")
-				+ (_r.get_subtitle().isEmpty() ? _r.get_title() : _r.get_subtitle())
-				+ (_r.get_trakt_watched() ? " *** " : ""));
+		_subtitle.setText(((_r.get_season() != 0 && _r.get_episode() != 0)
+				? (_r.get_season() + "x" + String.format("%02d - ", _r.get_episode())) : " ")
+				+ (_r.get_subtitle().isEmpty() ? _r.get_title() : _r.get_subtitle()));
 		_subtitle.setFont(new Font("Arial", _r.is_watched() ? Font.PLAIN : Font.BOLD, 18));
-		
+		if (_r.is_episode_watched_trakt() && _traktIcon == null) {
+			_traktIcon = new ImageIcon(getClass().getResource("/res/trakt.jpg"));
+			_traktLogo.removeAll(); _traktLogo.add(new JLabel(_traktIcon));
+		}
+
 		// Description
-		_description.setText(_r.get_description() + "\n\n" 
+		_description.setText(_r.get_description() + "\n\n"
 				+ "\t(" + _r.get_starttime().withZoneSameInstant(ZoneId.systemDefault()).
 				format(DateTimeFormatter.ofPattern("h:mm a EEEE, MMM d, uuuu")) +
 				"\t" + _r.get_filesize() + "B)");

@@ -1,6 +1,7 @@
 package trakt;
 
 import data.Recording;
+import data.Title;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,6 +13,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,7 +35,7 @@ public class TraktManager {
 
 	private static String _code = null;
 
-	public static boolean isEpisodeWatched(Recording recording) {
+	/*public static boolean isEpisodeWatched(Recording recording) {
 		// Acquire Prerequisites
 		String code = getCode(false);
 		if (code == null) return false;
@@ -48,27 +54,48 @@ public class TraktManager {
 		}
 
 		return false;
+	}*/
+
+	public static Map<Integer, Set<Integer>> getSeasonProgress(Title title) {
+		// Acquire Prerequisites
+		Map<Integer, Set<Integer>> result = new HashMap<>();
+		String code = getCode(false);
+		if (code == null) return result;
+		Long traktId = getShowTraktId(title.get_title(), code);
+		if (traktId == null) return result;
+
+		// Ask Trakt
+		try {
+			String rawResponse = TraktSource.doGet("sync/history/shows/" + traktId + "?limit=1000", code);
+			JSONArray response = new JSONArray(rawResponse);
+			for (int i = 0; i < response.length(); i++) {
+				int season = response.getJSONObject(i).getJSONObject("episode").getInt("season");
+				int episode = response.getJSONObject(i).getJSONObject("episode").getInt("number");
+				if (!result.containsKey(season))
+					result.put(season, new HashSet<>());
+				result.get(season).add(episode);
+			}
+		} catch (IOException | JSONException e) {
+			LOGGER.log(Level.SEVERE, "Get Show History Failed: " + e.getMessage(), e);
+		}
+		return result;
 	}
 
-	/*private static Integer getShowTraktId(String title) {
-		// Acquire Prerequisites
-		String code = getCode(false);
-		if (code == null) return null;
-
+	private static Long getShowTraktId(String title, String code) {
 		// Ask Trakt
 		try {
 			String result = TraktSource.doGet("search/show?query=" + URLEncoder.encode(title, "UTF-8") + "&limit=1000", code);
 			JSONArray response = new JSONArray(result);
 			for (int i = 0; i < response.length(); i++) // Sorted by Likelihood
 				if (((JSONObject) response.get(i)).getString("type").equals("show"))
-					return ((JSONObject) response.get(i)).getJSONObject("show").getJSONObject("ids").getInt("trakt");
+					return ((JSONObject) response.get(i)).getJSONObject("show").getJSONObject("ids").getLong("trakt");
 		} catch (IOException | JSONException e) {
 			LOGGER.log(Level.SEVERE, "Get Show ID Failed: " + e.getMessage(), e);
 		}
 
 		// Failure
 		return null;
-	}*/
+	}
 	
 	public static void notifyPlay(Recording r) {
 		// Acquire Prerequisites

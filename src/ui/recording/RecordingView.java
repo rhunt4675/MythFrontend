@@ -312,6 +312,9 @@ public class RecordingView extends ContentView {
 							LOGGER.log(Level.SEVERE, e.toString(), e);
 							model = null;
 						}
+
+						/* Get Trakt Progress */
+						selected.download_trakt_progress();
 					}
 					
 					publish(model);

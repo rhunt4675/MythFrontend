@@ -4,6 +4,7 @@ import data.Recording.RecordingChangedEventListener;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import trakt.TraktManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,6 +17,7 @@ import java.util.logging.Logger;
 
 public class Title {
 	private static final Logger LOGGER = Logger.getLogger(Title.class.getName());
+	private Map<Integer, Set<Integer>> _watched = new HashMap<>();
 
 	public static List<Title> get_titles() throws IOException {
 		Map<String, Title> titles = new TreeMap<>();
@@ -45,7 +47,7 @@ public class Title {
 	}
 	
 	public List<Recording> get_recordings(int count, int startIndex) throws IOException {
-		List<Recording> result = Recording.get_recordings(_title, count, startIndex);
+		List<Recording> result = Recording.get_recordings(this, count, startIndex);
 		
 		// Add All Recordings to Tracker Sets
 		for (Recording recording : result) {
@@ -92,6 +94,22 @@ public class Title {
 			coverarts.add(new ImageIcon(getClass().getResource("/res/coverart.jpg")));
 			
 		return coverarts;
+	}
+
+	public boolean is_episode_watched_trakt(Recording recording) {
+		// Check if Recording Matches Title
+		if (recording.get_parent_title() != this)
+			return false;
+
+		// Check Watched Map
+		if (_watched.containsKey(recording.get_season()) && _watched.get(recording.get_season()).contains(recording.get_episode()))
+			return true;
+		else
+			return false;
+	}
+
+	public void download_trakt_progress() {
+		_watched = TraktManager.getSeasonProgress(this);
 	}
 	
 	@Override

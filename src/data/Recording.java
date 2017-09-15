@@ -3,7 +3,6 @@ package data;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import trakt.TraktManager;
 import trakt.TraktSource;
 import ui.ExternalPlayer;
 
@@ -21,25 +20,22 @@ import java.util.logging.Logger;
 
 public class Recording extends Program {
 	private static final Logger LOGGER = Logger.getLogger(Recording.class.getName());
-	public enum Artwork {FANART, COVERART, BANNER, PREVIEW};
+	public enum Artwork {FANART, COVERART, BANNER, PREVIEW}
 	
-	private List<RecordingChangedEventListener> _recordingListeners = new ArrayList<RecordingChangedEventListener>();
+	private List<RecordingChangedEventListener> _recordingListeners = new ArrayList<>();
+	private Title _title;
 	private ExternalPlayer _player;
 	private Long _traktId;
 	private boolean _traktWatched;
 	
 	private ZonedDateTime _startts;
 	private ZonedDateTime _endts;
-	
-	public static List<Recording> get_recordings() throws IOException {
-		return get_recordings("", 0, 0);
-	}
-	
-	public static List<Recording> get_recordings(String title_regex, int count, int startindex) throws IOException {
-		List<Recording> recordings = new ArrayList<Recording>();
+
+	public static List<Recording> get_recordings(Title title, int count, int startindex) throws IOException {
+		List<Recording> recordings = new ArrayList<>();
 		
 		/* ESCAPE MYTHTV's REGEX CHARACTERS MANUALLY */
-		String param = URLEncoder.encode(title_regex, "UTF-8");
+		String param = URLEncoder.encode(title.get_title(), "UTF-8");
 		param = param.replaceAll("%28", "%5C%28"); // Escape '('
 		param = param.replaceAll("%29", "%5C%29"); // Escape ')'
 		String url = "/Dvr/GetRecordedList?Descending=true&TitleRegEx=" + param 
@@ -58,7 +54,7 @@ public class Recording extends Program {
 			
 			JSONArray programs = list.getJSONArray("Programs");
 			for (int i = 0; i < programs.length(); i++) {
-				recordings.add(new Recording(programs.getJSONObject(i)));
+				recordings.add(new Recording(programs.getJSONObject(i), title));
 			}
 		} catch (JSONException e) {
 			LOGGER.log(Level.SEVERE, e.toString(), e);
@@ -102,7 +98,7 @@ public class Recording extends Program {
 		try {
 			while (true) {
 				String status = Source.http_post(url);
-				if ((new JSONObject(status)).getBoolean("bool") == false) 
+				if (!(new JSONObject(status)).getBoolean("bool"))
 					break;
 				
 				Thread.sleep(100);
@@ -140,14 +136,10 @@ public class Recording extends Program {
 		refresh();
 	}
 
-	public void mark_trakt_watched() {
-		_traktWatched = true;
+	public boolean is_episode_watched_trakt() {
+		return _title.is_episode_watched_trakt(this);
 	}
 
-	public boolean get_trakt_watched() {
-		return _traktWatched;
-	}
-	
 	public void toggle_watched() throws IOException {
 		mark_watched(!is_watched());
 	}
@@ -178,6 +170,10 @@ public class Recording extends Program {
 			}
 		}
 		return _traktId;
+	}
+
+	public Title get_parent_title() {
+		return _title;
 	}
 	
 	public void addRecordingChangedEventListener(RecordingChangedEventListener listener) {
@@ -222,12 +218,12 @@ public class Recording extends Program {
 		return _endts;
 	}
 		
-	private Recording(JSONObject recording_json) throws JSONException {
+	private Recording(JSONObject recording_json, Title title) throws JSONException {
 		super(recording_json);
 		
 		_startts = LocalDateTime.parse(recording_json.getJSONObject("Recording").getString("StartTs").replaceFirst(".$", "")).atZone(ZoneOffset.UTC);
 		_endts = LocalDateTime.parse(recording_json.getJSONObject("Recording").getString("EndTs").replaceFirst(".$", "")).atZone(ZoneOffset.UTC);
-		_traktWatched = TraktManager.isEpisodeWatched(this);
+		_title = title;
 	}
 	
 	public interface RecordingChangedEventListener {
