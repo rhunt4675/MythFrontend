@@ -98,23 +98,24 @@ public class RulePopup extends JPopupMenu {
 		_deleterule.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				JTable table = (JTable) ((JPopupMenu)((JMenuItem) e.getSource()).getParent()).getInvoker();
+				int row = table.getSelectedRow();
+				int column = table.getSelectedColumn();
+
+				((DefaultTableModel) table.getModel()).removeRow(table.convertRowIndexToModel(row));
+				((DefaultTableModel) table.getModel()).fireTableDataChanged();
+
 				SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 					@Override
 					protected Void doInBackground() throws Exception {
-						JTable table = (JTable) ((JPopupMenu)((JMenuItem) e.getSource()).getParent()).getInvoker();
-						int row = table.getSelectedRow();
-						int column = table.getSelectedColumn();
-						
 						try {
 							((Rule) table.getValueAt(row, column)).delete();
-							((DefaultTableModel) table.getModel()).removeRow(row);
-							((DefaultTableModel) table.getModel()).fireTableRowsDeleted(row, row);
 						} catch (IOException e) {
 							JOptionPane.showMessageDialog(null, "Delete failed!", "Delete Rule", JOptionPane.WARNING_MESSAGE);
 						}
-						
+
 						return null;
-					}	
+					}
 				};
 				
 				worker.execute();

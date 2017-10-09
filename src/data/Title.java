@@ -96,13 +96,13 @@ public class Title {
 		return coverarts;
 	}
 
-	public boolean is_episode_watched_trakt(Recording recording) {
-		// Check if Recording Matches Title
-		if (recording.get_parent_title() != this)
+	public boolean is_episode_watched_trakt(Program program) {
+		// Check if Program Matches Title
+		if (!program.get_title().equals(_title))
 			return false;
 
 		// Check Watched Map
-		if (_watched.containsKey(recording.get_season()) && _watched.get(recording.get_season()).contains(recording.get_episode()))
+		if (_watched.containsKey(program.get_season()) && _watched.get(program.get_season()).contains(program.get_episode()))
 			return true;
 		else
 			return false;

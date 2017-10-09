@@ -38,6 +38,16 @@ public class TitleBarView extends JPanel {
 	public int getSelectedTitleIndex() {
 		return _titleList.getSelectedIndex();
 	}
+
+	public void deleteSelectedTitle() {
+		int selectionIndex = _titleList.getSelectedIndex();
+		deleteTitle(selectionIndex);
+	}
+
+	public void deleteTitle(int index) {
+		_titleList.remove(index);
+		_titleList.setSelectedIndex(Math.max(0, index - 1));
+	}
 	
 	public void updateSelectedTitle() {
 		int selectionIndex = _titleList.getSelectedIndex();

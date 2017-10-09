@@ -164,14 +164,9 @@ public class RecordingView extends ContentView {
 				
 				try {
 					r.delete(allow_rerecord);
-					_titleBarView.updateSelectedTitle();
-					
-					if (_recordingTable.getRowCount() == 0) {
-						_refreshButton.doClick();
-					} else {
-						_recordingTable.getSelectionModel().setSelectionInterval(0, row - 1);
-						_recordingTable.getSelectionModel().setSelectionInterval(0, 0);
-					}
+					_titleBarView.deleteSelectedTitle();
+					_recordingTable.getSelectionModel().setSelectionInterval(0, row - 1);
+					_recordingTable.getSelectionModel().setSelectionInterval(0, 0);
 				} catch (IOException e) {
 					JOptionPane.showMessageDialog(null, "Delete failed!", "Delete Recording", JOptionPane.WARNING_MESSAGE);
 				} catch (Exception e) {
